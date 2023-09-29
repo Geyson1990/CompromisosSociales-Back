@@ -1,0 +1,7 @@
+﻿namespace Contable.MultiTenancy.Dto
+{
+    public class PaymentInfoInput
+    {
+        public int? UpgradeEditionId { get; set; }
+    }
+}

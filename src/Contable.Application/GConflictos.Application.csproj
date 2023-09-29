@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\common.props"></Import>
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+    <AssemblyName>Contable.Application</AssemblyName>
+    <PackageId>Contable.Application</PackageId>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <RootNamespace>Contable</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Application\qozfj3jo.e0o~" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Abp.AspNetCore" Version="5.9.0" />
+    <PackageReference Include="Abp.EntityFrameworkCore.EFPlus" Version="5.9.0" />
+    <PackageReference Include="NPOI" Version="2.5.1" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.*" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.*" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.*" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contable.Application.Shared\GConflictos.Application.Shared.csproj" />
+    <ProjectReference Include="..\Contable.Core\GConflictos.Core.csproj" />
+    <ProjectReference Include="..\Contable.EntityFrameworkCore\GConflictos.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+</Project>

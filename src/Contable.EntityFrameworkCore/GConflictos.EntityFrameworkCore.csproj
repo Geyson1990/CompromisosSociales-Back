@@ -1,0 +1,185 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\common.props"></Import>
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssetTargetFallback>$(AssetTargetFallback);portable-net45+win8+wp8+wpa81;</AssetTargetFallback>
+    <RootNamespace>Contable</RootNamespace>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Migrations\20200305145558_Add_Dynamic_Entity_Parameters.cs" />
+    <Compile Remove="Migrations\20200305145558_Add_Dynamic_Entity_Parameters.Designer.cs" />
+    <Compile Remove="Migrations\20210204235611_actas3.cs" />
+    <Compile Remove="Migrations\20210204235611_actas3.Designer.cs" />
+    <Compile Remove="Migrations\20210205001904_actas.cs" />
+    <Compile Remove="Migrations\20210205001904_actas.Designer.cs" />
+    <Compile Remove="Migrations\20210205002328_actas.cs" />
+    <Compile Remove="Migrations\20210205002328_actas.Designer.cs" />
+    <Compile Remove="Migrations\20210205034813_actas2.cs" />
+    <Compile Remove="Migrations\20210205034813_actas2.Designer.cs" />
+    <Compile Remove="Migrations\20210205035125_actas3.cs" />
+    <Compile Remove="Migrations\20210205035125_actas3.Designer.cs" />
+    <Compile Remove="Migrations\20210205035850_actas.cs" />
+    <Compile Remove="Migrations\20210205035850_actas.Designer.cs" />
+    <Compile Remove="Migrations\20210205042110_actas.cs" />
+    <Compile Remove="Migrations\20210205042110_actas.Designer.cs" />
+    <Compile Remove="Migrations\20210205214149_add-territorial-units-fix.cs" />
+    <Compile Remove="Migrations\20210205214149_add-territorial-units-fix.Designer.cs" />
+    <Compile Remove="Migrations\20210206035316_social-conflict-locations-fix-3.cs" />
+    <Compile Remove="Migrations\20210206035316_social-conflict-locations-fix-3.Designer.cs" />
+    <Compile Remove="Migrations\20210208051833_add-record-resources-fix.cs" />
+    <Compile Remove="Migrations\20210208051833_add-record-resources-fix.Designer.cs" />
+    <Compile Remove="Migrations\20210208183025_add-parameter.cs" />
+    <Compile Remove="Migrations\20210208183025_add-parameter.Designer.cs" />
+    <Compile Remove="Migrations\20210208183819_add-parameter.cs" />
+    <Compile Remove="Migrations\20210208183819_add-parameter.Designer.cs" />
+    <Compile Remove="Migrations\20210208204759_add-parameter.cs" />
+    <Compile Remove="Migrations\20210208204759_add-parameter.Designer.cs" />
+    <Compile Remove="Migrations\20210208205525_add-parameter.cs" />
+    <Compile Remove="Migrations\20210208205525_add-parameter.Designer.cs" />
+    <Compile Remove="Migrations\20210208210636_add-parameter.cs" />
+    <Compile Remove="Migrations\20210208210636_add-parameter.Designer.cs" />
+    <Compile Remove="Migrations\20210209150241_add-compromise.cs" />
+    <Compile Remove="Migrations\20210209150241_add-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210209150515_add-compromise.cs" />
+    <Compile Remove="Migrations\20210209150515_add-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210210103745_fix-compromise.cs" />
+    <Compile Remove="Migrations\20210210103745_fix-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210210105929_fix-compromise.cs" />
+    <Compile Remove="Migrations\20210210105929_fix-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210210110027_fix-compromise.cs" />
+    <Compile Remove="Migrations\20210210110027_fix-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210210113425_add-compromise.cs" />
+    <Compile Remove="Migrations\20210210113425_add-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210215030551_add-record-title.cs" />
+    <Compile Remove="Migrations\20210215030551_add-record-title.Designer.cs" />
+    <Compile Remove="Migrations\20210215220404_heider-fix.cs" />
+    <Compile Remove="Migrations\20210215220404_heider-fix.Designer.cs" />
+    <Compile Remove="Migrations\20210215230829_fix-situation.cs" />
+    <Compile Remove="Migrations\20210215230829_fix-situation.Designer.cs" />
+    <Compile Remove="Migrations\20210218041552_fix-task.cs" />
+    <Compile Remove="Migrations\20210218041552_fix-task.Designer.cs" />
+    <Compile Remove="Migrations\20210220172046_fix-socialconflict.cs" />
+    <Compile Remove="Migrations\20210220172046_fix-socialconflict.Designer.cs" />
+    <Compile Remove="Migrations\20210220172301_update-models.cs" />
+    <Compile Remove="Migrations\20210220172301_update-models.Designer.cs" />
+    <Compile Remove="Migrations\20210223135725_initial-migration.cs" />
+    <Compile Remove="Migrations\20210223135725_initial-migration.Designer.cs" />
+    <Compile Remove="Migrations\20210227203636_fix-pip.cs" />
+    <Compile Remove="Migrations\20210227203636_fix-pip.Designer.cs" />
+    <Compile Remove="Migrations\20210227204201_initial-migration.cs" />
+    <Compile Remove="Migrations\20210227204201_initial-migration.Designer.cs" />
+    <Compile Remove="Migrations\20210227204516_fix-pip.cs" />
+    <Compile Remove="Migrations\20210227204516_fix-pip.Designer.cs" />
+    <Compile Remove="Migrations\20210227204742_initial-migration.cs" />
+    <Compile Remove="Migrations\20210227204742_initial-migration.Designer.cs" />
+    <Compile Remove="Migrations\20210228235822_add-taskmanagement-title.cs" />
+    <Compile Remove="Migrations\20210228235822_add-taskmanagement-title.Designer.cs" />
+    <Compile Remove="Migrations\20210301042434_add-taskmanagement-user.cs" />
+    <Compile Remove="Migrations\20210301042434_add-taskmanagement-user.Designer.cs" />
+    <Compile Remove="Migrations\20210302132156_add-compromise-fix-length.cs" />
+    <Compile Remove="Migrations\20210302132156_add-compromise-fix-length.Designer.cs" />
+    <Compile Remove="Migrations\20210302201119_fix.cs" />
+    <Compile Remove="Migrations\20210302201119_fix.Designer.cs" />
+    <Compile Remove="Migrations\20210302233328_initial.cs" />
+    <Compile Remove="Migrations\20210302233328_initial.Designer.cs" />
+    <Compile Remove="Migrations\20210303224903_initial.cs" />
+    <Compile Remove="Migrations\20210303224903_initial.Designer.cs" />
+    <Compile Remove="Migrations\20210305164937_initial.cs" />
+    <Compile Remove="Migrations\20210305164937_initial.Designer.cs" />
+    <Compile Remove="Migrations\20210307210945_fix-location-location.cs" />
+    <Compile Remove="Migrations\20210307210945_fix-location-location.Designer.cs" />
+    <Compile Remove="Migrations\20210308023346_fix-location.cs" />
+    <Compile Remove="Migrations\20210308023346_fix-location.Designer.cs" />
+    <Compile Remove="Migrations\20210312040356_initial.cs" />
+    <Compile Remove="Migrations\20210312040356_initial.Designer.cs" />
+    <Compile Remove="Migrations\20210312041653_initial.cs" />
+    <Compile Remove="Migrations\20210312041653_initial.Designer.cs" />
+    <Compile Remove="Migrations\20210317002816_fix.cs" />
+    <Compile Remove="Migrations\20210317002816_fix.Designer.cs" />
+    <Compile Remove="Migrations\20210318130839_store-procedures.cs" />
+    <Compile Remove="Migrations\20210318130839_store-procedures.Designer.cs" />
+    <Compile Remove="Migrations\20210318131017_fixdb.cs" />
+    <Compile Remove="Migrations\20210318131017_fixdb.Designer.cs" />
+    <Compile Remove="Migrations\20210318131353_store-procedure.cs" />
+    <Compile Remove="Migrations\20210318131353_store-procedure.Designer.cs" />
+    <Compile Remove="Migrations\20210318131441_storeprocedure.cs" />
+    <Compile Remove="Migrations\20210318131441_storeprocedure.Designer.cs" />
+    <Compile Remove="Migrations\20210318195421_initial.cs" />
+    <Compile Remove="Migrations\20210318195421_initial.Designer.cs" />
+    <Compile Remove="Migrations\20210409150643_fix-compromise.cs" />
+    <Compile Remove="Migrations\20210409150643_fix-compromise.Designer.cs" />
+    <Compile Remove="Migrations\20210419071048_add-fix-pip-optional-pips.cs" />
+    <Compile Remove="Migrations\20210419071048_add-fix-pip-optional-pips.Designer.cs" />
+    <Compile Remove="Migrations\20220414232845_add-calification-levels.cs" />
+    <Compile Remove="Migrations\20220414232845_add-calification-levels.Designer.cs" />
+    <Compile Remove="Migrations\20220414233150_add-alter-calification-levels.cs" />
+    <Compile Remove="Migrations\20220414233150_add-alter-calification-levels.Designer.cs" />
+    <Compile Remove="Migrations\20220424115348_add-prospective-risk-history.cs" />
+    <Compile Remove="Migrations\20220424115348_add-prospective-risk-history.Designer.cs" />
+    <Compile Remove="Migrations\20220424162828_add-project-risk-history.cs" />
+    <Compile Remove="Migrations\20220424162828_add-project-risk-history.Designer.cs" />
+    <Compile Remove="Migrations\20220424163042_add-project-risk-history.cs" />
+    <Compile Remove="Migrations\20220424163042_add-project-risk-history.Designer.cs" />
+    <Compile Remove="Migrations\20220502003253_add-social-conflict-v2-fields-3.cs" />
+    <Compile Remove="Migrations\20220502003253_add-social-conflict-v2-fields-3.Designer.cs" />
+    <Compile Remove="Migrations\20220504221124_add-social-conflict-v2-fields-11.cs" />
+    <Compile Remove="Migrations\20220504221124_add-social-conflict-v2-fields-11.Designer.cs" />
+    <Compile Remove="Migrations\20220517001609_add-social-conflict-alert.cs" />
+    <Compile Remove="Migrations\20220517001609_add-social-conflict-alert.Designer.cs" />
+    <Compile Remove="Migrations\20220519032840_add-social-conflict-alert-aditional-information-2.cs" />
+    <Compile Remove="Migrations\20220519032840_add-social-conflict-alert-aditional-information-2.Designer.cs" />
+    <Compile Remove="Migrations\20220520203512_text-migration.cs" />
+    <Compile Remove="Migrations\20220520203512_text-migration.Designer.cs" />
+    <Compile Remove="Migrations\20220521000500_social-conflict-person-rol.cs" />
+    <Compile Remove="Migrations\20220521000500_social-conflict-person-rol.Designer.cs" />
+    <Compile Remove="Migrations\20220522215404_add-social-conflict-sugerence-accepted-TIME.cs" />
+    <Compile Remove="Migrations\20220522215404_add-social-conflict-sugerence-accepted-TIME.Designer.cs" />
+    <Compile Remove="Migrations\20220527145327_social-conflict-alert-position-interest-lenght.cs" />
+    <Compile Remove="Migrations\20220527145327_social-conflict-alert-position-interest-lenght.Designer.cs" />
+    <Compile Remove="Migrations\20220528015035_add-social-conflict-app-resources.cs" />
+    <Compile Remove="Migrations\20220528015035_add-social-conflict-app-resources.Designer.cs" />
+    <Compile Remove="Migrations\20220531024137_add-social-conflict-sensible-2.cs" />
+    <Compile Remove="Migrations\20220531024137_add-social-conflict-sensible-2.Designer.cs" />
+    <Compile Remove="Migrations\20220629135140_add-goverment.cs" />
+    <Compile Remove="Migrations\20220629135140_add-goverment.Designer.cs" />
+    <Compile Remove="Migrations\20220703175741_fix-social-conflict-tasks.cs" />
+    <Compile Remove="Migrations\20220703175741_fix-social-conflict-tasks.Designer.cs" />
+    <Compile Remove="Migrations\20220721012105_remove-tmr-add-sctm.cs" />
+    <Compile Remove="Migrations\20220721012105_remove-tmr-add-sctm.Designer.cs" />
+    <Compile Remove="Migrations\20220827225030_add-responsible-actor-types.cs" />
+    <Compile Remove="Migrations\20220827225030_add-responsible-actor-types.Designer.cs" />
+    <Compile Remove="Migrations\20220830234855_fix-responsible-compromises.cs" />
+    <Compile Remove="Migrations\20220830234855_fix-responsible-compromises.Designer.cs" />
+    <Compile Remove="Migrations\20220901161111_add-directory-government-types.cs" />
+    <Compile Remove="Migrations\20220901161111_add-directory-government-types.Designer.cs" />
+    <Compile Remove="Migrations\20220915214254_Add-Quiz-Form-And-Options.cs" />
+    <Compile Remove="Migrations\20220915214254_Add-Quiz-Form-And-Options.Designer.cs" />
+    <Compile Remove="Migrations\20221113104022_Add-Sector-Meet-Session-Persons.cs" />
+    <Compile Remove="Migrations\20221113104022_Add-Sector-Meet-Session-Persons.Designer.cs" />
+    <Compile Remove="Migrations\20221113104206_Add-Sector-Meet-Session-Person-And-PersonTime.cs" />
+    <Compile Remove="Migrations\20221113104206_Add-Sector-Meet-Session-Person-And-PersonTime.Designer.cs" />
+    <Compile Remove="Migrations\20221113104703_Add-Sector-Meet-Session-Person-And-PersonTime.cs" />
+    <Compile Remove="Migrations\20221113104703_Add-Sector-Meet-Session-Person-And-PersonTime.Designer.cs" />
+    <Compile Remove="Migrations\20221121132917_Add-Social-Conflict-Sensible-Last-Management-And-State.cs" />
+    <Compile Remove="Migrations\20221121132917_Add-Social-Conflict-Sensible-Last-Management-And-State.Designer.cs" />
+    <Compile Remove="Migrations\20221217125452_Add-Dialog-Space-Leader-And-Teans+.cs" />
+    <Compile Remove="Migrations\20221217125452_Add-Dialog-Space-Leader-And-Teans+.Designer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contable.Core\GConflictos.Core.csproj" />
+  </ItemGroup>
+</Project>

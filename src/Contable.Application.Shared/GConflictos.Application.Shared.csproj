@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\common.props"></Import>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>Contable</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Application\Actas\**" />
+    <Compile Remove="Application\Parameters\**" />
+    <EmbeddedResource Remove="Application\Actas\**" />
+    <EmbeddedResource Remove="Application\Parameters\**" />
+    <None Remove="Application\Actas\**" />
+    <None Remove="Application\Parameters\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Abp.Web.Common" Version="5.9.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contable.Core.Shared\GConflictos.Core.Shared.csproj" />
+  </ItemGroup>
+</Project>

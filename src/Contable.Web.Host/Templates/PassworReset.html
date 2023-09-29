@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TEMPLATE_TITLE}}</title>
+    <style>
+        body {
+            width: 100%;
+            background: white;
+            display: block;
+        }
+
+        .template-container {
+            width: 100%;
+            display: block;
+        }
+
+        .template-title {
+            font-size: 16px;
+        }
+
+        .template-username,
+        .template-emailaddress {
+            font-weight: 800;
+        }
+
+        .template-subtitle {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .template-code {
+            margin-top: 10px;
+            font-size: 22px;
+            font-weight: 900;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="template-container">
+        <div class="template-title">
+            Hola, <span class="template-username">{{USER_NAME}} {{USER_SURNAME}}</span>
+        </div>
+        <div class="template-subtitle">
+            Para recuperar el acceso a tu cuenta: <span class="template-emailaddress">{{USER_EMAIL_ADDRESS}}</span>
+        </div>
+        <div class="template-subtitle">
+            Ingresa el siguiente código en el navegador para recuperar el acceso a tu cuenta
+        </div>
+        <div class="template-code">
+            {{MAIL_RESET_CODE}}
+        </div>
+    </div>
+</body>
+
+</html>
