@@ -941,6 +941,7 @@ namespace Contable.Application
                     .Distinct()
                     .JoinAsString(", ");
 
+                ///TODO:JJARAMILLOR -> listar el array de linea de tiempo como string y con saltos de línea
                 compromiseItem.Timelines = compromise
                     .Timelines
                     .OrderBy(p => p.Phase.Order)
