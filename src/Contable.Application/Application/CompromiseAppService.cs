@@ -878,7 +878,7 @@ namespace Contable.Application
                     .LikeAllBidirectional(input.Filter.SplitByLike(), nameof(Compromise.Filter));
 
             var output = await query.OrderBy(input.Sorting).ToListAsync();
-
+                        
             var result = new List<CompromiseGetMatrixExcelDto>();
 
             foreach (var compromise in output)

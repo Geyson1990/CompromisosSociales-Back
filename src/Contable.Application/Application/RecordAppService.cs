@@ -106,7 +106,7 @@ namespace Contable.Application
                 var record = _recordRepository
                     .GetAll()
                     .Include(p => p.SocialConflict)
-                    .Include(p => p.Resources)
+                    .Include(p => p.Resources)  
                     .ThenInclude(p => p.RecordResourceType)
                     .Where(p => p.Id == input.Id)
                     .First();
