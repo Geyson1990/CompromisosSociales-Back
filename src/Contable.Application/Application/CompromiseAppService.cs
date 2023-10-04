@@ -174,7 +174,7 @@ namespace Contable.Application
                         .ThenInclude(p => p.Resource)
                     .Include(p => p.Status)
                     .Include(p => p.PIPMEF)
-                        .ThenInclude(p=>p.PIPMilestone)
+                        .ThenInclude(p => p.PIPMilestone)
                     .Include(p => p.PIPMEF)
                         .ThenInclude(p => p.PIPPhase)
                     .Include(p => p.Timelines)
@@ -305,7 +305,7 @@ namespace Contable.Application
                 .OrderBy(p => p.Name)
                 .ToListAsync());
 
-            foreach(var responsibleType in output.ResponsibleTypes)
+            foreach (var responsibleType in output.ResponsibleTypes)
             {
                 responsibleType.SubTypes = responsibleType.SubTypes.Where(p => p.Enabled).OrderBy(p => p.Name).ToList();
             }
@@ -314,6 +314,8 @@ namespace Contable.Application
                 .GetAll()
                 .Where(p => p.Enabled)
                 .ToListAsync());
+
+
 
             var states = await _compromiseStateRepository
                 .GetAll()
@@ -332,6 +334,9 @@ namespace Contable.Application
                 output.States.Add(newState);
             }
 
+            //output.TerritorialUnits = ObjectMapper.Map<List<CompromiseTerritorialUnitDto>>(_territorialUnitRepository
+            //        .GetAll()
+            //        .ToList());
 
             return output;
         }
@@ -405,19 +410,19 @@ namespace Contable.Application
                 .Where(p => p.Id == compromiseId)
                 .First();
 
-            if(compromise != null && compromise.Record != null && compromise.Record.SocialConflict != null)
+            if (compromise != null && compromise.Record != null && compromise.Record.SocialConflict != null)
                 await _compromiseLocationRepository.DeleteAsync(p => p.Compromise.Id == compromiseId && p.SocialConflictLocation.SocialConflict.Id != compromise.Record.SocialConflict.Id);
 
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
-        private async Task<Compromise> ValidateEntity(Compromise compromise, 
-            EntityDto<long> record, 
+        private async Task<Compromise> ValidateEntity(Compromise compromise,
+            EntityDto<long> record,
             EntityDto state,
             EntityDto label,
             EntityDto compromiseState,
             EntityDto compromiseSubState,
-            CompromiseUpdatePIPMEFDto pipmef, 
+            CompromiseUpdatePIPMEFDto pipmef,
             List<CompromiseLocationDto> compromiseLocations,
             EntityDto responsibleActor,
             EntityDto responsibleSubActor,
@@ -460,7 +465,7 @@ namespace Contable.Application
                 compromise.ResponsibleSubActor = null;
                 compromise.ResponsibleSubActorId = null;
             }
-                
+
             if (responsibleActor.Id <= 0)
             {
                 compromise.ResponsibleActor = null;
@@ -482,7 +487,7 @@ namespace Contable.Application
                 compromise.CompromiseState = dbCompromiseState;
                 compromise.CompromiseStateId = dbCompromiseState.Id;
 
-                if(compromiseSubState.Id > 0)
+                if (compromiseSubState.Id > 0)
                 {
                     var dbCompromiseSubState = _compromiseSubStateRepository
                         .GetAll()
@@ -521,7 +526,7 @@ namespace Contable.Application
 
                 compromise.CompromiseLabel = dbLabel;
                 compromise.CompromiseLabelId = dbLabel.Id;
-            } 
+            }
             else
             {
                 compromise.CompromiseLabel = null;
@@ -550,7 +555,7 @@ namespace Contable.Application
                 }
                 else
                 {
-                    if(responsible.Id <= 0)
+                    if (responsible.Id <= 0)
                     {
                         if (responsible.ResponsibleSubActor == null || responsible.ResponsibleSubActor.Id <= 0)
                         {
@@ -561,7 +566,7 @@ namespace Contable.Application
                                     .Where(p => p.Id == responsible.ResponsibleActor.Id)
                                     .FirstOrDefault();
 
-                                if (dbResponsibleActor!= null && compromise.CompromiseInvolveds.Count(p => p.ResponsibleActor.Id == responsible.Id) == 0)
+                                if (dbResponsibleActor != null && compromise.CompromiseInvolveds.Count(p => p.ResponsibleActor.Id == responsible.Id) == 0)
                                 {
                                     compromise.CompromiseInvolveds.Add(new CompromiseInvolved()
                                     {
@@ -589,8 +594,8 @@ namespace Contable.Application
 
                                 if (dbResponsibleActor != null && dbResponsibleSubActor != null && compromise
                                     .CompromiseInvolveds
-                                    .Count(p => p.ResponsibleActor.Id == responsible.Id && 
-                                                p.ResponsibleSubActor != null && 
+                                    .Count(p => p.ResponsibleActor.Id == responsible.Id &&
+                                                p.ResponsibleSubActor != null &&
                                                 p.ResponsibleSubActor.Id == responsible.ResponsibleSubActor.Id) == 0)
                                 {
                                     compromise.CompromiseInvolveds.Add(new CompromiseInvolved()
@@ -738,7 +743,7 @@ namespace Contable.Application
                        .Where(p => p.Id == timeline.Milestone.Id && p.ParentId == timeline.Phase.Id && p.ParameterCategory.Code == CompromiseConsts.ParameterCategoryPIPMilestone)
                        .FirstOrDefault();
 
-                    if(dbPhase != null && dbMilestone != null)
+                    if (dbPhase != null && dbMilestone != null)
                     {
                         if (timeline.Id > 0)
                         {
@@ -778,21 +783,22 @@ namespace Contable.Application
             if (pipmef.UnifiedCode.IsValid() || pipmef.SNIPCode.IsValid())
             {
                 compromise.PIPMEF = await _pipMefAppService.ValidatePIPMEFCompromise(pipmef);
-                
+
                 if (compromise.PIPMEF.ProjectName != null && compromise.PIPMEF.ProjectName.IsValid())
                     compromise.Name = compromise.PIPMEF.ProjectName;
             }
-            else if(pipmef.PIPPhase != null || pipmef.PIPMilestone != null)
+            else if (pipmef.PIPPhase != null || pipmef.PIPMilestone != null)
             {
                 compromise.PIPMEF = new PIPMEF();
 
                 if (compromise.PIPMEFId.HasValue && await _pipmefRepository.CountAsync(p => p.Id == compromise.PIPMEFId.Value) > 0)
                     compromise.PIPMEF = await _pipmefRepository.GetAsync(compromise.PIPMEFId.Value);
-                
-                if(pipmef.PIPPhase != null && pipmef.PIPPhase.Id != -1)
+
+                if (pipmef.PIPPhase != null && pipmef.PIPPhase.Id != -1)
                 {
                     compromise.PIPMEF.PIPPhase = await _parameterRepository.GetAsync(pipmef.PIPPhase.Id);
-                } else if (pipmef.PIPPhase == null || pipmef.PIPPhase.Id != -1)
+                }
+                else if (pipmef.PIPPhase == null || pipmef.PIPPhase.Id != -1)
                 {
                     compromise.PIPMEF.PIPPhase = null;
                 }
@@ -878,7 +884,7 @@ namespace Contable.Application
                     .LikeAllBidirectional(input.Filter.SplitByLike(), nameof(Compromise.Filter));
 
             var output = await query.OrderBy(input.Sorting).ToListAsync();
-                        
+
             var result = new List<CompromiseGetMatrixExcelDto>();
 
             foreach (var compromise in output)
@@ -962,8 +968,8 @@ namespace Contable.Application
                     .Include(p => p.Department)
                     .Include(p => p.Province)
                     .Include(p => p.District)
-                    .Where(p => p.CompromiseLocations.Any(c => c.Compromise.Id == compromise.Id)).ToListAsync();   
-                
+                    .Where(p => p.CompromiseLocations.Any(c => c.Compromise.Id == compromise.Id)).ToListAsync();
+
                 if (locations.Count > 0)
                 {
                     compromiseItem.TerritorialUnits = locations.Select(p => p.TerritorialUnit.Name).Distinct().JoinAsString(", ");
@@ -988,11 +994,11 @@ namespace Contable.Application
                         .OrderByDescending(p => p.CreationTime)
                         .FirstOrDefaultAsync();
 
-                    if(lastComment != null)
+                    if (lastComment != null)
                     {
-                        if(lastSituation == null)
+                        if (lastSituation == null)
                             compromiseItem.Advance = lastComment.Description;
-                        else if(lastComment.CreationTime > lastSituation.CreationTime)
+                        else if (lastComment.CreationTime > lastSituation.CreationTime)
                             compromiseItem.Advance = lastComment.Description;
                     }
                 }
