@@ -13,6 +13,8 @@ namespace Contable.Application.Compromises
         Task<CompromiseGetDataDto> Get(NullableIdDto input);
         Task<PagedResultDto<CompromiseGetAllDto>> GetAll(CompromiseGetAllInputDto input);        
         Task Delete(EntityDto<long> input);
-        Task<FileDto> GetMatrixToExcel(CompromiseGetToExcelInput input);
+        Task<FileDto> GetMatrixToExcel(CompromiseGetToExcelInput input);     
+
+        
     }
 }

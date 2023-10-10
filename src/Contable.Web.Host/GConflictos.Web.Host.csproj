@@ -47,9 +47,6 @@
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\swagger\ui\index.html" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\Plugins\" />
-  </ItemGroup>
   <PropertyGroup>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>

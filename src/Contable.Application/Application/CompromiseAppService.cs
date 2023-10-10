@@ -1032,5 +1032,6 @@ namespace Contable.Application
             return _compromiseExcelExporter.ExportAllToFile(await ReportAllExcel(input));
         }
 
+       
     }
 }
