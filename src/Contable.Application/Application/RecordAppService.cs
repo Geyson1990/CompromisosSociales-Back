@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 using Abp.IO.Extensions;
 using Castle.MicroKernel.Registration;
+using Contable.FileManager;
 
 namespace Contable.Application
 {
@@ -321,9 +322,9 @@ namespace Contable.Application
         public async Task<FileDto> GetActasZip(RecordGetMatrixExcelInputDto input)
         {
             string rutaBase = _configurationRoot.GetValue<string>("FileServer:Actas");
-            //var credentialsCarga = _configuration.GetSection(Constantes.CONF_CREDENCIALES).Get<CredentialsConfigBlock>();
 
             //var rutaBase = Path.Combine(_imageRoute, ResourceConsts.Record);
+            //var copyActasFolder = Path.Combine(_hostingEnvironment.WebRootPath, "Temp\\Actas");
 
             var records = _recordRepository
                    .GetAll()
@@ -335,12 +336,15 @@ namespace Contable.Application
 
             //Materializar los documentos
 
+            var credentialsCarga = _configurationRoot.GetSection("FileServer:Credentials").Get<CredentialsConfigBlock>();
 
 
             var nameFolder =  Guid.NewGuid();
-            string pathFolder = Path.Combine(rutaBase);
+            string pathFolder = Path.Combine(rutaBase, nameFolder.ToString());
 
-            CrearDirectorio(pathFolder);
+            //string pathFolder = Path.Combine(copyActasFolder);
+
+            CrearDirectorio(pathFolder, credentialsCarga);
 
             foreach (var collection in records)
             {
@@ -353,10 +357,8 @@ namespace Contable.Application
                         try
                         {
                             var _file = archivo.FileStream.GetAllBytes();
-                            File.WriteAllBytes(pathFolder, _file);
-
-
-
+                            //File.WriteAllBytes(pathFolder, _file);
+                            GuardarArchivoDirectorio(pathFolder, new MemoryStream( archivo.FileStream.GetAllBytes()), credentialsCarga);
                         }
                         catch (Exception ex)
                         {
@@ -375,25 +377,29 @@ namespace Contable.Application
 
 
 
-        private static void CrearDirectorio(string rutaFolderFoto)
+        private static void CrearDirectorio(string rutaFolderFoto, CredentialsConfigBlock credentialsCarga)
         {
-            if (!Directory.Exists(rutaFolderFoto))
+            using WindowsLogin wi = new WindowsLogin(credentialsCarga);
+            wi.RunImpersonated(() =>
             {
-                Directory.CreateDirectory(rutaFolderFoto);
-            }
-
+                if (!Directory.Exists(rutaFolderFoto))
+                {
+                    Directory.CreateDirectory(rutaFolderFoto);
+                }
+            });
         }
 
-        private static void GuardarArchivoDirectorio(string rutaArchivo, MemoryStream file)
+        private static void GuardarArchivoDirectorio(string rutaArchivo, MemoryStream file, CredentialsConfigBlock credentialsCarga)
         {
-
-            using (FileStream stream = new FileStream(rutaArchivo, FileMode.Create))
+            using WindowsLogin wi = new WindowsLogin(credentialsCarga);
+            wi.RunImpersonated(() =>
             {
+                using FileStream stream = new FileStream(rutaArchivo, FileMode.Create, FileAccess.ReadWrite);
                 file.CopyTo(stream);
                 stream.Close();
-            }
-
+            });
         }
+
 
         private static void Compress(string pathFolder)
         {
