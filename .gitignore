@@ -432,4 +432,4 @@ $RECYCLE.BIN/
 !.vscode/launch.json
 !.vscode/extensions.json
 /src/Contable.Web.Host/App_Data/Logs/Logs.txt
-/src/Contable.Web.Host/Uploads/Content/Resources/SectorMeetSession/56A8125907C5782F00FEDA954C0B57B1.png
+/src/Contable.Web.Host/Uploads/Content/Resources/*.*
