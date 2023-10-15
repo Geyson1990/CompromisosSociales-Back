@@ -93,7 +93,8 @@ namespace Contable.Application
                 summaries: input.Summaries ?? new List<SectorMeetSessionSummaryRelationDto>(),
                 resources: input.Resources ?? new List<SectorMeetSessionResourceRelationDto>(),
                 leaders: input.Leaders ?? new List<SectorMeetSessionLeaderRelationDto>(),
-                uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>());
+                uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>(),
+                uploadFilesPDF: input.UploadFilesPDF ?? new List<SectorMeetSessionAttachmentDto>());
 
             var sectorMeetSessionId = await _sectorMeetSessionRepository.InsertAndGetIdAsync(dbSectorMeetSession);
 
@@ -410,7 +411,8 @@ namespace Contable.Application
                 summaries: input.Summaries ?? new List<SectorMeetSessionSummaryRelationDto>(),
                 resources: input.Resources ?? new List<SectorMeetSessionResourceRelationDto>(),
                 leaders: input.Leaders ?? new List<SectorMeetSessionLeaderRelationDto>(),
-                uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>());
+                uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>(),
+                uploadFilesPDF: input.UploadFilesPDF ?? new List<SectorMeetSessionAttachmentDto>());
 
             await _sectorMeetSessionRepository.UpdateAsync(resultDbSectorMeetSession);
 
@@ -431,7 +433,8 @@ namespace Contable.Application
             List<SectorMeetSessionSummaryRelationDto> summaries,
             List<SectorMeetSessionResourceRelationDto> resources,
             List<SectorMeetSessionLeaderRelationDto> leaders,
-            List<SectorMeetSessionAttachmentDto> uploadFiles)
+            List<SectorMeetSessionAttachmentDto> uploadFiles,
+            List<SectorMeetSessionAttachmentDto> uploadFilesPDF)
         {
             input.SessionTime = new DateTime(input.SessionTime.Year, input.SessionTime.Month, input.SessionTime.Day, input.SessionTime.Hour, input.SessionTime.Minute, 0);
 
@@ -976,6 +979,16 @@ namespace Contable.Application
                 ));
 
                 input.Resources.Add(dbResource);
+            }
+
+            foreach (var uploadFile in uploadFilesPDF)
+            {
+                var dbResource = ObjectMapper.Map<SectorMeetSessionFile>(ResourceManager.Create(
+                    resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
+                    section: ResourceConsts.SectorMeetSession
+                ));
+
+                input.ResourcesFiles.Add(dbResource);
             }
 
             return input;

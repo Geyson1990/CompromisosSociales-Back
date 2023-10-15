@@ -25,5 +25,6 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public List<SectorMeetSessionResourceRelationDto> Resources { get; set; }
         public List<SectorMeetSessionLeaderRelationDto> Leaders { get; set; }
         public List<SectorMeetSessionAttachmentDto> UploadFiles { get; set; }
+        public List<SectorMeetSessionAttachmentDto> UploadFilesPDF { get; set; }
     }
 }
