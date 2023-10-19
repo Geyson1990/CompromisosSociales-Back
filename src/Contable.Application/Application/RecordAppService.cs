@@ -30,6 +30,8 @@ using System.Text.RegularExpressions;
 using Abp.IO.Extensions;
 using Castle.MicroKernel.Registration;
 using Contable.FileManager;
+using AutoMapper.Configuration.Conventions;
+using Abp.AspNetZeroCore.Net;
 
 namespace Contable.Application
 {
@@ -319,7 +321,7 @@ namespace Contable.Application
             return input;
         }
 
-        public async Task<FileDto> GetActasZip(RecordGetMatrixExcelInputDto input)
+        public async Task<FileDto> GetActasZip(RecordGetMatrixExcelInputDto input, bool replaceName)
         {
             string rutaBase = _configurationRoot.GetValue<string>("FileServer:Actas");
 
@@ -339,26 +341,48 @@ namespace Contable.Application
             var credentialsCarga = _configurationRoot.GetSection("FileServer:Credentials").Get<CredentialsConfigBlock>();
 
 
-            var nameFolder =  Guid.NewGuid();
+            var nameFolder = Guid.NewGuid();
             string pathFolder = Path.Combine(rutaBase, nameFolder.ToString());
 
             //string pathFolder = Path.Combine(copyActasFolder);
+            //CrearDirectorio(pathFolder, credentialsCarga);
 
-            CrearDirectorio(pathFolder, credentialsCarga);
+            var output = new UploadResourceOutputDto()
+            {
+                CommonFolder = "Content",
+                ResourceFolder = "Resources",
+                SectionFolder = "Actas",
+                //FileName = replaceName ? @$"{resource.FileName}.{resource.Extension.ToString().ToLower()}" : @$"{resource.Token}.{resource.Extension.ToString().ToLower()}",
+                //Name = resource.Name,
+                //Size = resource.Size,
+                //Extension = resource.Extension,
+                //ClassName = resource.ClassName
+            };
+
+            output.Resource = @$"/Resource/Actas/Temp/Zip?resource=";
+
+            var separator = Path.DirectorySeparatorChar;
+            var server = $@"{_hostingEnvironment.ContentRootPath}{separator}Uploads{separator}{output.CommonFolder}{separator}{output.ResourceFolder}{separator}{output.SectionFolder}{separator}Temp{separator}Zip{separator}";
+
+
+            if (!Directory.Exists(server))
+                Directory.CreateDirectory(server);
+
 
             foreach (var collection in records)
             {
                 foreach (var item in collection.Resources)
                 {
                     var archivo = LoadResource(ResourceConsts.Record, item.FileName);
-
+                    var resourseRoute = $@"{server}{item.FileName}";
                     if (archivo != null)
                     {
                         try
                         {
                             var _file = archivo.FileStream.GetAllBytes();
                             //File.WriteAllBytes(pathFolder, _file);
-                            GuardarArchivoDirectorio(pathFolder, new MemoryStream( archivo.FileStream.GetAllBytes()), credentialsCarga);
+                            File.WriteAllBytes(resourseRoute, _file);
+                            //GuardarArchivoDirectorio(pathFolder, new MemoryStream( archivo.FileStream.GetAllBytes()), credentialsCarga);
                         }
                         catch (Exception ex)
                         {
@@ -370,9 +394,10 @@ namespace Contable.Application
                 }
 
             }
+            Compress(server);
 
 
-            return null;
+            return new FileDto($"{server}\\rrr.zip", MimeTypeNames.ApplicationXGzip);
         }
 
 
@@ -404,7 +429,7 @@ namespace Contable.Application
         private static void Compress(string pathFolder)
         {
 
-            ZipFile.CreateFromDirectory(pathFolder, $"{pathFolder}.zip", CompressionLevel.Fastest, true);
+            ZipFile.CreateFromDirectory(pathFolder, $"{pathFolder}\\rrr.zip", CompressionLevel.Fastest, true);
 
         }
 
