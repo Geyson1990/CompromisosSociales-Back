@@ -1,8 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using Abp.Configuration;
 using Abp.Net.Mail;
-using Microsoft.Extensions.Configuration;
+using Abp.Runtime.Security;
 using Contable.Configuration.Dto;
 using Contable.Configuration.Host.Dto;
+using Microsoft.Extensions.Configuration;
+using System.Net;
+using System.Net.Mail;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Contable.Configuration
 {
@@ -10,13 +15,16 @@ namespace Contable.Configuration
     {
         private readonly IEmailSender _emailSender;
         private readonly IAppConfigurationAccessor _configurationAccessor;
+        private readonly ISettingManager _settingManager;
+
 
         protected SettingsAppServiceBase(
-            IEmailSender emailSender, 
-            IAppConfigurationAccessor configurationAccessor)
+            IEmailSender emailSender,
+            IAppConfigurationAccessor configurationAccessor, ISettingManager settingManager)
         {
             _emailSender = emailSender;
             _configurationAccessor = configurationAccessor;
+            _settingManager = settingManager;
         }
 
         #region Send Test Email
@@ -63,6 +71,47 @@ namespace Contable.Configuration
                    bool.Parse(_configurationAccessor.Configuration["Authentication:" + name + ":IsEnabled"]);
         }
 
+        public async Task SendEmail(SendTestEmailInput input, string subject, string body)
+        {
+            var credentials = new NetworkCredential(UserName, Password);
+            credentials.Domain = Host;
+            credentials.UserName = UserName;
+            credentials.Password = Password;
+            
+
+            var client = new SmtpClient(Host, Port)
+            {
+                Credentials = credentials,
+                EnableSsl = EnableSsl,
+                Timeout = 600,
+
+            };
+
+            var message = new MailMessage()
+            {
+                From = new MailAddress(UserName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true,
+                SubjectEncoding = Encoding.UTF8,
+                BodyEncoding = Encoding.UTF8              
+            };
+
+
+            message.To.Add(new MailAddress(input.EmailAddress));
+
+
+            await _emailSender.SendAsync(message);
+
+            //await client.SendMailAsync(message);
+        }
+
+
+        private string Password => SimpleStringCipher.Instance.Decrypt(_settingManager.GetSettingValueForTenant(EmailSettingNames.Smtp.Password, ContableConsts.DefaultTenantId));
+        private string Host => _settingManager.GetSettingValueForTenant(EmailSettingNames.Smtp.Host, ContableConsts.DefaultTenantId);
+        private int Port => _settingManager.GetSettingValueForTenant<int>(EmailSettingNames.Smtp.Port, ContableConsts.DefaultTenantId);
+        private string UserName => _settingManager.GetSettingValueForTenant(EmailSettingNames.Smtp.UserName, ContableConsts.DefaultTenantId);
+        private bool EnableSsl => _settingManager.GetSettingValueForTenant<bool>(EmailSettingNames.Smtp.EnableSsl, ContableConsts.DefaultTenantId);
         #endregion
     }
 }

@@ -17,26 +17,29 @@ namespace Contable.Net.Emailing
     public class AppEmailSender : ContableServiceBase, IAppEmailSender, ITransientDependency
     {
         private readonly ISettingManager _settingManager;
-
-        public AppEmailSender(ISettingManager settingManager)
+        private readonly IEmailSender _emailSender;
+        public AppEmailSender(ISettingManager settingManager, IEmailSender emailSender)
         {
             _settingManager = settingManager;
+            _emailSender = emailSender;
         }
 
         public async Task SendEmail(string[] to, string[] cc, string subject, string body, EmailAttachment[] attachments)
         {
+           
             var client = new SmtpClient(Host, Port)
             {
                 Credentials = new NetworkCredential(UserName, Password),
                 EnableSsl = EnableSsl,
                 Timeout = 60000
+                
             };
 
             var message = new MailMessage()
             {
                 From = new MailAddress(UserName),
                 Subject = subject,
-                Body = body,
+                Body =  body,
                 IsBodyHtml = true,
                 SubjectEncoding = Encoding.UTF8,
                 BodyEncoding = Encoding.UTF8
@@ -50,8 +53,11 @@ namespace Contable.Net.Emailing
             if(attachments != null)
                 foreach(var attachment in attachments)
                     message.Attachments.Add(new Attachment(new MemoryStream(attachment.Content), attachment.Name));
+           
+            
+            await _emailSender.SendAsync(message);
 
-            await client.SendMailAsync(message);
+            //await client.SendMailAsync(message);
         }
 
         private string Password => SimpleStringCipher.Instance.Decrypt(_settingManager.GetSettingValueForTenant(EmailSettingNames.Smtp.Password, ContableConsts.DefaultTenantId));
