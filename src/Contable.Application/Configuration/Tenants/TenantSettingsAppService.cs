@@ -40,8 +40,9 @@ namespace Contable.Configuration.Tenants
             ITimeZoneService timeZoneService,
             IEmailSender emailSender,
             IBinaryObjectManager binaryObjectManager,
-            IAppConfigurationAccessor configurationAccessor
-            ) : base(emailSender, configurationAccessor)
+            IAppConfigurationAccessor configurationAccessor,
+            ISettingManager settingManager
+            ) : base(emailSender, configurationAccessor, settingManager)
         {
             ExternalLoginOptionsCacheManager = NullExternalLoginOptionsCacheManager.Instance;
 

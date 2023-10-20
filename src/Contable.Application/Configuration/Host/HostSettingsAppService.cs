@@ -29,13 +29,13 @@ namespace Contable.Configuration.Host
         private readonly EditionManager _editionManager;
         private readonly ITimeZoneService _timeZoneService;
         readonly ISettingDefinitionManager _settingDefinitionManager;
-
         public HostSettingsAppService(
             IEmailSender emailSender,
             EditionManager editionManager,
             ITimeZoneService timeZoneService,
             ISettingDefinitionManager settingDefinitionManager,
-            IAppConfigurationAccessor configurationAccessor) : base(emailSender, configurationAccessor)
+            ISettingManager settingManager,
+            IAppConfigurationAccessor configurationAccessor) : base(emailSender, configurationAccessor, settingManager)
         {
             ExternalLoginOptionsCacheManager = NullExternalLoginOptionsCacheManager.Instance;
 
