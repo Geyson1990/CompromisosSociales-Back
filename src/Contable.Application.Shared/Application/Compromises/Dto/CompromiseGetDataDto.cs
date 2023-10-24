@@ -14,5 +14,6 @@ namespace Contable.Application.Compromises.Dto
         public List<CompromiseResponsibleTypeDto> ResponsibleTypes { get; set; }
         public List<CompromiseLabelLocationDto> Labels { get; set; }
         public List<CompromiseStateDto> States { get; set; }
+        public List<CompromiseTerritorialUnitDto> TerritorialUnits { get; set; }
     }
 }

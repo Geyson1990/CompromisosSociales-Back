@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace Contable.Application.Exporting
 {
@@ -199,10 +200,13 @@ namespace Contable.Application.Exporting
                    "Responsables específicos",
                    "Abierto/Cerrado",
                    "Estado actual",
-                   "Temática mujer"
+                   "Temática mujer",
+                   "Timeline"
                 );
 
                 initRow++;
+
+                
 
                 AddObjects(excelPackage, sheet, initRow, compromiseListDtos,
                    _ => new ExportCell(_.Record.SocialConflict.Code),
@@ -223,7 +227,9 @@ namespace Contable.Application.Exporting
                    _ => new ExportCell(_.SubResponsibles),//Colaboradores específicos
                    _ => new ExportCell(_.Status != null ? FormatState(_.Status.Value, 0) : ""),
                    _ => new ExportCell(_.Status != null ? FormatState(_.Status.Value, 1) : ""),
-                   _ => new ExportCell(_.WomanCompromise ? "SI" : "NO"));
+                   _ => new ExportCell(_.WomanCompromise ? "SI" : "NO"),
+                   _ => new ExportCell(_.Timelines)
+                );
 
                 for (var i = 0; i < compromiseListDtos.Count; i++)
                 {

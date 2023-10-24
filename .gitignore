@@ -431,3 +431,5 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+/src/Contable.Web.Host/App_Data/Logs/Logs.txt
+/src/Contable.Web.Host/Uploads/Content/Resources/*
