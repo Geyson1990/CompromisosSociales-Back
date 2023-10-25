@@ -323,10 +323,7 @@ namespace Contable.Application
 
         public async Task<FileDto> GetActasZip(RecordGetMatrixExcelInputDto input, bool replaceName)
         {
-            string rutaBase = _configurationRoot.GetValue<string>("FileServer:Actas");
-
-            //var rutaBase = Path.Combine(_imageRoute, ResourceConsts.Record);
-            //var copyActasFolder = Path.Combine(_hostingEnvironment.WebRootPath, "Temp\\Actas");
+            var nameFolder = Guid.NewGuid();
 
             var records = _recordRepository
                    .GetAll()
@@ -336,34 +333,21 @@ namespace Contable.Application
                    //.Where(p => p.Id == input.Id)
                    .ToList();
 
-            //Materializar los documentos
 
-            var credentialsCarga = _configurationRoot.GetSection("FileServer:Credentials").Get<CredentialsConfigBlock>();
-
-
-            var nameFolder = Guid.NewGuid();
-            string pathFolder = Path.Combine(rutaBase, nameFolder.ToString());
-
-            //string pathFolder = Path.Combine(copyActasFolder);
-            //CrearDirectorio(pathFolder, credentialsCarga);
 
             var output = new UploadResourceOutputDto()
             {
                 CommonFolder = "Content",
                 ResourceFolder = "Resources",
-                SectionFolder = "Actas",
-                //FileName = replaceName ? @$"{resource.FileName}.{resource.Extension.ToString().ToLower()}" : @$"{resource.Token}.{resource.Extension.ToString().ToLower()}",
-                //Name = resource.Name,
-                //Size = resource.Size,
-                //Extension = resource.Extension,
-                //ClassName = resource.ClassName
+                SectionFolder = "Temp"
             };
 
             output.Resource = @$"/Resource/Actas/Temp/Zip?resource=";
 
             var separator = Path.DirectorySeparatorChar;
-            var server = $@"{_hostingEnvironment.ContentRootPath}{separator}Uploads{separator}{output.CommonFolder}{separator}{output.ResourceFolder}{separator}{output.SectionFolder}{separator}Temp{separator}Zip{separator}";
+            var server = $@"{_hostingEnvironment.ContentRootPath}{separator}Uploads{separator}{output.CommonFolder}{separator}{output.ResourceFolder}{separator}{output.SectionFolder}{separator}";
 
+            server = Path.Combine(server, nameFolder.ToString());
 
             if (!Directory.Exists(server))
                 Directory.CreateDirectory(server);
@@ -374,22 +358,22 @@ namespace Contable.Application
                 foreach (var item in collection.Resources)
                 {
                     var archivo = LoadResource(ResourceConsts.Record, item.FileName);
-                    var resourseRoute = $@"{server}{item.FileName}";
+                  
                     if (archivo != null)
                     {
+                        var resourseRoute = Path.Combine(server, item.FileName);
                         try
                         {
                             var _file = archivo.FileStream.GetAllBytes();
-                            //File.WriteAllBytes(pathFolder, _file);
                             File.WriteAllBytes(resourseRoute, _file);
-                            //GuardarArchivoDirectorio(pathFolder, new MemoryStream( archivo.FileStream.GetAllBytes()), credentialsCarga);
+
                         }
                         catch (Exception ex)
                         {
                             Console.WriteLine(ex.ToString());
 
                         }
-                        //GuardarArchivoDirectorio(pathFolder, new MemoryStream(_file) );
+
                     }
                 }
 
@@ -397,39 +381,13 @@ namespace Contable.Application
             Compress(server);
 
 
-            return new FileDto($"{server}\\rrr.zip", MimeTypeNames.ApplicationXGzip);
+            return new FileDto($"{server}.zip", MimeTypeNames.ApplicationXGzip);
         }
 
-
-
-        private static void CrearDirectorio(string rutaFolderFoto, CredentialsConfigBlock credentialsCarga)
-        {
-            using WindowsLogin wi = new WindowsLogin(credentialsCarga);
-            wi.RunImpersonated(() =>
-            {
-                if (!Directory.Exists(rutaFolderFoto))
-                {
-                    Directory.CreateDirectory(rutaFolderFoto);
-                }
-            });
-        }
-
-        private static void GuardarArchivoDirectorio(string rutaArchivo, MemoryStream file, CredentialsConfigBlock credentialsCarga)
-        {
-            using WindowsLogin wi = new WindowsLogin(credentialsCarga);
-            wi.RunImpersonated(() =>
-            {
-                using FileStream stream = new FileStream(rutaArchivo, FileMode.Create, FileAccess.ReadWrite);
-                file.CopyTo(stream);
-                stream.Close();
-            });
-        }
-
-
+       
         private static void Compress(string pathFolder)
         {
-
-            ZipFile.CreateFromDirectory(pathFolder, $"{pathFolder}\\rrr.zip", CompressionLevel.Fastest, true);
+            ZipFile.CreateFromDirectory(pathFolder, $"{pathFolder}.zip", CompressionLevel.Fastest, true);
 
         }
 
