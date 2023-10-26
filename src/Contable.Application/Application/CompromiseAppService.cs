@@ -407,6 +407,8 @@ namespace Contable.Application
             VerifyCount(await _compromiseRepository.CountAsync(p => p.Id == input.Id));
 
             var dbCompromise = await _compromiseRepository.GetAsync(input.Id);
+            dbCompromise.DueDate = input.DueDate;
+            dbCompromise.DeadLine = input.Deadline;
 
             var compromiseId = await _compromiseRepository.InsertOrUpdateAndGetIdAsync(await ValidateEntity(
                 compromise: ObjectMapper.Map(input, dbCompromise),

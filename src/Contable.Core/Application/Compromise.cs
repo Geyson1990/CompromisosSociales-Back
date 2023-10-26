@@ -81,5 +81,8 @@ namespace Contable.Application
         public List<Situation> Situations { get; set; }
         public List<CompromiseTimeLine> Timelines { get; set; }
         public List<TaskManagement> TaskManagements { get; set; }
+        //RQ07 - RF3
+        public DateTime? DueDate { get; set; }
+        public DateTime? DeadLine { get; set; }
     }
 }

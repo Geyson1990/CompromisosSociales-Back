@@ -500,7 +500,9 @@ namespace Contable
                 .ForMember(p => p.Status, options => options.Ignore())
                 .ForMember(p => p.Timelines, options => options.Ignore())
                 .ForMember(p => p.CompromiseLabel, options => options.Ignore())
-                .ForMember(p => p.CompromiseResponsibles, options => options.Ignore());
+                .ForMember(p => p.CompromiseResponsibles, options => options.Ignore())
+                .ForMember(p => p.DueDate, options => options.Ignore())
+                .ForMember(p => p.DeadLine, options => options.Ignore());
 
             configuration.CreateMap<CompromiseUpdateDto, Compromise>()
                 .ForMember(p => p.Record, options => options.Ignore())
@@ -515,7 +517,9 @@ namespace Contable
                 .ForMember(p => p.Status, options => options.Ignore())
                 .ForMember(p => p.Timelines, options => options.Ignore())
                 .ForMember(p => p.CompromiseLabel, options => options.Ignore())
-                .ForMember(p => p.CompromiseResponsibles, options => options.Ignore());
+                .ForMember(p => p.CompromiseResponsibles, options => options.Ignore())
+                .ForMember(p => p.DueDate, options => options.Ignore())
+                .ForMember(p => p.DeadLine, options => options.Ignore());
 
             configuration.CreateMap<ParameterDto, Parameter>().ReverseMap();
             configuration.CreateMap<Compromise, CompromiseGetDto>();

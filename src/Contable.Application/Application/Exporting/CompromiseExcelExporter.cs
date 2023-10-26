@@ -150,6 +150,8 @@ namespace Contable.Application.Exporting
                    _ => new ExportCell(_.Status != null ? FormatState(_.Status.Value, 1) : ""),//Estado actual       
                    _ => new ExportCell(_.WomanCompromise ? "SI" : "NO"),//Temática mujer
                    _ => new ExportCell(_.CompromiseLabel != null ? _.CompromiseLabel.Name : ""),//Etiqueta
+                   _ => new ExportCell(_.DueDate, "dd/mm/yyyy", ExportCellType.Date),
+                   _ => new ExportCell(_.DeadLine, "dd/mm/yyyy", ExportCellType.Date),
                    _ => new ExportCell(_.CreationTime, "dd/mm/yyyy", ExportCellType.Date),//Fecha de registro
                    _ => new ExportCell(_.CreatorUser == null ? null : $"{_.CreatorUser.Name ?? ""} {_.CreatorUser.Surname ?? ""}"),//Registrado por
                    _ => new ExportCell(_.LastModificationTime, "dd/mm/yyyy", ExportCellType.Date),//Última actualización

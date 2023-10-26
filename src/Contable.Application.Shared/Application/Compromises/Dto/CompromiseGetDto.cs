@@ -20,7 +20,9 @@ namespace Contable.Application.Compromises.Dto
         public bool WomanCompromise { get; set; }
         public bool IsPriority { get; set; }
         public string PriorityReference { get; set; }
-
+        //RQ07 - RF3
+        public DateTime? DueDate { get; set; }
+        public DateTime? DeadLine { get; set; }
         public CompromiseStateLocationDto CompromiseState { get; set; }
         public CompromiseSubStateLocationDto CompromiseSubState { get; set; }
 

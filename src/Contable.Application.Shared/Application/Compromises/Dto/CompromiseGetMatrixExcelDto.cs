@@ -41,5 +41,7 @@ namespace Contable.Application.Compromises.Dto
         public string Advance { get; set; }
         public CompromiseUserDto CreatorUser { get; set; }
         public CompromiseUserDto EditUser { get; set; }
+        public DateTime? DueDate { get; set; }
+        public DateTime? DeadLine { get; set; }
     }
 }
