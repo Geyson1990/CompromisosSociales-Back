@@ -92,8 +92,8 @@ namespace Contable
             Configuration.DynamicEntityParameters.Providers.Add<AppDynamicEntityParameterDefinitionProvider>();
 
             // MailKit configuration
-            Configuration.Modules.AbpMailKit().SecureSocketOption = SecureSocketOptions.Auto;
-            Configuration.ReplaceService<IMailKitSmtpBuilder, ContableMailKitSmtpBuilder>(DependencyLifeStyle.Transient);
+            //Configuration.Modules.AbpMailKit().SecureSocketOption = SecureSocketOptions.Auto;
+            //Configuration.ReplaceService<IMailKitSmtpBuilder, ContableMailKitSmtpBuilder>(DependencyLifeStyle.Transient);
 
             //Configure roles
             AppRoleConfig.Configure(Configuration.Modules.Zero().RoleManagement);

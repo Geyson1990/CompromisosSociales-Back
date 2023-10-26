@@ -20,6 +20,7 @@ using Contable.Application.Exporting;
 using Contable.Application.External;
 using System;
 using Contable.Authorization.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Contable.Application
 {
@@ -144,6 +145,29 @@ namespace Contable.Application
             await _commentRepository.DeleteAsync(p => p.TaskManagement.Compromise.Id == input.Id);
             await _taskRepository.DeleteAsync(p => p.Compromise.Id == input.Id);
             await _compromiseResponsibleRepository.DeleteAsync(p => p.CompromiseId == input.Id);
+        }
+
+        [HttpPost]
+        [AbpAuthorize(AppPermissions.Pages_Application_Compromise_Delete)]
+        public async Task DeleteList(EntityDto<long>[] inputs)
+        {
+            foreach (var input in inputs)
+            {
+                var tasks = new List<Task>();
+
+                VerifyCount(await _compromiseRepository.CountAsync(p => p.Id == input.Id));
+
+                tasks.Add(_compromiseRepository.DeleteAsync(input.Id));
+                tasks.Add(_compromiseLocationRepository.DeleteAsync(p => p.Compromise.Id == input.Id));
+                tasks.Add(_compromiseTimeLineRepository.DeleteAsync(p => p.CompromiseId == input.Id));
+                tasks.Add(_situationRepository.DeleteAsync(p => p.Compromise.Id == input.Id));
+                tasks.Add(_situationResourceRepository.DeleteAsync(p => p.Situation.Compromise.Id == input.Id));
+                tasks.Add(_commentRepository.DeleteAsync(p => p.TaskManagement.Compromise.Id == input.Id));
+                tasks.Add(_taskRepository.DeleteAsync(p => p.Compromise.Id == input.Id));
+                tasks.Add(_compromiseResponsibleRepository.DeleteAsync(p => p.CompromiseId == input.Id));
+
+                Task.WaitAll(tasks.ToArray());
+            }
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_Compromise)]
