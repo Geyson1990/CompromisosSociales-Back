@@ -153,20 +153,20 @@ namespace Contable.Application
         {
             foreach (var input in inputs)
             {
-                var tasks = new List<Task>();
+                //var tasks = new List<Task>();
 
                 VerifyCount(await _compromiseRepository.CountAsync(p => p.Id == input.Id));
 
-                tasks.Add(_compromiseRepository.DeleteAsync(input.Id));
-                tasks.Add(_compromiseLocationRepository.DeleteAsync(p => p.Compromise.Id == input.Id));
-                tasks.Add(_compromiseTimeLineRepository.DeleteAsync(p => p.CompromiseId == input.Id));
-                tasks.Add(_situationRepository.DeleteAsync(p => p.Compromise.Id == input.Id));
-                tasks.Add(_situationResourceRepository.DeleteAsync(p => p.Situation.Compromise.Id == input.Id));
-                tasks.Add(_commentRepository.DeleteAsync(p => p.TaskManagement.Compromise.Id == input.Id));
-                tasks.Add(_taskRepository.DeleteAsync(p => p.Compromise.Id == input.Id));
-                tasks.Add(_compromiseResponsibleRepository.DeleteAsync(p => p.CompromiseId == input.Id));
+                await _compromiseRepository.DeleteAsync(input.Id);
+                await _compromiseLocationRepository.DeleteAsync(p => p.Compromise.Id == input.Id);
+                await _compromiseTimeLineRepository.DeleteAsync(p => p.CompromiseId == input.Id);
+                await _situationRepository.DeleteAsync(p => p.Compromise.Id == input.Id);
+                await _situationResourceRepository.DeleteAsync(p => p.Situation.Compromise.Id == input.Id);
+                await _commentRepository.DeleteAsync(p => p.TaskManagement.Compromise.Id == input.Id);
+                await _taskRepository.DeleteAsync(p => p.Compromise.Id == input.Id);
+                await _compromiseResponsibleRepository.DeleteAsync(p => p.CompromiseId == input.Id);
 
-                Task.WaitAll(tasks.ToArray());
+                //Task.WaitAll(tasks.ToArray());
             }
         }
 
