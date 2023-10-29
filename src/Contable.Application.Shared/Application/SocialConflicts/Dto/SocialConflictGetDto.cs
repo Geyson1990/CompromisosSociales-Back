@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using Contable.Application.Parameters.Dto;
+using Contable.Application.Records.Dto;
 using System;
 using System.Collections.Generic;
 
@@ -47,7 +48,9 @@ namespace Contable.Application.SocialConflicts.Dto
         public List<SocialConflictViolenceFactDto> ViolenceFacts { get; set; }
         public List<SocialConflictConditionDto> Conditions { get; set; }
         public List<SocialConflictResourceDto> Resources { get; set; }
+        public List<RecordGetDto> Records { get; set; }
         public SocialConflictUserDto CreatorUser { get; set; }
         public SocialConflictUserDto EditUser { get; set; }
     }
+
 }

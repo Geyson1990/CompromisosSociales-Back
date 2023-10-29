@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using Contable.Application.Compromises.Dto;
 using System;
 using System.Collections.Generic;
 
@@ -17,5 +18,6 @@ namespace Contable.Application.Records.Dto
         public RecordUserDto CreatorUser { get; set; }
         public RecordUserDto EditUser { get; set; }
         public List<RecordResourceDto> Resources { get; set; }
+        public List<CompromiseGetDto> Compromises { get; set; }
     }
 }

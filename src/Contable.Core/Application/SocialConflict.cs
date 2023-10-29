@@ -144,5 +144,7 @@ namespace Contable.Application
         public List<SocialConflictCondition> Conditions { get; set; }
         public List<SocialConflictUser> SocialConflictUsers { get; set; }
         public List<SocialConflictVerificationHistory> VerificationHistories { get; set; }
+
+        public List<Record> Records { get; set; }
     }
 }
