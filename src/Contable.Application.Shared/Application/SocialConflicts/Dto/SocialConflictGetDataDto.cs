@@ -18,4 +18,12 @@ namespace Contable.Application.SocialConflicts.Dto
         public List<SocialConflictRiskDto> Risks { get; set; }
         public List<SocialConflictManagementDto> Managements { get; set; }
     }
+
+
+    public class SocialConflictCompromisesGetDataDto
+    {
+        public SocialConflictGetDto SocialConflict { get; set; }  
+
+    }
+
 }
