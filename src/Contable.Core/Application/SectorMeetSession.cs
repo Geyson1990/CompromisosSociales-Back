@@ -38,6 +38,11 @@ namespace Contable.Application
 
         [Column(TypeName = SectorMeetSessionConsts.LocationType)]
         public string Location { get; set; }
+        [Column(TypeName = SectorMeetSessionConsts.LatitudeType)]
+        public string Latitude { get; set; }
+        [Column(TypeName = SectorMeetSessionConsts.LongitudeType)]
+        public string Longitude { get; set; }
+
 
         [Column(TypeName = SectorMeetSessionConsts.SideType)]
         public string Side { get; set; }

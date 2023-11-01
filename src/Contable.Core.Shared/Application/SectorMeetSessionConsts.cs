@@ -9,6 +9,8 @@ namespace Contable.Application
         public const int LocationMinLength = 0;
         public const int LocationMaxLength = 1000;
         public const string LocationType = "VARCHAR(1000)";
+        public const string LatitudeType = "VARCHAR(1000)";
+        public const string LongitudeType = "VARCHAR(1000)";
 
         public const int SideMinLength = 0;
         public const int SideMaxLength = 1000;

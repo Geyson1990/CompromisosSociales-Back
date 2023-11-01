@@ -14,6 +14,8 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public SectorMeetSessionProvinceReverseDto Province { get; set; }
         public SectorMeetSessionDistrictReverseDto District { get; set; }
         public string Location { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
         public string Side { get; set; }
         public DateTime? PersonTime { get; set; }
         public SectorMeetSessionPersonRelationDto Person { get; set; }
