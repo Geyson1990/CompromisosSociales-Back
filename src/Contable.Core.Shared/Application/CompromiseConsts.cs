@@ -37,6 +37,7 @@ namespace Contable.Application
         public const string CompromiseLabelIdType = "INT";
         public const string WomanCompromiseType = "BIT"; 
         public const string RecordIdType = "BIGINT";
+        public const string TypeLong = "BIGINT";
         public const string CompromiseStateIdType = "INT"; 
         public const string CompromiseSubStateIdType = "INT";
     }
