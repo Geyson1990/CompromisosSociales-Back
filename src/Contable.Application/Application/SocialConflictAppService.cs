@@ -20,6 +20,8 @@ using NUglify.Helpers;
 using Contable.Application.Uploaders.Dto;
 using Contable.Application.Exporting;
 using Contable.Dto;
+using PayPalCheckoutSdk.Orders;
+using Contable.Application.Compromises.Dto;
 
 namespace Contable.Application
 {
@@ -1265,6 +1267,71 @@ namespace Contable.Application
             }
 
             return _socialConflictExporter.ExportActorToFile(data);
+        }
+
+        [AbpAuthorize(AppPermissions.Pages_Application_SocialConflict)]
+        public async Task<SocialConflictCompromisesGetDataDto> GetConflictCompromises(NullableIdDto input)
+        {
+            var output = new SocialConflictCompromisesGetDataDto
+            {
+                SocialConflict = new SocialConflictGetDto()
+            };
+
+            if (input.Id.HasValue)
+            {
+                var dbUser = await GetCurrentUserAsync();
+
+                VerifyCount(await _socialConflictRepository.CountAsync(p => p.Id == input.Id));
+
+                if (dbUser.Type != PersonType.None && await _socialConflictRepository.CountAsync(p => p.Id == input.Id && p.SocialConflictUsers.Any(p => p.UserId == dbUser.Id)) == 0)
+                    throw new UserFriendlyException("Aviso", "Estimado usuario, usted no posee permisos para acceder al conflicto seleccionado");
+
+                var socialConflict = _socialConflictRepository
+                    .GetAll()
+                    .Include(p => p.Records)
+                    .Include(p => p.Compromises)
+                    .Where(p => p.Id == input.Id)
+                    .First();
+
+                var socialConflictItem = ObjectMapper.Map<SocialConflictGetDto>(socialConflict);
+
+                socialConflictItem.Records.ForEach(record =>
+                {
+                    var compromise = _compromiseRepository
+                      .GetAll()
+                      .Include(p => p.CompromiseState)
+                      .Include(p => p.CompromiseSubState)
+                      .Include(p => p.CompromiseLabel)
+                      .Where(p => p.RecordId == record.Id)
+                      .ToList();
+
+                    record.Compromises.AddRange(ObjectMapper.Map<List<CompromiseGetDto>>(compromise));
+
+                });
+               
+
+
+                //socialConflictItem.Resources = ObjectMapper.Map<List<SocialConflictResourceDto>>(_socialConflictResourceRepository
+                //   .GetAll()
+                //   .Where(p => p.SocialConflictId == input.Id)
+                //   .ToList());
+
+                //var userCreateExits = socialConflict.CreatorUserId.HasValue && await _userRepository.CountAsync(p => p.Id == socialConflict.CreatorUserId) > 0;
+                //var userEditExits = socialConflict.LastModifierUserId.HasValue && await _userRepository.CountAsync(p => p.Id == socialConflict.LastModifierUserId) > 0;
+
+                //socialConflictItem.CreatorUser = userCreateExits ?
+                //    ObjectMapper.Map<SocialConflictUserDto>(await _userRepository.GetAsync(socialConflict.CreatorUserId.Value)) :
+                //    null;
+
+                //socialConflictItem.EditUser = userEditExits ?
+                //  ObjectMapper.Map<SocialConflictUserDto>(await _userRepository.GetAsync(socialConflict.LastModifierUserId.Value)) :
+                //  null;
+
+                output.SocialConflict = socialConflictItem;
+            }          
+
+
+            return output;
         }
 
         async Task<SocialConflict> ValidateEntity(
