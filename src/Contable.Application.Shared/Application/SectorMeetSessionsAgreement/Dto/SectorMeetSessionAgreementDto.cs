@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Contable.Application.SectorMeetSessionsAgreement.Dto
 {
-    public class SectorMeetSessionAgreementDto : EntityDto
+    public class SectorMeetSessionAgreementCompromise : EntityDto<long>
     {
         public string Description { get; set; }
         public int Index { get; set; }

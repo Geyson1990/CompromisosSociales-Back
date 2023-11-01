@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Contable.Application
 {
     [Table("AppSectorMeetSessionAgreementsCompromises")]
-    public class SectorMeetSessionAgreementCompromise : FullAuditedEntity
+    public class SectorMeetSessionAgreementCompromise : FullAuditedEntity<long>
     {
         [Column(TypeName = SectorMeetSessionAgreementCompromiseConsts.SectorMeetSessionAgreementIdType)]
         [ForeignKey("SectorMeetSessionAgreement")]

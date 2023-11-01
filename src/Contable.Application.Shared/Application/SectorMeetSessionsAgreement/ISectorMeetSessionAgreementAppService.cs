@@ -10,8 +10,8 @@ namespace Contable.Application.SectorMeetSessionsAgreement
     public interface ISectorMeetSessionAgreementAppService : IApplicationService
     {
        
-        Task<List<SectorMeetSessionAgreementDto>> Get(SocialConflictGetInputDto input);
-        Task<PagedResultDto<SectorMeetSessionGetAllDto>> GetAll(SectorMeetSessionGetAllInputDto input);
-        Task<EntityDto> Update(SectorMeetSessionUpdateDto input);
+        Task<List<SectorMeetSessionAgreementCompromise>> Get(SocialConflictGetInputDto input);
+        Task Delete(EntityDto input);
+        Task<EntityDto<long>> Create(SectorMeetSessionAgreementCompromiseDto input);
     }
 }
