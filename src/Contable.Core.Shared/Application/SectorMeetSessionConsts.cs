@@ -11,6 +11,8 @@ namespace Contable.Application
         public const string LocationType = "VARCHAR(1000)";
         public const string LatitudeType = "VARCHAR(1000)";
         public const string LongitudeType = "VARCHAR(1000)";
+        public const string MainSummaryType = "VARCHAR(MAX)";
+        public const string IsDescriptionSocialConflict = "BIT";
 
         public const int SideMinLength = 0;
         public const int SideMaxLength = 1000;

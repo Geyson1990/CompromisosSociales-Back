@@ -42,7 +42,10 @@ namespace Contable.Application
         public string Latitude { get; set; }
         [Column(TypeName = SectorMeetSessionConsts.LongitudeType)]
         public string Longitude { get; set; }
-
+        [Column(TypeName = SectorMeetSessionConsts.MainSummaryType)]
+        public string MainSummary { get; set; }
+        [Column(TypeName = SectorMeetSessionConsts.IsDescriptionSocialConflict)]
+        public bool IsDescriptionSocialConflict { get; set; }
 
         [Column(TypeName = SectorMeetSessionConsts.SideType)]
         public string Side { get; set; }

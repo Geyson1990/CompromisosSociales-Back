@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Abp.UI;
 using Contable.Application.Uploaders.Dto;
 using NUglify.Helpers;
+using Abp.Collections.Extensions;
 
 namespace Contable.Application
 {
@@ -39,6 +40,7 @@ namespace Contable.Application
         private readonly IRepository<Person> _personRepository;
         private readonly IRepository<DirectoryIndustry> _directoryIndustryRepository;
         private readonly IRepository<DirectoryGovernment> _directoryGovernmentRepository;
+        private readonly IRepository<SocialConflictState> _socialConflictStateRepository;
 
         public SectorMeetSessionAppService(
             IRepository<SectorMeetSession> sectorMeetSessionRepository,
@@ -56,7 +58,8 @@ namespace Contable.Application
             IRepository<District> districtRepository,
             IRepository<Person> personRepository,
             IRepository<DirectoryIndustry> directoryIndustryRepository,
-            IRepository<DirectoryGovernment> directoryGovernmentRepository)
+            IRepository<DirectoryGovernment> directoryGovernmentRepository,
+            IRepository<SocialConflictState> socialConflictStateRepository)
         {
             _sectorMeetSessionRepository = sectorMeetSessionRepository;
             _sectorMeetRepository = sectorMeetRepository;
@@ -74,6 +77,7 @@ namespace Contable.Application
             _personRepository = personRepository;
             _directoryIndustryRepository = directoryIndustryRepository;
             _directoryGovernmentRepository = directoryGovernmentRepository;
+            _socialConflictStateRepository = socialConflictStateRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Create)]
@@ -98,6 +102,22 @@ namespace Contable.Application
 
             var sectorMeetSessionId = await _sectorMeetSessionRepository.InsertAndGetIdAsync(dbSectorMeetSession);
 
+            if (input.IsDescriptionSocialConflict)
+            {
+                var socialConflictState = new SocialConflictState
+                {
+                    CreationTime = DateTime.Now,
+                    CreatorUserId = input.Person.Id,
+                    Description = "-",
+                    IsDeleted = false,
+                    SocialConflictId = (int)dbSectorMeetSession.SectorMeet.SocialConflictId,
+                    ManagerId = input.Person.Id,
+                    StateTime = DateTime.Now,
+                    State = input.MainSummary,
+                    Verification = true
+                };
+                await _socialConflictStateRepository.InsertAsync(socialConflictState);
+            }
             return new EntityDto(sectorMeetSessionId);
         }
 
@@ -415,6 +435,31 @@ namespace Contable.Application
                 uploadFilesPDF: input.UploadFilesPDF ?? new List<SectorMeetSessionAttachmentDto>());
 
             await _sectorMeetSessionRepository.UpdateAsync(resultDbSectorMeetSession);
+
+            if (input.IsDescriptionSocialConflict)
+            {
+                var list = await _socialConflictStateRepository.GetAllListAsync();
+                var conflicts = list.Where(p => p.Description == "-" && 
+                                                p.SocialConflictId == resultDbSectorMeetSession.SectorMeet.SocialConflictId)
+                                    .FirstOrDefault();
+
+                var updateSocialConflictState = new SocialConflictState
+                {
+                    Id = conflicts == null ? 0 :(int)conflicts?.Id,
+                    CreationTime = DateTime.Now,
+                    LastModificationTime = DateTime.Now,
+                    LastModifierUserId = input.Person.Id,                    
+                    CreatorUserId = input.Person.Id,
+                    Description = "-",
+                    IsDeleted = false,
+                    SocialConflictId = (int)resultDbSectorMeetSession.SectorMeet.SocialConflictId,
+                    ManagerId = input.Person.Id,
+                    StateTime = DateTime.Now,
+                    State = input.MainSummary,
+                    Verification = true
+                };
+                await _socialConflictStateRepository.InsertOrUpdateAndGetIdAsync(updateSocialConflictState);
+            }
 
             return new EntityDto(resultDbSectorMeetSession.Id);
         }
