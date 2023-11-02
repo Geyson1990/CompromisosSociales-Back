@@ -403,6 +403,7 @@ namespace Contable.EntityFrameworkCore
         public virtual DbSet<SectorMeetSessionSummary> SectorMeetSessionSummaries { get; set; }
 
         public virtual DbSet<SectorMeetSessionResource> SectorMeetSessionResources { get; set; }
+        public virtual DbSet<SectorMeetSessionResourceFile> SectorMeetSessionResourcesFile { get; set; }
 
         public virtual DbSet<SectorMeetSessionLeader> SectorMeetSessionLeaders { get; set; }
 

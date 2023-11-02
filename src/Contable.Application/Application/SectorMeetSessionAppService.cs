@@ -31,6 +31,10 @@ namespace Contable.Application
         private readonly IRepository<SectorMeetSessionSchedule> _sectorMeetSessionScheduleRepository;
         private readonly IRepository<SectorMeetSessionSummary> _sectorMeetSessionSummaryRepository;
         private readonly IRepository<SectorMeetSessionResource> _sectorMeetSessionResourceRepository;
+        private readonly IRepository<SectorMeetSessionResourceFile> _sectorMeetSessionResourceFileRepository;
+
+        
+
         private readonly IRepository<SectorMeetSessionLeader> _sectorMeetSessionLeaderRepository;
         private readonly IRepository<SectorMeetSessionTeam> _sectorMeetSessionTeamRepository;
         private readonly IRepository<Department> _departmentRepository;
@@ -49,6 +53,7 @@ namespace Contable.Application
             IRepository<SectorMeetSessionSchedule> sectorMeetSessionScheduleRepository,
             IRepository<SectorMeetSessionSummary> sectorMeetSessionSummaryRepository,
             IRepository<SectorMeetSessionResource> sectorMeetSessionResourceRepository,
+            IRepository<SectorMeetSessionResourceFile> sectorMeetSessionResourceFileRepository,
             IRepository<SectorMeetSessionLeader> sectorMeetSessionLeaderRepository,
             IRepository<SectorMeetSessionTeam> sectorMeetSessionTeamRepository,
             IRepository<Department> departmentRepository,
@@ -59,6 +64,7 @@ namespace Contable.Application
             IRepository<DirectoryGovernment> directoryGovernmentRepository)
         {
             _sectorMeetSessionRepository = sectorMeetSessionRepository;
+            _sectorMeetSessionResourceFileRepository = sectorMeetSessionResourceFileRepository;
             _sectorMeetRepository = sectorMeetRepository;
             _sectorMeetSessionActionRepository = sectorMeetSessionActionRepository;
             _sectorMeetSessionAgreementRepository = sectorMeetSessionAgreementRepository;
@@ -176,6 +182,11 @@ namespace Contable.Application
                     .GetAll()
                     .Where(p => p.SectorMeetSessionId == dbSectorMeetSession.Id)
                     .ToList());
+
+                output.SectorMeetSession.ResourcesFile = ObjectMapper.Map<List<SectorMeetSessionResourceRelationDto>>(_sectorMeetSessionResourceFileRepository
+                   .GetAll()
+                   .Where(p => p.SectorMeetSessionId == dbSectorMeetSession.Id)
+                   .ToList());
 
                 output.SectorMeetSession.Leaders = ObjectMapper.Map<List<SectorMeetSessionLeaderRelationDto>>(_sectorMeetSessionLeaderRepository
                     .GetAll()
