@@ -136,6 +136,12 @@ namespace Contable.Application
                                                          Index = c.Index,
                                                          Description = c.Description,
                                                          SectorMeetSessionAgreementId = x == null ? 0 : x.SectorMeetSessionAgreementId,
+                                                         SectorMeetSessionAgreement = new SectorMeetSessionAgreementRelationDto
+                                                         {
+                                                             Id=c.Id,
+                                                             Description=c.Description,
+                                                             Remove= c.IsDeleted
+                                                         },
                                                          CompromiseId = (x == null ? 0 : x.CompromiseId),
                                                          Person = b.Person != null ? ObjectMapper.Map<UserPersonDto>(b.Person) : null,
                                                          ResourceRelationDto = b.Resources != null ? ObjectMapper.Map<List<SectorMeetSessionResourceRelationDto>>(b.Resources) : null

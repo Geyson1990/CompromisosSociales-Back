@@ -9,6 +9,7 @@ namespace Contable.Application.SectorMeetSessionsAgreement.Dto
 {
     public class SectorMeetSessionAgreementCompromise : EntityDto<long>
     {
+        public SectorMeetSessionAgreementRelationDto SectorMeetSessionAgreement { get; set; }
         public string Description { get; set; }
         public int Index { get; set; }
         public int SectorMeetSessionId { get; set; }
