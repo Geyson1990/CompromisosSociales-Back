@@ -994,7 +994,7 @@ namespace Contable.Application
 
             foreach (var uploadFile in uploadFilesPDF)
             {
-                var dbResource = ObjectMapper.Map<SectorMeetSessionFile>(ResourceManager.Create(
+                var dbResource = ObjectMapper.Map<SectorMeetSessionResourceFile>(ResourceManager.Create(
                     resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
                     section: ResourceConsts.SectorMeetSession
                 ));
