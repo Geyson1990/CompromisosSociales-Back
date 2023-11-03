@@ -532,7 +532,11 @@
        
         public const string Pages_Administration_Host_Settings = "Pages.Administration.Host.Settings";
 
-
+        //Actor || Actor
+        public const string Pages_Maintenance_Actor = "Pages.Maintenance.Actor";
+        public const string Pages_Maintenance_Actor_Create = "Pages.Maintenance.Actor.Create";
+        public const string Pages_Maintenance_Actor_Edit = "Pages.Maintenance.Actor.Edit";
+        public const string Pages_Maintenance_Actor_Delete = "Pages.Maintenance.Actor.Delete";
         #endregion
 
     }

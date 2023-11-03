@@ -12,7 +12,7 @@ namespace Contable.Application.Actors
     {
         Task Create(ActorCreateDto input);
         Task Delete(EntityDto input);
-        Task<ActorGetDto> Get(EntityDto input);
+        Task<ActorGetDataDto> Get(NullableIdDto input);
         Task<PagedResultDto<ActorGetAllDto>> GetAll(ActorGetAllInputDto input);
         Task Update(ActorUpdateDto input);
     }

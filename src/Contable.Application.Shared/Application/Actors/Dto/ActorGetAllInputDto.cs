@@ -15,7 +15,7 @@ namespace Contable.Application.Actors.Dto
         {
             if (Sorting.IsNullOrWhiteSpace())
             {
-                Sorting = "Name ASC";
+                Sorting = "FullName ASC";
             }
         }
     }

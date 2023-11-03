@@ -6,23 +6,25 @@ namespace Contable.Application
 {
     public class ActorConsts
     {
-        public const string TypologyType = "INT";
+        public const string TypologyIdType = "INT";
 
-        public const string SubTypologyType = "INT";
+        public const string SubTypologyIdType = "INT";
 
         public const int FullNameMinLength = 0;
         public const int FullNameMaxLength = 255;
         public const string FullNameType = "VARCHAR(255)";
 
-        public const string ActorType = "INT";
+        public const string ActorTypeIdType = "INT";
+
+        public const string ActorMovementIdType = "INT";
 
         public const int DocumentNumberMinLength = 0;
         public const int DocumentNumberMaxLength = 25;
         public const string DocumentNumberType = "VARCHAR(25)";
 
-        public const int WorkPositionMinLength = 0;
-        public const int WorkPositionMaxLength = 255;
-        public const string WorkPositionType = "VARCHAR(255)";
+        public const int JobPositionMinLength = 0;
+        public const int JobPositionMaxLength = 255;
+        public const string JobPositionType = "VARCHAR(255)";
 
         public const int InstitutionMinLength = 0;
         public const int InstitutionMaxLength = 255;
@@ -41,14 +43,19 @@ namespace Contable.Application
         public const string EmailAddressType = "VARCHAR(255)";
 
         public const int PositionMinLength = 0;
-        public const int PositionMaxLength = 5000;
-        public const string PositionType = "VARCHAR(5000)";
+        public const int PositionMaxLength = 3000;
+        public const string PositionType = "VARCHAR(3000)";
 
-        public const int DetailsMinLength = 0;
-        public const int DetailsMaxLength = 5000;
-        public const string DetailsType = "VARCHAR(5000)";
+        public const int InterestMinLength = 0;
+        public const int InterestMaxLength = 3000;
+        public const string InterestType = "VARCHAR(3000)";
 
-        public const string ShowPoliticalType = "BIT";
+        public const string IsPoliticalAssociationType = "BIT";
+
+        public const int PoliticalAssociationMinLength = 0;
+        public const int PoliticalAssociationMaxLength = 255;
+        public const string PoliticalAssociationType = "VARCHAR(255)";
+
         public const string EnabledType = "BIT";
 
     }
