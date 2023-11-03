@@ -28,6 +28,7 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public List<SectorMeetSessionScheduleRelationDto> Schedules { get; set; }
         public List<SectorMeetSessionSummaryRelationDto> Summaries { get; set; }
         public List<SectorMeetSessionResourceRelationDto> Resources { get; set; }
+        public List<SectorMeetSessionResourceRelationDto> ResourcesFile { get; set; }
         public List<SectorMeetSessionLeaderRelationDto> Leaders { get; set; }
     }
 }

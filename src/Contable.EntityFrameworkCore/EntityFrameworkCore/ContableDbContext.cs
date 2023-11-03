@@ -394,6 +394,7 @@ namespace Contable.EntityFrameworkCore
         public virtual DbSet<SectorMeetSessionAction> SectorMeetSessionActions { get; set; }
 
         public virtual DbSet<SectorMeetSessionAgreement> SectorMeetSessionAgreements { get; set; }
+        public virtual DbSet<SectorMeetSessionAgreementCompromise> SectorMeetSessionAgreementCompromise { get; set; }
 
         public virtual DbSet<SectorMeetSessionCriticalAspect> SectorMeetSessionCriticalAspects { get; set; }
 
@@ -402,6 +403,7 @@ namespace Contable.EntityFrameworkCore
         public virtual DbSet<SectorMeetSessionSummary> SectorMeetSessionSummaries { get; set; }
 
         public virtual DbSet<SectorMeetSessionResource> SectorMeetSessionResources { get; set; }
+        public virtual DbSet<SectorMeetSessionResourceFile> SectorMeetSessionResourcesFile { get; set; }
 
         public virtual DbSet<SectorMeetSessionLeader> SectorMeetSessionLeaders { get; set; }
 

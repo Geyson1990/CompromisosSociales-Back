@@ -32,12 +32,15 @@ using Castle.MicroKernel.Registration;
 using Contable.FileManager;
 using AutoMapper.Configuration.Conventions;
 using Abp.AspNetZeroCore.Net;
+using NPOI.SS.UserModel;
+using Contable.Storage;
 
 namespace Contable.Application
 {
     [AbpAuthorize(AppPermissions.Pages_Application_Record)]
     public class RecordAppService : ContableAppServiceBase, IRecordAppService
     {
+        private readonly ITempFileCacheManager _tempFileCacheManager;
         private readonly IRepository<Record, long> _recordRepository;
         private readonly IRepository<SocialConflict> _socialConflictRepository;
         private readonly IRepository<RecordResource, long> _recordResourceRepository;
@@ -51,6 +54,7 @@ namespace Contable.Application
         private readonly IConfigurationRoot _configurationRoot;
 
         public RecordAppService(
+            ITempFileCacheManager tempFileCacheManager,
             IRepository<Record, long> recordRepository,
             IRepository<SocialConflict> socialConflictRepository,
             IRepository<RecordResource, long> recordResourceRepository,
@@ -62,6 +66,7 @@ namespace Contable.Application
             IRepository<Compromise, long> compromiseRepository,
             IWebHostEnvironment hostingEnvironment)
         {
+            _tempFileCacheManager = tempFileCacheManager;
             _recordRepository = recordRepository;
             _socialConflictRepository = socialConflictRepository;
             _recordResourceRepository = recordResourceRepository;
@@ -76,7 +81,7 @@ namespace Contable.Application
             _configurationRoot = hostingEnvironment.GetAppConfiguration();
 
             _separator = Path.DirectorySeparatorChar.ToString();
-            _imageRoute = $"{_hostingEnvironment.ContentRootPath}{_separator}Uploads{_separator}Content{_separator}Resources{_separator}";
+            _actasRoute = $"{_hostingEnvironment.ContentRootPath}{_separator}Uploads{_separator}Content{_separator}Resources{_separator}";
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_Record_Create)]
@@ -332,56 +337,59 @@ namespace Contable.Application
                    .ThenInclude(p => p.RecordResourceType)
                    //.Where(p => p.Id == input.Id)
                    .ToList();
+        
 
+            //Create the zip file
+            var zipFileDto = new FileDto($"{nameFolder.ToString()}.zip", MimeTypeNames.ApplicationZip);
 
-
-            var output = new UploadResourceOutputDto()
+            using (var outputZipFileStream = new MemoryStream())
             {
-                CommonFolder = "Content",
-                ResourceFolder = "Resources",
-                SectionFolder = "Temp"
-            };
-
-            output.Resource = @$"/Resource/Actas/Temp/Zip?resource=";
-
-            var separator = Path.DirectorySeparatorChar;
-            var server = $@"{_hostingEnvironment.ContentRootPath}{separator}Uploads{separator}{output.CommonFolder}{separator}{output.ResourceFolder}{separator}{output.SectionFolder}{separator}";
-
-            server = Path.Combine(server, nameFolder.ToString());
-
-            if (!Directory.Exists(server))
-                Directory.CreateDirectory(server);
-
-
-            foreach (var collection in records)
-            {
-                foreach (var item in collection.Resources)
+                using (var zipStream = new ZipArchive(outputZipFileStream, ZipArchiveMode.Create))
                 {
-                    var archivo = LoadResource(ResourceConsts.Record, item.FileName);
-                  
-                    if (archivo != null)
+
+                    foreach (var collection in records)
                     {
-                        var resourseRoute = Path.Combine(server, item.FileName);
-                        try
+                        foreach (var item in collection.Resources)
                         {
-                            var _file = archivo.FileStream.GetAllBytes();
-                            File.WriteAllBytes(resourseRoute, _file);
+                            var archivo = ExistResource(ResourceConsts.Record, item.FileName);
 
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
+                            if (archivo)
+                            {
+                                //var resourseRoute = Path.Combine(server, item.FileName);
+                                var resourseRoute = Path.Combine(_actasRoute, ResourceConsts.Record, item.FileName); 
+                                try
+                                {
+                                    var entry = zipStream.CreateEntry(item.FileName);
+                                    using (var entryStream = entry.Open())
+                                    {
+                                        using (var fs = new FileStream(resourseRoute, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 0x1000, FileOptions.SequentialScan))
+                                        {
+                                            fs.CopyTo(entryStream);
+                                            entryStream.Flush();
+                                        }                                        
+                                    }
 
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.ToString());
+
+                                }
+
+                            }
+
+
+                            
                         }
 
                     }
                 }
-
+                _tempFileCacheManager.SetFile(zipFileDto.FileToken, outputZipFileStream.ToArray());
             }
-            Compress(server);
+            
 
+            return zipFileDto;
 
-            return new FileDto($"{server}.zip", MimeTypeNames.ApplicationXGzip);
         }
 
        
@@ -392,43 +400,22 @@ namespace Contable.Application
         }
 
 
-        private readonly string _imageRoute;
+        private readonly string _actasRoute;
         private readonly string _separator;
 
-        private FileStreamResult LoadResource(string section, string resource)
+        private bool ExistResource(string section, string resource)
         {
             if (string.IsNullOrWhiteSpace(resource))
-                return null;
+                return false;
 
             resource = Regex.Replace(resource.Trim(), @"[^A-Za-z0-9.]", "");
 
-            var directory = $@"{_imageRoute}{section}{_separator}{resource}";
+            var directory = $@"{_actasRoute}{section}{_separator}{resource}";
 
             if (!System.IO.File.Exists(directory))
-                return null;
-
-            var extension = Path.GetExtension(directory);
-
-            var archivo = extension switch
-            {
-                ".jpg" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".jpeg" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".jpe" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".png" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".xlsx" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".xls" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".pdf" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                //".pdf" => new FileStream(directory, FileMode.Open),
-                ".csv" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".doc" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".docx" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".odt" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".mp3" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-                ".mp4" => new FileStreamResult(new FileStream(directory, FileMode.Open), "application/octet-stream"),
-
-                _ => null,
-            };
-            return archivo;
+                return false;
+                     
+            return true;
 
         }
     }
