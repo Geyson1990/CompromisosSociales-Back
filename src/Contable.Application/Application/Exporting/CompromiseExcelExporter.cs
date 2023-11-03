@@ -230,8 +230,10 @@ namespace Contable.Application.Exporting
                    _ => new ExportCell(_.Status != null ? FormatState(_.Status.Value, 0) : ""),
                    _ => new ExportCell(_.Status != null ? FormatState(_.Status.Value, 1) : ""),
                    _ => new ExportCell(_.WomanCompromise ? "SI" : "NO"),
+                   _ => new ExportCell(_.DueDate, "dd/mm/yyyy", ExportCellType.Date),
+                   _ => new ExportCell(_.DeadLine, "dd/mm/yyyy", ExportCellType.Date),
                    _ => new ExportCell(_.Timelines)
-                );
+                   );
 
                 for (var i = 0; i < compromiseListDtos.Count; i++)
                 {

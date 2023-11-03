@@ -11,8 +11,8 @@ namespace Contable.Application.Compromises.Dto
         public string Description { get; set; }
         public string Transcription { get; set; }
         public CompromiseType Type { get; set; }
-        public DateTime? Deadline { get; set; }
         public DateTime? DueDate { get; set; }
+        public DateTime? Deadline { get; set; }
         public EntityDto Status { get; set; }
         public bool IsPriority { get; set; }
         public string PriorityReference { get; set; }
