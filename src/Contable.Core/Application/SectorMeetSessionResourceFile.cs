@@ -37,5 +37,7 @@ namespace Contable.Application
 
         [Column(TypeName = SectorMeetSessionResourceConsts.ResourceType)]
         public string Resource { get; set; }
+        [Column(TypeName = SectorMeetSessionResourceConsts.ResourceType)]
+        public string Description { get; set; }
     }
 }
