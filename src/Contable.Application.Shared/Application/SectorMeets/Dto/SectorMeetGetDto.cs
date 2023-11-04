@@ -13,5 +13,7 @@ namespace Contable.Application.SectorMeets.Dto
         public string MeetName { get; set; }
         public SectorMeetTerritorialUnitRelationDto TerritorialUnit { get; set; }
         public SectorMeetSocialConflictRelationDto SocialConflict { get; set; }
+
+        public List<SectorMeetResourceRelationDto> Resources { get; set; }
     }
 }

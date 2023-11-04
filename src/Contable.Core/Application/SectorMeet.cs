@@ -35,5 +35,7 @@ namespace Contable.Application
         public SocialConflict SocialConflict { get; set; }
 
         public List<SectorMeetSession> Sessions { get; set; }
+
+        public List<SectorMeetResource> Resources { get; set; }
     }
 }

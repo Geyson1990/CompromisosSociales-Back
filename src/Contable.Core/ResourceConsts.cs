@@ -29,6 +29,7 @@ namespace Contable
         public const string SocialConflictTaskManagement = "SocialConflictTaskManagement";
         public const string SocialConflictTaskManagement_Method = "LoadSocialConflictTaskManagementResource";
         public const string SectorMeetSession = "SectorMeetSession";
+        public const string SectorMeet = "SectorMeet";
         public const string SectorMeetSession_Method = "LoadSectorMeetSessionResource";
         public const string ProfilePicture = "ProfilePicture";
         public const string ProfilePicture_Method = "LoadProfilePictureResource";

@@ -15,6 +15,10 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Abp.UI;
+using Contable.Application.SectorMeetSessions.Dto;
+using IdentityServer4.Models;
+using Contable.Application.Uploaders.Dto;
+using Contable.Migrations;
 
 namespace Contable.Application
 {
@@ -22,17 +26,21 @@ namespace Contable.Application
     public class SectorMeetAppService : ContableAppServiceBase, ISectorMeetAppService
     {
         private readonly IRepository<SectorMeet> _sectorMeetRepository;
+        private readonly IRepository<SectorMeetResource> _sectorMeetResourceRepository;
+        
         private readonly IRepository<SocialConflict> _socialConflictRepository;
         private readonly IRepository<TerritorialUnit> _territorialUnitRepository;
 
         public SectorMeetAppService(
-            IRepository<SectorMeet> sectorMeetRepository, 
+            IRepository<SectorMeet> sectorMeetRepository,
+            IRepository<SectorMeetResource> sectorMeetResourceRepository,
             IRepository<SocialConflict> socialConflictRepository,
             IRepository<TerritorialUnit> territorialUnitRepository)
         {
             _sectorMeetRepository = sectorMeetRepository;
             _socialConflictRepository = socialConflictRepository;
             _territorialUnitRepository = territorialUnitRepository;
+            _sectorMeetResourceRepository = sectorMeetResourceRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Create)]
@@ -53,7 +61,8 @@ namespace Contable.Application
             var sectorMeetId = await _sectorMeetRepository.InsertAndGetIdAsync(await ValidateEntity(
                 input: ObjectMapper.Map<SectorMeet>(input),
                 socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id,
-                territorialUnitId: input.TerritorialUnit == null ? -1 : input.TerritorialUnit.Id
+                territorialUnitId: input.TerritorialUnit == null ? -1 : input.TerritorialUnit.Id,
+                uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>()
             ));
 
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -91,12 +100,19 @@ namespace Contable.Application
                     .First();
 
                 output.SectorMeet = ObjectMapper.Map<SectorMeetGetDto>(dbSectorMeet);
+
+                output.SectorMeet.Resources = ObjectMapper.Map<List<SectorMeetResourceRelationDto>>(_sectorMeetResourceRepository
+           .GetAll()
+                  .Where(p => p.SectorMeetId == dbSectorMeet.Id)
+                  .ToList());
             }
 
             output.TerritorialUnits = ObjectMapper.Map<List<SectorMeetTerritorialUnitRelationDto>>(_territorialUnitRepository
                 .GetAll()
                 .OrderBy(p => p.Name)
                 .ToList());
+
+           
 
             return output;
         }
@@ -139,7 +155,8 @@ namespace Contable.Application
             var sectorMeetId = await _sectorMeetRepository.InsertOrUpdateAndGetIdAsync(await ValidateEntity(
                 input: ObjectMapper.Map(input, await _sectorMeetRepository.GetAsync(input.Id)),
                 socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id,
-                territorialUnitId: input.TerritorialUnit == null ? -1 : input.TerritorialUnit.Id
+                territorialUnitId: input.TerritorialUnit == null ? -1 : input.TerritorialUnit.Id,
+                 uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>()
                 ));
 
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -150,7 +167,7 @@ namespace Contable.Application
             return new EntityDto(sectorMeetId);
         }
 
-        private async Task<SectorMeet> ValidateEntity(SectorMeet input, int socialConflictId, int territorialUnitId)
+        private async Task<SectorMeet> ValidateEntity(SectorMeet input, int socialConflictId, int territorialUnitId, List<SectorMeetSessionAttachmentDto> uploadFiles)
         {
             input.MeetName.IsValidOrException("Aviso", "El nombre de la reunión es obligatorio");
             input.MeetName.VerifyTableColumn(SectorMeetConsts.MeetNameMinLength,
@@ -184,6 +201,17 @@ namespace Contable.Application
 
             input.TerritorialUnit = territorialUnit;
             input.TerritorialUnitId = territorialUnit.Id;
+            input.Resources = new List<SectorMeetResource>();
+
+            foreach (var uploadFile in uploadFiles)
+            {
+                var dbResource = ObjectMapper.Map<SectorMeetResource>(ResourceManager.Create(
+                    resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
+                    section: ResourceConsts.SectorMeet
+                ));
+
+                input.Resources.Add(dbResource);
+            }
 
             return input;
         }
