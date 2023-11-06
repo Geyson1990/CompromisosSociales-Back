@@ -27,7 +27,7 @@ namespace Contable.Application
     {
         private readonly IRepository<SectorMeet> _sectorMeetRepository;
         private readonly IRepository<SectorMeetResource> _sectorMeetResourceRepository;
-        
+
         private readonly IRepository<SocialConflict> _socialConflictRepository;
         private readonly IRepository<TerritorialUnit> _territorialUnitRepository;
 
@@ -88,7 +88,7 @@ namespace Contable.Application
         {
             var output = new SectorMeetGetDataDto();
 
-            if(input.Id.HasValue)
+            if (input.Id.HasValue)
             {
                 VerifyCount(await _sectorMeetRepository.CountAsync(p => p.Id == input.Id.Value));
 
@@ -101,10 +101,32 @@ namespace Contable.Application
 
                 output.SectorMeet = ObjectMapper.Map<SectorMeetGetDto>(dbSectorMeet);
 
-                output.SectorMeet.Resources = ObjectMapper.Map<List<SectorMeetResourceRelationDto>>(_sectorMeetResourceRepository
-           .GetAll()
+                var datos = _sectorMeetResourceRepository.GetAll()
                   .Where(p => p.SectorMeetId == dbSectorMeet.Id)
-                  .ToList());
+                  .ToList();
+
+                //var mapperDatos = ObjectMapper.Map<List<SectorMeetResourceRelationDto>>(datos);
+                var mapperDatos = new List<SectorMeetResourceRelationDto>();
+                foreach (var item in datos)
+                {
+                    mapperDatos.Add(new SectorMeetResourceRelationDto
+                    {
+                        ClassName= item.ClassName,
+                        CreationTime= item.CreationTime,
+                        Description= item.Description,
+                        Name= item.Name,
+                        Extension= item.Extension,
+                        FileName= item.FileName,
+                        Id= item.Id,
+                        Size= item.Size,
+                        SectionFolder= item.SectionFolder,                       
+
+                    });
+                }
+
+
+
+                output.SectorMeet.Resources = mapperDatos;
             }
 
             output.TerritorialUnits = ObjectMapper.Map<List<SectorMeetTerritorialUnitRelationDto>>(_territorialUnitRepository
@@ -112,7 +134,7 @@ namespace Contable.Application
                 .OrderBy(p => p.Name)
                 .ToList());
 
-           
+
 
             return output;
         }
@@ -205,10 +227,26 @@ namespace Contable.Application
 
             foreach (var uploadFile in uploadFiles)
             {
-                var dbResource = ObjectMapper.Map<SectorMeetResource>(ResourceManager.Create(
+                var recurso = ResourceManager.Create(
                     resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
                     section: ResourceConsts.SectorMeet
-                ));
+                );
+                //var dbResource = ObjectMapper.Map<SectorMeetResource>(recurso);
+                var dbResource = new SectorMeetResource
+                {
+                    Name = recurso.Name,
+                    LastModificationTime = DateTime.Now,
+                    ResourceFolder = recurso.ResourceFolder,
+                    Resource = recurso.Resource,
+                    FileName = recurso.FileName,
+                    ClassName = recurso.ClassName,
+                    SectionFolder = recurso.SectionFolder,
+                    CommonFolder = recurso.CommonFolder,
+                    Description = recurso.Description,
+                    Extension = recurso.Extension,
+                    Size = recurso.Size,
+                };
+
 
                 input.Resources.Add(dbResource);
             }

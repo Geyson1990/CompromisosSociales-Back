@@ -15,5 +15,6 @@ namespace Contable.Application.SectorMeets.Dto
         public string Name { get; set; }
         public string Resource { get; set; }
         public bool Remove { get; set; }
+        public string Description { get; set; }
     }
 }

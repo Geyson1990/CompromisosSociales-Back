@@ -15,5 +15,7 @@ namespace Contable.Application.Uploaders.Dto
         public string ClassName { get; set; }
         public string Name { get; set; }
         public string Resource { get; set; }
+        public string Description { get; set; }
+
     }
 }

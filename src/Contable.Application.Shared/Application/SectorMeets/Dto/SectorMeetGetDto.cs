@@ -15,5 +15,10 @@ namespace Contable.Application.SectorMeets.Dto
         public SectorMeetSocialConflictRelationDto SocialConflict { get; set; }
 
         public List<SectorMeetResourceRelationDto> Resources { get; set; }
+
+        public SectorMeetGetDto()
+        {
+            Resources = new List<SectorMeetResourceRelationDto>();
+        }
     }
 }

@@ -120,7 +120,8 @@ namespace Contable.Manager.Base
                 Name = resource.Name,
                 Size = resource.Size,
                 Extension = resource.Extension,
-                ClassName = resource.ClassName
+                ClassName = resource.ClassName,
+                Description= resource.Description
             };
 
             output.Resource = @$"/Resource/{GetPath(section)}?resource=";
@@ -167,6 +168,8 @@ namespace Contable.Manager.Base
                 return ResourceConsts.ProfilePicture_Method;
             if (ResourceConsts.DialogSpaceDocument == section)
                 return ResourceConsts.DialogSpaceDocument_Method;
+            if (ResourceConsts.SectorMeet == section)
+                return ResourceConsts.SectorMeet_Method;
 
             throw new UserFriendlyException("Aviso", "Ruta para recursos no soportada");
         }

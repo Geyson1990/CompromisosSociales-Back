@@ -11,4 +11,12 @@ namespace Contable.Application
         public const string ResourceType = "TEXT";
         public const string Type = "INT";    
     }
+
+    public class SectorMeetResourceConsts
+    {
+        public const string SectorMeetSessionIdType = "INT";
+        public const string AssetType = "VARCHAR(255)";
+        public const string ResourceType = "TEXT";
+        public const string Type = "INT";
+    }
 }
