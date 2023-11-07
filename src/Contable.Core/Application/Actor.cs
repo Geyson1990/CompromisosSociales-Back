@@ -43,7 +43,7 @@ namespace Contable.Application
         [Column(TypeName = ActorConsts.InterestType)]
         public string Interest { get; set; }
 
-        [Column(TypeName = PersonConsts.EnabledType)]
+        [Column(TypeName = ActorConsts.EnabledType)]
         public bool Enabled { get; set; }
 
         [Column(TypeName = ActorConsts.ActorTypeIdType)]
@@ -51,19 +51,9 @@ namespace Contable.Application
         public int ActorTypeId { get; set; }
         public ActorType ActorType { get; set; }
 
-        //[Column(TypeName = ActorConsts.TypologyIdType)]
-        //[ForeignKey("Typology")]
-        //public int TypologyId { get; set; }
-        //public Typology Typology { get; set; }
-
-        //[Column(TypeName = ActorConsts.SubTypologyIdType)]
-        //[ForeignKey("SubTypology")]
-        //public int SubTypologyId { get; set; }
-        //public SubTypology SubTypology { get; set; }
-
         [Column(TypeName = ActorConsts.ActorMovementIdType)]
         [ForeignKey("ActorMovement")]
-        public int ActorMovementId { get; set; }
+        public int? ActorMovementId { get; set; }
         public ActorMovement ActorMovement { get; set; }
 
     }

@@ -9,7 +9,6 @@ namespace Contable.Application.Actors.Dto
     {
         public ActorGetDto Actor { get; set; }
         public List<ActorTypeDto> ActorTypes { get; set; }
-        public List<ActorTypologyDto> Typologies { get; set; }
         public List<ActorMovementDto> ActorMovements { get; set; }
     }
 }

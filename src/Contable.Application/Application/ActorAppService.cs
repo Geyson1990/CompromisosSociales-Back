@@ -24,8 +24,6 @@ namespace Contable.Application
     public class ActorAppService: ContableAppServiceBase, IActorAppService
     {
         private readonly IRepository<Actor> _actorRepository;
-        private readonly IRepository<Typology> _typologyRepository;
-        private readonly IRepository<SubTypology> _subTypologyRepository;
         private readonly IRepository<ActorType> _actorTypeRepository;
         private readonly IRepository<ActorMovement> _actorMovementRepository;
         private readonly EmailAddressAttribute _emailAddressAttribute;
@@ -33,14 +31,10 @@ namespace Contable.Application
 
         public ActorAppService(
             IRepository<Actor> actorRepository, 
-            IRepository<Typology> typologyRepository,
-            IRepository<SubTypology> subTypologyRepository,
             IRepository<ActorType> actorTypeRepository, 
             IRepository<ActorMovement> actorMovementRepository)
         {
             _actorRepository = actorRepository;
-            _typologyRepository = typologyRepository;
-            _subTypologyRepository = subTypologyRepository;
             _actorTypeRepository = actorTypeRepository;
             _actorMovementRepository = actorMovementRepository;
             _emailAddressAttribute = new EmailAddressAttribute();
@@ -49,35 +43,8 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Create)]
         public async Task Create(ActorCreateDto input)
         {
-            //if (await _typologyRepository.CountAsync(p => p.Id == input.TypologyId) == 0)
-            //    throw new UserFriendlyException("Aviso", "La tipología seleccionada no existe o ya fue eliminada");
-            //if (await _subTypologyRepository.CountAsync(p => p.Id == input.SubTypologyId) == 0)
-            //    throw new UserFriendlyException("Aviso", "La subtipología  seleccionada no existe o ya fue eliminada");
-            //if (await _actorTypeRepository.CountAsync(p => p.Id == input.ActorTypeId) == 0)
-            //    throw new UserFriendlyException("Aviso", "El tipo de actor seleccionada no existe o ya fue eliminada");
-            //if (await _actorMovementRepository.CountAsync(p => p.Id == input.ActorMovementId) == 0)
-            //    throw new UserFriendlyException("Aviso", "El tipo de actor seleccionada no existe o ya fue eliminada");
-            //var actor = ObjectMapper.Map<Actor>(input);
-
-            //await _actorRepository.InsertAsync(ValidateEntity(actor));
-
-            try
-            {
-                //var actor = ObjectMapper.Map<Actor>(input);
-                //await _actorRepository.InsertAsync(ValidateEntity(actor: actor));
-
-
-                var actorx = ObjectMapper.Map<Actor>(input);
-                var ok = await ValidateEntity(
-                    actor: actorx);
-
-                await _actorRepository.InsertAsync(ok);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-
+            await _actorRepository.InsertAsync(await ValidateEntity(
+               actor: ObjectMapper.Map<Actor>(input)));
         }
 
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Delete)]
@@ -110,26 +77,6 @@ namespace Contable.Application
             .GetAll()
             .OrderBy(p => p.Name)
             .ToList());
-
-            var typologies = await _typologyRepository
-            .GetAll()
-            .Include(p => p.SubTypologies)
-            .ToListAsync();
-
-            output.Typologies = new List<ActorTypologyDto>();
-            foreach (var item in typologies)
-            {
-                if (item.Id > 0)
-                {
-                    var typology = new ActorTypologyDto
-                    {
-                        Id = item.Id,
-                        Name = item.Name,
-                        subTypologies = ObjectMapper.Map<List<ActorSubTypologyDto>>(item.SubTypologies)
-                    };
-                    output.Typologies.Add(typology);
-                }
-            }  
     
             output.ActorMovements = ObjectMapper.Map<List<ActorMovementDto>>(_actorMovementRepository
             .GetAll()
