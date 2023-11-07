@@ -749,11 +749,13 @@ namespace Contable
             //Actors
             configuration.CreateMap<Actor, ActorGetAllDto>();
             configuration.CreateMap<Actor, ActorGetDto>();
-            configuration.CreateMap<ActorCreateDto, Actor>();
-            configuration.CreateMap<ActorUpdateDto, Actor>();
+            configuration.CreateMap<ActorCreateDto, Actor>()
+                .ForMember(p => p.ActorType, options => options.Ignore())
+                .ForMember(p => p.ActorMovement, options => options.Ignore());
+            configuration.CreateMap<ActorUpdateDto, Actor>()
+                .ForMember(p => p.ActorType, options => options.Ignore())
+                .ForMember(p => p.ActorMovement, options => options.Ignore());
             configuration.CreateMap<ActorType, ActorTypeDto>().ReverseMap();
-            configuration.CreateMap<Typology, ActorTypologyDto>().ReverseMap();
-            configuration.CreateMap<SubTypology, ActorSubTypologyDto>().ReverseMap();
             configuration.CreateMap<ActorMovement, ActorMovementDto>().ReverseMap();
 
             //Social conflict actor types
