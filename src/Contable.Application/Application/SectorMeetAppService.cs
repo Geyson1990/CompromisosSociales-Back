@@ -120,8 +120,6 @@ namespace Contable.Application
                     });
                 }
 
-
-
                 output.SectorMeet.Resources = mapperDatos;
             }
 
@@ -129,8 +127,6 @@ namespace Contable.Application
                 .GetAll()
                 .OrderBy(p => p.Name)
                 .ToList());
-
-
 
             return output;
         }
@@ -242,7 +238,6 @@ namespace Contable.Application
                     Extension = recurso.Extension,
                     Size = recurso.Size,
                 };
-
 
                 input.Resources.Add(dbResource);
             }
