@@ -41,10 +41,15 @@ namespace Contable.Application
         }
 
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Create)]
-        public async Task Create(ActorCreateDto input)
+        public async Task<EntityDto<long>> Create(ActorCreateDto input)
         {
-            await _actorRepository.InsertAsync(await ValidateEntity(
-               actor: ObjectMapper.Map<Actor>(input)));
+            var actorId = await _actorRepository.InsertAndGetIdAsync(await ValidateEntity(
+            actor: ObjectMapper.Map<Actor>(input),
+            actorTypeId: input.ActorType == null ? -1 : input.ActorType.Id,
+            actorMovementId: input.ActorMovement == null ? -1 : input.ActorMovement.Id
+            ));
+            await CurrentUnitOfWork.SaveChangesAsync();
+            return new EntityDto<long>(actorId);
         }
 
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Delete)]
@@ -100,13 +105,18 @@ namespace Contable.Application
         }
 
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Edit)]
-        public async Task Update(ActorUpdateDto input)
+        public async Task<EntityDto> Update(ActorUpdateDto input)
         {
             VerifyCount(await _actorRepository.CountAsync(p => p.Id == input.Id));
-            await _actorRepository.UpdateAsync(await ValidateEntity(
-                actor: ObjectMapper.Map(input, await _actorRepository.GetAsync(input.Id))));
+            var actorId = await _actorRepository.InsertOrUpdateAndGetIdAsync(await ValidateEntity(
+                actor: ObjectMapper.Map(input, await _actorRepository.GetAsync(input.Id)),
+                actorTypeId: input.ActorType == null ? -1 : input.ActorType.Id,
+                actorMovementId: input.ActorMovement == null ? -1 : input.ActorMovement.Id));
+
+            await CurrentUnitOfWork.SaveChangesAsync();
+            return new EntityDto(actorId);
         }
-        private async Task<Actor> ValidateEntity(Actor actor)
+       private async Task<Actor> ValidateEntity(Actor actor, int actorTypeId, int actorMovementId)
         {
             actor.FullName = (actor.FullName ?? "").Trim().ToUpper();
             actor.DocumentNumber = (actor.DocumentNumber ?? "").Trim().ToUpper();
@@ -127,6 +137,10 @@ namespace Contable.Application
                 ActorConsts.DocumentNumberMaxLength,
                 DefaultTitleMessage,
                 $"El N° de documento del actor {actor.FullName} no debe exceder los {ActorConsts.DocumentNumberMaxLength} caracteres");
+
+            if (actor.Id == 0)
+                if (await _actorRepository.CountAsync(p => p.DocumentNumber == actor.DocumentNumber) > 0)
+                    throw new UserFriendlyException(DefaultTitleMessage, $"El actor {actor.FullName} ya existe. Verifique la información antes de continuar");
 
             actor.JobPosition.VerifyTableColumn(ActorConsts.JobPositionMinLength,
                 ActorConsts.JobPositionMaxLength,
@@ -154,21 +168,27 @@ namespace Contable.Application
                $"El correo electrónico del actor {actor.FullName} no debe exceder los {ActorConsts.EmailAddressMaxLength} caracteres");
 
 
-            if (await _actorTypeRepository.CountAsync(p => p.Id == actor.ActorType.Id) == 0)
+            if (await _actorTypeRepository.CountAsync(p => p.Id == actorTypeId) == 0)
                 throw new UserFriendlyException(DefaultTitleMessage, $"El tipo de actor {actor.ActorType.Name} ya no existe o fue eliminado. Verifique la información antes de continuar");
 
-            //var dbActorType = await _actorTypeRepository.GetAsync(actor.ActorType.Id);
-            //ActorMovement dbActorMovement = null;
+            var dbActorType = await _actorTypeRepository.GetAsync(actorTypeId);
+            actor.ActorType = dbActorType;
+            actor.ActorTypeId = dbActorType.Id;
 
+            ActorMovement dbActorMovement = null;
             if (actor.ActorType.ShowMovement)
             {
-                if (actor.ActorMovement.Id == -1)
-                    throw new UserFriendlyException("Aviso", $"La capacidad de movilización del actor {actor.FullName} es obligatoria");
-
-                if (await _actorMovementRepository.CountAsync(p => p.Id == actor.ActorMovement.Id) == 0)
+                if (await _actorMovementRepository.CountAsync(p => p.Id == actorMovementId) == 0)
                     throw new UserFriendlyException(DefaultTitleMessage, $"La capacidad de movilización {actor.ActorMovement.Name} ya no existe o fue eliminado. Verifique la información antes de continuar");
 
-                //dbActorMovement = await _actorMovementRepository.GetAsync(actor.ActorMovement.Id);
+                dbActorMovement = await _actorMovementRepository.GetAsync(actorMovementId);
+                actor.ActorMovement = dbActorMovement;
+                actor.ActorMovementId = dbActorMovement.Id;
+            }
+            else
+            {
+                actor.ActorMovement = null;
+                actor.ActorMovementId = null;
             }
 
             if (actor.ActorType.ShowDetail)
@@ -182,11 +202,6 @@ namespace Contable.Application
                     DefaultTitleMessage,
                     $"El interés del actor {actor.FullName} no debe exceder los {ActorConsts.InterestMaxLength} caracteres");
             }
-            else
-            {
-                actor.Position = "";
-                actor.Interest = "";
-            }
 
             if (actor.IsPoliticalAssociation)
             {
@@ -194,10 +209,6 @@ namespace Contable.Application
                     ActorConsts.PoliticalAssociationMaxLength,
                     DefaultTitleMessage,
                     $"El nombre del partido político al que pertenece el actor {actor.FullName} no debe exceder los {ActorConsts.PoliticalAssociationMaxLength} caracteres");
-            }
-            else
-            {
-                actor.PoliticalAssociation = "";
             }
 
             return actor;
