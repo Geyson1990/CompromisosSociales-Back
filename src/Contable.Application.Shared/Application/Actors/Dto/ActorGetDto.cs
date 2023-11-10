@@ -7,6 +7,8 @@ namespace Contable.Application.Actors.Dto
 {
     public class ActorGetDto : EntityDto
     {
+        public DateTime CreationTime { get; set; }
+        public DateTime? LastModificationTime { get; set; }
         public string FullName { get; set; }
         public string DocumentNumber { get; set; }
         public string JobPosition { get; set; }
