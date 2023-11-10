@@ -48,6 +48,8 @@
     <EmbeddedResource Include="wwwroot\swagger\ui\index.html" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Uploads\Content\Resources\SectorMeetSession\Tab2\" />
+    <Folder Include="Uploads\Content\Resources\SectorMeetSession\Tab1\" />
     <Folder Include="wwwroot\NewFolder\" />
   </ItemGroup>
   <PropertyGroup>

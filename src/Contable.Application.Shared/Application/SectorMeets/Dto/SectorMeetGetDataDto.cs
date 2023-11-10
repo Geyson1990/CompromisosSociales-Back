@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Contable.Application.SectorMeetSessions.Dto;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,5 +8,6 @@ namespace Contable.Application.SectorMeets.Dto
     {
         public SectorMeetGetDto SectorMeet { get; set; }
         public List<SectorMeetTerritorialUnitRelationDto> TerritorialUnits { get; set; }
+        
     }
 }

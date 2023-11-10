@@ -65,6 +65,6 @@ namespace Contable.Application
         public List<SectorMeetSessionSummary> Summaries { get; set; }
         public List<SectorMeetSessionResource> Resources { get; set; }
         public List<SectorMeetSessionLeader> Leaders { get; set; }
-        public List<SectorMeetSessionFile> ResourcesFiles { get; set; }
+        public List<SectorMeetSessionResourceFile> ResourcesFiles { get; set; }
     }
 }

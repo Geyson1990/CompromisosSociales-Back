@@ -14,5 +14,7 @@ namespace Contable.Application.Uploaders.Dto
         public string Name { get; set; }
         public string Token { get; set; }
         public RecordResourceTypeDto RecordResourceType { get; set; }
+        public string Description{ get; set; }
+
     }
 }
