@@ -957,6 +957,7 @@ namespace Contable.Application
                                         dbSectorMeetSessionTeam.Job = team.Job;
                                         dbSectorMeetSessionTeam.EmailAddress = team.EmailAddress;
                                         dbSectorMeetSessionTeam.PhoneNumber = team.PhoneNumber;
+                                        dbSectorMeetSessionTeam.Gender = team.Gender;
 
                                         await _sectorMeetSessionTeamRepository.UpdateAsync(dbSectorMeetSessionTeam);
                                     }
@@ -970,7 +971,8 @@ namespace Contable.Application
                                             SecondSurname = team.SecondSurname,
                                             Job = team.Job,
                                             EmailAddress = team.EmailAddress,
-                                            PhoneNumber = team.PhoneNumber
+                                            PhoneNumber = team.PhoneNumber,
+                                            Gender = team.Gender
                                         });
                                     }
                                 }
@@ -1004,7 +1006,8 @@ namespace Contable.Application
                                 SecondSurname = team.SecondSurname,
                                 Job = team.Job,
                                 EmailAddress = team.EmailAddress,
-                                PhoneNumber = team.PhoneNumber
+                                PhoneNumber = team.PhoneNumber,
+                                Gender = team.Gender
                             });
 
                         }

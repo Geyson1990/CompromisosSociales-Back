@@ -15,5 +15,7 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public string EmailAddress { get; set; }
         public string PhoneNumber { get; set; }
         public bool Remove { get; set; }
+        public string Gender { get; set; }
+        
     }
 }

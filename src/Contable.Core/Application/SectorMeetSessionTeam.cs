@@ -34,5 +34,7 @@ namespace Contable.Application
 
         [Column(TypeName = SectorMeetSessionTeamConsts.PhoneNumberType)]
         public string PhoneNumber { get; set; }
+        [Column(TypeName = SectorMeetSessionTeamConsts.GenderType)]
+        public string Gender { get; set; }
     }
 }

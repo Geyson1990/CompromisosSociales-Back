@@ -35,5 +35,6 @@ namespace Contable.Application
         public const string PhoneNumberType = "VARCHAR(255)";
 
         public const string SectorMeetSessionLeaderIdType = "INT";
+        public const string GenderType = "VARCHAR(1)";
     }
 }
