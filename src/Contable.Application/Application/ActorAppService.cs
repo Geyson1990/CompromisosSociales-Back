@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services.Dto;
+using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
@@ -17,6 +17,8 @@ using Abp.UI;
 using System.ComponentModel.DataAnnotations;
 using Contable.Application.Managers.Dto;
 using Contable.Application.Orders.Dto;
+using Contable.Authorization.Users;
+using Contable.Application.Compromises.Dto;
 
 namespace Contable.Application
 {
@@ -27,17 +29,19 @@ namespace Contable.Application
         private readonly IRepository<ActorType> _actorTypeRepository;
         private readonly IRepository<ActorMovement> _actorMovementRepository;
         private readonly EmailAddressAttribute _emailAddressAttribute;
-        
+        private readonly IRepository<User, long> _userRepository;
 
         public ActorAppService(
             IRepository<Actor> actorRepository, 
             IRepository<ActorType> actorTypeRepository, 
-            IRepository<ActorMovement> actorMovementRepository)
+            IRepository<ActorMovement> actorMovementRepository,
+            IRepository<User, long> userRepository)
         {
             _actorRepository = actorRepository;
             _actorTypeRepository = actorTypeRepository;
             _actorMovementRepository = actorMovementRepository;
             _emailAddressAttribute = new EmailAddressAttribute();
+            _userRepository = userRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Create)]
@@ -63,31 +67,50 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor)]
         public async Task<ActorGetDataDto> Get(NullableIdDto input)
         {
-            var output = new ActorGetDataDto();
+            var output = new ActorGetDataDto
+            {
+                Actor = new ActorGetDto()
+            };
 
             if (input.Id.HasValue)
             {
                 VerifyCount(await _actorRepository.CountAsync(p => p.Id == input.Id));
 
-                output.Actor = ObjectMapper.Map<ActorGetDto>(_actorRepository
+                var actor = _actorRepository
                     .GetAll()
                     .Include(p => p.ActorType)
                     //.Include(p => p.Typology)
                     //.Include(p => p.SubTypology)
                     .Include(p => p.ActorMovement)
                     .Where(p => p.Id == input.Id.Value)
-                    .First());
-            }
-            output.ActorTypes = ObjectMapper.Map<List<ActorTypeDto>>(_actorTypeRepository
-            .GetAll()
-            .OrderBy(p => p.Name)
-            .ToList());
-    
-            output.ActorMovements = ObjectMapper.Map<List<ActorMovementDto>>(_actorMovementRepository
-            .GetAll()
-            .OrderBy(p => p.Name)
-            .ToList());
+                    .First();
 
+                output.Actor = ObjectMapper.Map<ActorGetDto>(actor);
+
+                output.ActorTypes = ObjectMapper.Map<List<ActorTypeDto>>(_actorTypeRepository
+               .GetAll()
+               .OrderBy(p => p.Name)
+               .ToList());
+
+                output.ActorMovements = ObjectMapper.Map<List<ActorMovementDto>>(_actorMovementRepository
+                .GetAll()
+                .OrderBy(p => p.Name)
+                .ToList());
+
+                var creatorUser = actor.CreatorUserId.HasValue ? _userRepository
+                .GetAll()
+                .Where(p => p.Id == actor.CreatorUserId.Value)
+                .FirstOrDefault() : null;
+
+                var editUser = actor.LastModifierUserId.HasValue ? _userRepository
+                    .GetAll()
+                    .Where(p => p.Id == actor.LastModifierUserId.Value)
+                    .FirstOrDefault() : null;
+
+                output.Actor.CreatorUser = creatorUser == null ? null : ObjectMapper.Map<ActorUserDto>(creatorUser);
+                output.Actor.EditUser = editUser == null ? null : ObjectMapper.Map<ActorUserDto>(editUser);
+
+            }
             return output;
         }
 
