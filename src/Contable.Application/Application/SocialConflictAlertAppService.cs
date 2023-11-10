@@ -54,6 +54,7 @@ namespace Contable.Application
         private readonly IRepository<AlertRisk> _alertRiskRepository;
         private readonly IRepository<AlertSector> _alertSectorRepository;
         private readonly IRepository<AlertSeal> _alertSealRepository;
+        private readonly IRepository<Actor> _actorRepository;
         private readonly IRepository<ActorType> _actorTypeRepository;
         private readonly IRepository<ActorMovement> _actorMovementRepository;
         private readonly IRepository<Person> _personRepository;
@@ -85,6 +86,7 @@ namespace Contable.Application
             IRepository<AlertRisk> alertRiskRepository,
             IRepository<AlertSector> alertSectorRepository,
             IRepository<AlertSeal> alertSealRepository,
+            IRepository<Actor> actorRepository,
             IRepository<ActorType> actorTypeRepository,
             IRepository<ActorMovement> actorMovementRepository,
             IRepository<Person> personRepository,
@@ -989,114 +991,118 @@ namespace Contable.Application
                 }
                 else
                 {
-                    actor.Name.IsValidOrException(DefaultTitleMessage, "El nombre del actor es obligatorio");
+                    //actor.Name.IsValidOrException(DefaultTitleMessage, "El nombre del actor es obligatorio");
 
-                    actor.Name.VerifyTableColumn(SocialConflictActorConsts.NameMinLength,
-                        SocialConflictActorConsts.NameMaxLength,
-                        DefaultTitleMessage,
-                        $"El nombre del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.NameMaxLength} caracteres");
-                    actor.Document.VerifyTableColumn(SocialConflictActorConsts.DocumentMinLength,
-                        SocialConflictActorConsts.DocumentMaxLength,
-                        DefaultTitleMessage,
-                        $"El DNI del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.DocumentMaxLength} caracteres");
-                    actor.Job.VerifyTableColumn(SocialConflictActorConsts.JobMinLength,
-                        SocialConflictActorConsts.JobMaxLength,
-                        DefaultTitleMessage,
-                        $"El cargo del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.JobMaxLength} caracteres");
+                    //actor.Name.VerifyTableColumn(SocialConflictActorConsts.NameMinLength,
+                    //    SocialConflictActorConsts.NameMaxLength,
+                    //    DefaultTitleMessage,
+                    //    $"El nombre del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.NameMaxLength} caracteres");
+                    //actor.Document.VerifyTableColumn(SocialConflictActorConsts.DocumentMinLength,
+                    //    SocialConflictActorConsts.DocumentMaxLength,
+                    //    DefaultTitleMessage,
+                    //    $"El DNI del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.DocumentMaxLength} caracteres");
+                    //actor.Job.VerifyTableColumn(SocialConflictActorConsts.JobMinLength,
+                    //    SocialConflictActorConsts.JobMaxLength,
+                    //    DefaultTitleMessage,
+                    //    $"El cargo del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.JobMaxLength} caracteres");
 
-                    actor.Community.IsValidOrException(DefaultTitleMessage, $"La institución del {actor.Name} es obligatoria");
-                    actor.Community.VerifyTableColumn(SocialConflictActorConsts.CommunityMinLength,
-                        SocialConflictActorConsts.CommunityMaxLength,
-                        DefaultTitleMessage,
-                        $"La institución a la que pertenece el actor {actor.Name} no debe exceder los {SocialConflictActorConsts.CommunityMaxLength} caracteres");
+                    //actor.Community.IsValidOrException(DefaultTitleMessage, $"La institución del {actor.Name} es obligatoria");
+                    //actor.Community.VerifyTableColumn(SocialConflictActorConsts.CommunityMinLength,
+                    //    SocialConflictActorConsts.CommunityMaxLength,
+                    //    DefaultTitleMessage,
+                    //    $"La institución a la que pertenece el actor {actor.Name} no debe exceder los {SocialConflictActorConsts.CommunityMaxLength} caracteres");
 
-                    actor.PhoneNumber.VerifyTableColumn(SocialConflictActorConsts.PhoneNumberMinLength,
-                        SocialConflictActorConsts.PhoneNumberMaxLength,
-                        DefaultTitleMessage,
-                        $"El número de teléfono del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.PhoneNumberMaxLength} caracteres");
-                    actor.EmailAddress.VerifyTableColumn(SocialConflictActorConsts.EmailAddressMinLength,
-                        SocialConflictActorConsts.EmailAddressMaxLength,
-                        DefaultTitleMessage,
-                        $"El correo electrónico del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.EmailAddressMaxLength} caracteres");
+                    //actor.PhoneNumber.VerifyTableColumn(SocialConflictActorConsts.PhoneNumberMinLength,
+                    //    SocialConflictActorConsts.PhoneNumberMaxLength,
+                    //    DefaultTitleMessage,
+                    //    $"El número de teléfono del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.PhoneNumberMaxLength} caracteres");
+                    //actor.EmailAddress.VerifyTableColumn(SocialConflictActorConsts.EmailAddressMinLength,
+                    //    SocialConflictActorConsts.EmailAddressMaxLength,
+                    //    DefaultTitleMessage,
+                    //    $"El correo electrónico del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.EmailAddressMaxLength} caracteres");
 
-                    if (actor.IsPoliticalAssociation)
-                    {
-                        actor.PoliticalAssociation.VerifyTableColumn(SocialConflictActorConsts.PoliticalAssociationMinLength,
-                            SocialConflictActorConsts.PoliticalAssociationMaxLength,
-                            DefaultTitleMessage,
-                            $"El nombre del partido político al que pertenece el actor {actor.Name} no debe exceder los {SocialConflictActorConsts.PoliticalAssociationMaxLength} caracteres");
-                    }
+                    //if (actor.IsPoliticalAssociation)
+                    //{
+                    //    actor.PoliticalAssociation.VerifyTableColumn(SocialConflictActorConsts.PoliticalAssociationMinLength,
+                    //        SocialConflictActorConsts.PoliticalAssociationMaxLength,
+                    //        DefaultTitleMessage,
+                    //        $"El nombre del partido político al que pertenece el actor {actor.Name} no debe exceder los {SocialConflictActorConsts.PoliticalAssociationMaxLength} caracteres");
+                    //}
 
-                    if (await _actorTypeRepository.CountAsync(p => p.Id == actor.ActorType.Id) == 0)
-                        throw new UserFriendlyException(DefaultTitleMessage, $"El tipo de actor {actor.ActorType.Name} ya no existe o fue eliminado. Verifique la información antes de continuar");
+                    //if (await _actorTypeRepository.CountAsync(p => p.Id == actor.ActorType.Id) == 0)
+                    //    throw new UserFriendlyException(DefaultTitleMessage, $"El tipo de actor {actor.ActorType.Name} ya no existe o fue eliminado. Verifique la información antes de continuar");
 
-                    var dbActorType = await _actorTypeRepository.GetAsync(actor.ActorType.Id);
-                    ActorMovement dbActorMovement = null;
+                    //var dbActorType = await _actorTypeRepository.GetAsync(actor.ActorType.Id);
+                    //ActorMovement dbActorMovement = null;
 
-                    if (dbActorType.ShowMovement)
-                    {
-                        if (actor.ActorMovement.Id == -1)
-                            throw new UserFriendlyException("Aviso", $"La capacidad de movilización del actor {actor.Name} es obligatoria");
+                    //if (dbActorType.ShowMovement)
+                    //{
+                    //    if (actor.ActorMovement.Id == -1)
+                    //        throw new UserFriendlyException("Aviso", $"La capacidad de movilización del actor {actor.Name} es obligatoria");
 
-                        if (await _actorMovementRepository.CountAsync(p => p.Id == actor.ActorMovement.Id) == 0)
-                            throw new UserFriendlyException(DefaultTitleMessage, $"La capacidad de movilización {actor.ActorMovement.Name} ya no existe o fue eliminado. Verifique la información antes de continuar");
+                    //    if (await _actorMovementRepository.CountAsync(p => p.Id == actor.ActorMovement.Id) == 0)
+                    //        throw new UserFriendlyException(DefaultTitleMessage, $"La capacidad de movilización {actor.ActorMovement.Name} ya no existe o fue eliminado. Verifique la información antes de continuar");
 
-                        dbActorMovement = await _actorMovementRepository.GetAsync(actor.ActorMovement.Id);
-                    }
+                    //    dbActorMovement = await _actorMovementRepository.GetAsync(actor.ActorMovement.Id);
+                    //}
 
-                    if (dbActorType.ShowDetail)
-                    {
-                        actor.Position.VerifyTableColumn(SocialConflictActorConsts.PositionMinLength,
-                            SocialConflictActorConsts.PositionMaxLength,
-                            DefaultTitleMessage,
-                            $"La posición del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.PositionMaxLength} caracteres");
-                        actor.Interest.VerifyTableColumn(SocialConflictActorConsts.InterestMinLength,
-                            SocialConflictActorConsts.InterestMaxLength,
-                            DefaultTitleMessage,
-                            $"El interés del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.InterestMaxLength} caracteres");
-                    }
+                    //if (dbActorType.ShowDetail)
+                    //{
+                    //    actor.Position.VerifyTableColumn(SocialConflictActorConsts.PositionMinLength,
+                    //        SocialConflictActorConsts.PositionMaxLength,
+                    //        DefaultTitleMessage,
+                    //        $"La posición del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.PositionMaxLength} caracteres");
+                    //    actor.Interest.VerifyTableColumn(SocialConflictActorConsts.InterestMinLength,
+                    //        SocialConflictActorConsts.InterestMaxLength,
+                    //        DefaultTitleMessage,
+                    //        $"El interés del actor {actor.Name} no debe exceder los {SocialConflictActorConsts.InterestMaxLength} caracteres");
+                    //}
 
                     if (actor.Id > 0)
                     {
                         if (await _socialConflictAlertActorRepository.CountAsync(p => p.Id == actor.Id && p.SocialConflictAlertId == input.Id) > 0)
                         {
                             var dbSocialConflictAlertActor = await _socialConflictAlertActorRepository.GetAsync(actor.Id);
-                            dbSocialConflictAlertActor.Name = actor.Name;
-                            dbSocialConflictAlertActor.Document = actor.Document;
-                            dbSocialConflictAlertActor.Job = actor.Job;
-                            dbSocialConflictAlertActor.Community = actor.Community;
-                            dbSocialConflictAlertActor.PhoneNumber = actor.PhoneNumber;
-                            dbSocialConflictAlertActor.EmailAddress = actor.EmailAddress;
-                            dbSocialConflictAlertActor.IsPoliticalAssociation = actor.IsPoliticalAssociation;
-                            dbSocialConflictAlertActor.PoliticalAssociation = actor.IsPoliticalAssociation ? actor.PoliticalAssociation : null;
-                            dbSocialConflictAlertActor.Position = dbActorType.ShowDetail ? actor.Position : null;
-                            dbSocialConflictAlertActor.Interest = dbActorType.ShowDetail ? actor.Interest : null;
-                            dbSocialConflictAlertActor.ActorTypeId = dbActorType.Id;
-                            dbSocialConflictAlertActor.ActorType = dbActorType;
-                            dbSocialConflictAlertActor.ActorMovementId = dbActorMovement == null ? (int?)null : dbActorMovement.Id;
-                            dbSocialConflictAlertActor.ActorMovement = dbActorMovement;
-
+                            var dbActor = await _actorRepository.GetAsync(actor.ActorId);
+                            dbSocialConflictAlertActor.ActorId = dbActor.Id;
+                            dbSocialConflictAlertActor.Name = dbActor.FullName;
+                            dbSocialConflictAlertActor.Document = dbActor.DocumentNumber;
+                            dbSocialConflictAlertActor.Job = dbActor.JobPosition;
+                            dbSocialConflictAlertActor.Community = dbActor.Institution;
+                            dbSocialConflictAlertActor.PhoneNumber = dbActor.PhoneNumber;
+                            dbSocialConflictAlertActor.EmailAddress = dbActor.EmailAddress;
+                            dbSocialConflictAlertActor.IsPoliticalAssociation = dbActor.IsPoliticalAssociation;
+                            dbSocialConflictAlertActor.PoliticalAssociation = dbActor.IsPoliticalAssociation ? dbActor.PoliticalAssociation : null;
+                            dbSocialConflictAlertActor.Position = dbActor.ActorType.ShowDetail ? dbActor.Position : null;
+                            dbSocialConflictAlertActor.Interest = dbActor.ActorType.ShowDetail ? dbActor.Interest : null;
+                            dbSocialConflictAlertActor.ActorTypeId = dbActor.ActorType.Id;
+                            dbSocialConflictAlertActor.ActorType = dbActor.ActorType;
+                            dbSocialConflictAlertActor.ActorMovementId = dbActor.ActorMovement == null ? (int?)null : dbActor.ActorMovement.Id;
+                            dbSocialConflictAlertActor.ActorMovement = dbActor.ActorMovement;
                             await _socialConflictAlertActorRepository.UpdateAsync(dbSocialConflictAlertActor);
                         }
                     }
                     else
                     {
+                        var dbActor = await _actorRepository.GetAsync(actor.ActorId);
+
                         input.Actors.Add(new SocialConflictActor()
                         {
-                            Name = actor.Name,
-                            Document = actor.Document,
-                            Job = actor.Job,
-                            Community = actor.Community,
-                            PhoneNumber = actor.PhoneNumber,
-                            EmailAddress = actor.EmailAddress,
-                            IsPoliticalAssociation = actor.IsPoliticalAssociation,
-                            PoliticalAssociation = actor.IsPoliticalAssociation ? actor.PoliticalAssociation : null,
-                            Position = dbActorType.ShowDetail ? actor.Position : null,
-                            Interest = dbActorType.ShowDetail ? actor.Interest : null,
-                            ActorTypeId = dbActorType.Id,
-                            ActorType = dbActorType,
-                            ActorMovementId = dbActorMovement == null ? (int?)null : dbActorMovement.Id,
-                            ActorMovement = dbActorMovement,
+                            Name = dbActor.FullName,
+                            Document = dbActor.DocumentNumber,
+                            Job = dbActor.JobPosition,
+                            Community = dbActor.Institution,
+                            PhoneNumber = dbActor.PhoneNumber,
+                            EmailAddress = dbActor.EmailAddress,
+                            IsPoliticalAssociation = dbActor.IsPoliticalAssociation,
+                            PoliticalAssociation = dbActor.IsPoliticalAssociation ? dbActor.PoliticalAssociation : null,
+                            Position = dbActor.ActorType.ShowDetail ? dbActor.Position : null,
+                            Interest = dbActor.ActorType.ShowDetail ? dbActor.Interest : null,
+                            ActorTypeId = dbActor.ActorType.Id,
+                            ActorType = dbActor.ActorType,
+                            ActorMovementId = dbActor.ActorMovement == null ? (int?)null : dbActor.ActorMovement.Id,
+                            ActorMovement = dbActor.ActorMovement,
+                            ActorId = actor.ActorId,
                             Site = ActorSite.SocialConflictAlert
                         });
                     }

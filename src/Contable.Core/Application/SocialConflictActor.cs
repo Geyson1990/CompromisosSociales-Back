@@ -14,6 +14,11 @@ namespace Contable.Application
         public int? SocialConflictId { get; set; }
         public SocialConflict SocialConflict { get; set; }
 
+        [Column(TypeName = SocialConflictActorConsts.SocialConflictActorIdType)]
+        [ForeignKey("Actors")]
+        public int? ActorId { get; set; }
+        public Actor Actor { get; set; }
+
         [Column(TypeName = SocialConflictActorConsts.SocialConflictAlertIdType)]
         [ForeignKey("SocialConflictAlert")]
         public int? SocialConflictAlertId { get; set; }

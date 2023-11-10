@@ -10,7 +10,7 @@ namespace Contable.Application
     [Table("AppActors")]
     public class Actor : FullAuditedEntity
     {
-                [Column(TypeName = ActorConsts.FullNameType)]
+        [Column(TypeName = ActorConsts.FullNameType)]
         public string FullName { get; set; }
 
         [Column(TypeName = ActorConsts.DocumentNumberType)]

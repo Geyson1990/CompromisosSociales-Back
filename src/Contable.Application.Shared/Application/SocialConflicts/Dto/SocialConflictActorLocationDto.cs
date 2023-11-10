@@ -19,6 +19,7 @@ namespace Contable.Application.SocialConflicts.Dto
         public string Interest { get; set; }
         public SocialConflictActorTypeRelationDto ActorType { get; set; }
         public SocialConflictActorMovementRelationDto ActorMovement { get; set; }
+        public int ActorId { get; set; }
         public bool Remove { get; set; }
     }
 }

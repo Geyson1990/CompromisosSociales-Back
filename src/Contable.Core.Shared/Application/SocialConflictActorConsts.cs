@@ -44,6 +44,7 @@ namespace Contable.Application
 
         public const string IsPoliticalAssociationType = "BIT";
         public const string SocialConflictIdType = "INT";
+        public const string SocialConflictActorIdType = "INT";
         public const string SocialConflictAlertIdType = "INT";
         public const string SocialConflictSensibleIdType = "INT"; 
         public const string ActorTypeIdType = "INT";
