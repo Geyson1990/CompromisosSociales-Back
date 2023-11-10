@@ -68,6 +68,7 @@ using Contable.Application.Facts.Dto;
 using Contable.Application.Sectors.Dto;
 using Contable.Application.Coordinators.Dto;
 using Contable.Application.Managements.Dto;
+using Contable.Application.Actors.Dto;
 using Contable.Application.ActorTypes.Dto;
 using Contable.Application.ActorMovements.Dto;
 using Contable.Application.Analysts.Dto;
@@ -748,6 +749,18 @@ namespace Contable
                 .ForMember(p => p.Options, options => options.Ignore());
             configuration.CreateMap<StaticVariableOption, ProjectRiskHistoryStaticVariableOptionGetDto>();
             configuration.CreateMap<StaticVariableOptionDetail, ProjectRiskHistoryStaticVariableOptionDetailGetDto>();
+
+            //Actors
+            configuration.CreateMap<Actor, ActorGetAllDto>();
+            configuration.CreateMap<Actor, ActorGetDto>();
+            configuration.CreateMap<ActorCreateDto, Actor>()
+                .ForMember(p => p.ActorType, options => options.Ignore())
+                .ForMember(p => p.ActorMovement, options => options.Ignore());
+            configuration.CreateMap<ActorUpdateDto, Actor>()
+                .ForMember(p => p.ActorType, options => options.Ignore())
+                .ForMember(p => p.ActorMovement, options => options.Ignore());
+            configuration.CreateMap<ActorType, ActorTypeDto>().ReverseMap();
+            configuration.CreateMap<ActorMovement, ActorMovementDto>().ReverseMap();
 
             //Social conflict actor types
             configuration.CreateMap<ActorType, ActorTypeGetAllDto>();

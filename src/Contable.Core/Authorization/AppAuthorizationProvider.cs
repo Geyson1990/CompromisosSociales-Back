@@ -445,6 +445,11 @@ namespace Contable.Authorization
             var customerResponses = quiz.CreateChildPermission(AppPermissions.Pages_Quiz_Responses, L("CustomerQuizReponses"), multiTenancySides: MultiTenancySides.Tenant);
             customerResponses.CreateChildPermission(AppPermissions.Pages_Quiz_Responses_Edit, L("EditingCustomerQuizReponses"), multiTenancySides: MultiTenancySides.Tenant);
 
+
+            var actor = maintenance.CreateChildPermission(AppPermissions.Pages_Maintenance_Actor, L("Actor"), multiTenancySides: MultiTenancySides.Tenant);
+            actor.CreateChildPermission(AppPermissions.Pages_Maintenance_Actor_Create, L("CreatingNewActor"), multiTenancySides: MultiTenancySides.Tenant);
+            actor.CreateChildPermission(AppPermissions.Pages_Maintenance_Actor_Edit, L("EditingActor"), multiTenancySides: MultiTenancySides.Tenant);
+            actor.CreateChildPermission(AppPermissions.Pages_Maintenance_Actor_Delete, L("DeletingActor"), multiTenancySides: MultiTenancySides.Tenant);
             ///App
 
             var app = context.GetPermissionOrNull(AppPermissions.App) ?? context.CreatePermission(AppPermissions.App, L("App"));

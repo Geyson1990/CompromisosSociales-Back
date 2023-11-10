@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Abp.UI;
 using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
+using Contable.Application.Actors.Dto;
 
 namespace Contable.Application
 {

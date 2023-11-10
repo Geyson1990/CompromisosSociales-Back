@@ -8,6 +8,7 @@ namespace Contable.Application.SocialConflicts.Dto
     public class SocialConflictActorGetAllDto : EntityDto
     {
         public int ConflictId { get; set; }
+        public int ActorId { get; set; }
         public string Code { get; set; }
         public string CaseName { get; set; }
         public string Name { get; set; }

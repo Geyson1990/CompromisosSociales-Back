@@ -34,5 +34,6 @@ namespace Contable
         public const string ProfilePicture_Method = "LoadProfilePictureResource";
         public const string DialogSpaceDocument = "DialogSpaceDocument";
         public const string DialogSpaceDocument_Method = "LoadDialogSpaceDocumentResource";
+        public const string Actor = "Actores";
     }
 }
