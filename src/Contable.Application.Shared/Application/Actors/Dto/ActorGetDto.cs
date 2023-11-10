@@ -23,6 +23,8 @@ namespace Contable.Application.Actors.Dto
         public bool Enabled { get; set; }
         public ActorTypeDto ActorType { get; set; }    
         public ActorMovementDto ActorMovement { get; set; }
+        public ActorUserDto CreatorUser { get; set; }
+        public ActorUserDto EditUser { get; set; }
         //public ActorTypologyDto Typology { get; set; }
         //public ActorSubTypologyDto SubTypology { get; set; }    
     }
