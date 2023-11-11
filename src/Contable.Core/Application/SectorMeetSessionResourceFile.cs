@@ -7,7 +7,7 @@ namespace Contable.Application
     public class SectorMeetSessionResourceFile : FullAuditedEntity
     {
         [Column(TypeName = SectorMeetSessionResourceConsts.SectorMeetSessionIdType)]
-        [ForeignKey("SectorMeetSession")]
+        [ForeignKey("SectorMeetSessions")]
         public int SectorMeetSessionId { get; set; }
         public SectorMeetSession SectorMeetSession { get; set; }
 

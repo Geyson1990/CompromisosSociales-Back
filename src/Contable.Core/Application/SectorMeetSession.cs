@@ -10,6 +10,11 @@ namespace Contable.Application
     [Table("AppSectorMeetSessions")]
     public class SectorMeetSession : FullAuditedEntity
     {
+        public SectorMeetSession()
+        {
+            ResourcesFiles = new List<SectorMeetSessionResourceFile>();
+        }
+
         [Column(TypeName = SectorMeetSessionConsts.SectorMeetIdType)]
         [ForeignKey("SectorMeet")]
         public int SectorMeetId { get; set; }

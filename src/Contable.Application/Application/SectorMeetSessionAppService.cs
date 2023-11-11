@@ -33,7 +33,7 @@ namespace Contable.Application
         private readonly IRepository<SectorMeetSessionResource> _sectorMeetSessionResourceRepository;
         private readonly IRepository<SectorMeetSessionResourceFile> _sectorMeetSessionResourceFileRepository;
 
-        
+
 
         private readonly IRepository<SectorMeetSessionLeader> _sectorMeetSessionLeaderRepository;
         private readonly IRepository<SectorMeetSessionTeam> _sectorMeetSessionTeamRepository;
@@ -47,7 +47,7 @@ namespace Contable.Application
         public SectorMeetSessionAppService(
             IRepository<SectorMeetSession> sectorMeetSessionRepository,
             IRepository<SectorMeet> sectorMeetRepository,
-            IRepository<SectorMeetSessionAction> sectorMeetSessionActionRepository, 
+            IRepository<SectorMeetSessionAction> sectorMeetSessionActionRepository,
             IRepository<SectorMeetSessionAgreement> sectorMeetSessionAgreementRepository,
             IRepository<SectorMeetSessionCriticalAspect> sectorMeetSessionCriticalAspectRepository,
             IRepository<SectorMeetSessionSchedule> sectorMeetSessionScheduleRepository,
@@ -119,7 +119,7 @@ namespace Contable.Application
             await _sectorMeetSessionScheduleRepository.DeleteAsync(p => p.SectorMeetSessionId == input.Id);
             await _sectorMeetSessionSummaryRepository.DeleteAsync(p => p.SectorMeetSessionId == input.Id);
             await _sectorMeetSessionResourceRepository.DeleteAsync(p => p.SectorMeetSessionId == input.Id);
-            await _sectorMeetSessionLeaderRepository.DeleteAsync(p => p.SectorMeetSessionId == input.Id);            
+            await _sectorMeetSessionLeaderRepository.DeleteAsync(p => p.SectorMeetSessionId == input.Id);
             await _sectorMeetSessionTeamRepository.DeleteAsync(p => p.SectorMeetSessionLeader.SectorMeetSessionId == input.Id);
         }
 
@@ -128,7 +128,7 @@ namespace Contable.Application
         {
             var output = new SectorMeetSessionGetDataDto();
 
-            if(input.SectorMeetSessionId.HasValue)
+            if (input.SectorMeetSessionId.HasValue)
             {
                 VerifyCount(await _sectorMeetSessionRepository.CountAsync(p => p.Id == input.SectorMeetSessionId.Value && p.SectorMeetId == input.SectorMeetId));
 
@@ -183,10 +183,35 @@ namespace Contable.Application
                     .Where(p => p.SectorMeetSessionId == dbSectorMeetSession.Id)
                     .ToList());
 
-                output.SectorMeetSession.ResourcesFile = ObjectMapper.Map<List<SectorMeetSessionResourceRelationDto>>(_sectorMeetSessionResourceFileRepository
+                var objArchivos = _sectorMeetSessionResourceFileRepository
                    .GetAll()
                    .Where(p => p.SectorMeetSessionId == dbSectorMeetSession.Id)
-                   .ToList());
+                   .ToList();
+
+                if (objArchivos != null)
+                {
+                    //output.SectorMeetSession.ResourcesFile = ObjectMapper.Map<List<SectorMeetSessionResourceRelationDto>>(objArchivos);
+                    var listArchivos = new List<SectorMeetSessionResourceRelationDto>();
+                    foreach (var item in objArchivos)
+                    {
+                        var obj = new SectorMeetSessionResourceRelationDto
+                        {
+                            Size = item.Size,
+                            Name = item.Name,
+                            SectionFolder = item.SectionFolder,
+                            Resource = item.Resource,
+                            ClassName = item.ClassName,
+                            CreationTime = item.CreationTime,
+                            Extension = item.Extension,
+                            FileName = item.FileName,
+                            Id = item.Id,
+
+                        };
+                        listArchivos.Add(obj);
+                    }
+                    output.SectorMeetSession.ResourcesFile = listArchivos;
+
+                }
 
                 output.SectorMeetSession.Leaders = ObjectMapper.Map<List<SectorMeetSessionLeaderRelationDto>>(_sectorMeetSessionLeaderRepository
                     .GetAll()
@@ -431,11 +456,11 @@ namespace Contable.Application
         }
 
         private async Task<SectorMeetSession> ValidateEntity(
-            SectorMeetSession input, 
-            int sectorMeetId, 
+            SectorMeetSession input,
+            int sectorMeetId,
             int personId,
-            int departmentId, 
-            int provinceId, 
+            int departmentId,
+            int provinceId,
             int districtId,
             List<SectorMeetSessionActionRelationDto> actions,
             List<SectorMeetSessionAgreementRelationDto> agreements,
@@ -460,7 +485,7 @@ namespace Contable.Application
             input.SectorMeet = sectorMeet;
             input.SectorMeetId = sectorMeet.Id;
 
-            if(personId > 0)
+            if (personId > 0)
             {
                 var dbPerson = _personRepository
                     .GetAll()
@@ -735,7 +760,7 @@ namespace Contable.Application
 
                     SectorMeetSessionLeader dbSectorMeetSessionLeader = null;
 
-                    if(summary.SectorMeetSessionLeader != null)
+                    if (summary.SectorMeetSessionLeader != null)
                     {
                         dbSectorMeetSessionLeader = _sectorMeetSessionLeaderRepository
                             .GetAll()
@@ -789,7 +814,7 @@ namespace Contable.Application
                     DirectoryGovernment dbDirectoryGovernment = null;
                     DirectoryIndustry dbDirectoryIndustry = null;
 
-                    if(leader.Type == SectorMeetSessionEntityType.ESTATAL_ENTITY)
+                    if (leader.Type == SectorMeetSessionEntityType.ESTATAL_ENTITY)
                     {
                         leader.Role = null;
                         dbDirectoryGovernment = _directoryGovernmentRepository
@@ -963,7 +988,7 @@ namespace Contable.Application
                             });
 
                         }
-                        
+
                         input.Leaders.Add(dbSectorMeetSessionLeader);
                     }
                 }
@@ -994,10 +1019,28 @@ namespace Contable.Application
 
             foreach (var uploadFile in uploadFilesPDF)
             {
-                var dbResource = ObjectMapper.Map<SectorMeetSessionResourceFile>(ResourceManager.Create(
+                var archivoModel = ResourceManager.Create(
                     resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
                     section: ResourceConsts.SectorMeetSession
-                ));
+                );
+
+                var archivoMapper = new SectorMeetSessionResourceFile
+                {
+                    ClassName = archivoModel.Name,
+                    CommonFolder = archivoModel.CommonFolder,
+                    Description = archivoModel.Description,
+                    Extension = archivoModel.Extension,
+                    FileName = archivoModel.FileName,
+                    Resource = archivoModel.Resource,
+                    ResourceFolder = archivoModel.ResourceFolder,
+                    SectionFolder = archivoModel.SectionFolder,
+                    Name = archivoModel.Name,
+                    Size = archivoModel.Size,
+
+
+                };
+
+                var dbResource = ObjectMapper.Map<SectorMeetSessionResourceFile>(archivoMapper);
 
                 input.ResourcesFiles.Add(dbResource);
             }
