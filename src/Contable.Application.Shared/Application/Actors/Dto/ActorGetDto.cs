@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using Contable.Application.Compromises.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
