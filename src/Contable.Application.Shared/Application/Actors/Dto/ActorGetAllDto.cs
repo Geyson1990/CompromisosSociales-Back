@@ -20,6 +20,7 @@ namespace Contable.Application.Actors.Dto
         public string PoliticalAssociation { get; set; }
         public bool Enabled { get; set; }
         public ActorTypeDto ActorType { get; set; }
+        public ActorMovementDto ActorMovement { get; set; }   
         //public int TypologyId { get; set; }
         //public int SubTypologyId { get; set; }
         //public int ActorMovementId { get; set; }
