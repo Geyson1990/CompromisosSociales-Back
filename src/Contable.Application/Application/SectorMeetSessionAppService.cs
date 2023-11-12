@@ -1026,7 +1026,7 @@ namespace Contable.Application
 
                 var archivoMapper = new SectorMeetSessionResourceFile
                 {
-                    ClassName = archivoModel.Name,
+                    ClassName = archivoModel.ClassName,
                     CommonFolder = archivoModel.CommonFolder,
                     Description = archivoModel.Description,
                     Extension = archivoModel.Extension,
