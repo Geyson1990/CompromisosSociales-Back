@@ -115,6 +115,7 @@ using Contable.Application.DialogSpaceHolidays.Dto;
 using Contable.Application.DialogSpaceDocuments.Dto;
 using Contable.Application.DialogSpaceTypes.Dto;
 using Contable.Application.DialogSpaceDocumentSituations.Dto;
+using Contable.Application.Meets.Dto;
 
 namespace Contable
 {
@@ -1390,6 +1391,11 @@ namespace Contable
             configuration.CreateMap<SectorMeet, SectorMeetGetAllDto>();
             configuration.CreateMap<TerritorialUnit, SectorMeetTerritorialUnitRelationDto>();
             configuration.CreateMap<SocialConflict, SectorMeetSocialConflictRelationDto>();
+
+            //Meets
+
+            configuration.CreateMap<Meet, MeetCreateDto>();
+            configuration.CreateMap<MeetCreateDto, Meet>();
 
             //Sector Meet Sessions
             configuration.CreateMap<SectorMeetSessionCreateDto, SectorMeetSession>()
