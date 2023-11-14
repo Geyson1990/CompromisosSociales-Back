@@ -10,7 +10,7 @@ namespace Contable.Application.Meets
     {
         Task<EntityDto> Create(MeetCreateDto input);
         Task Delete(EntityDto input);
-        Task<SectorMeetGetDataDto> Get(NullableIdDto input);
+        Task<MeetGetDataDto> Get(NullableIdDto input);
         Task<PagedResultDto<SectorMeetGetAllDto>> GetAll(SectorMeetGetAllInputDto input);
         Task<EntityDto> Update(SectorMeetUpdateDto input);
     }

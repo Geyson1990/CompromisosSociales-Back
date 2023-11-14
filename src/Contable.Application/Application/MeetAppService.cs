@@ -6,6 +6,7 @@ using Abp.UI;
 using Contable.Application.Extensions;
 using Contable.Application.Meets;
 using Contable.Application.Meets.Dto;
+using Contable.Application.MeetsResponsibles.Dto;
 using Contable.Application.SectorMeets.Dto;
 using Contable.Application.SectorMeetSessions.Dto;
 using Contable.Application.Uploaders.Dto;
@@ -67,12 +68,15 @@ namespace Contable.Application
                 ResponsibleName= input.ResponsibleName, 
                 TypeId= input.TypeId,
                 FactorRisk= input.FactorRisk,
-                CreationTime= DateTime.Now
+                CreationTime= DateTime.Now,
+                //Participants= ObjectMapper.Map<Meet>(input)
 
             };
 
+            var meetModel = ObjectMapper.Map<Meet>(input);
+
             var sectorMeetId = await _meetRepository.InsertAndGetIdAsync(await ValidateEntity(
-                input: data, //ObjectMapper.Map<Meet>(input),
+                input: meetModel,
                 socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id
              
             ));
@@ -96,9 +100,9 @@ namespace Contable.Application
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet)]
-        public async Task<SectorMeetGetDataDto> Get(NullableIdDto input)
+        public async Task<MeetGetDataDto> Get(NullableIdDto input)
         {
-            var output = new SectorMeetGetDataDto();
+            var output = new MeetGetDataDto();
 
             if (input.Id.HasValue)
             {
@@ -107,14 +111,13 @@ namespace Contable.Application
                 var dbSectorMeet = _meetRepository
                     .GetAll()                   
                     .Include(p => p.SocialConflict)
+                    .Include(p => p.Participants)
                     .Where(p => p.Id == input.Id.Value)
                     .First();
 
-                output.SectorMeet = ObjectMapper.Map<SectorMeetGetDto>(dbSectorMeet);
-
-                var datos = _sectorMeetResourceRepository.GetAll()
-                  .Where(p => p.SectorMeetId == dbSectorMeet.Id)
-                  .ToList();                                
+                output.Meet = ObjectMapper.Map<MeetGetDto>(dbSectorMeet); 
+                
+                output.MeetsParticipants = ObjectMapper.Map<List<MeetParticipantsGetDto>>(dbSectorMeet.Participants);
             }
 
             

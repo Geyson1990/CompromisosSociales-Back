@@ -389,6 +389,7 @@ namespace Contable.EntityFrameworkCore
 
         public virtual DbSet<SectorMeet> SectorMeets { get; set; }
         public virtual DbSet<Meet> Meets { get; set; }
+        public virtual DbSet<MeetParticipants> MeetResponsibles { get; set; }
         public virtual DbSet<SectorMeetResource> SectorMeetResources { get; set; }
 
         public virtual DbSet<SectorMeetSession> SectorMeetSessions { get; set; }

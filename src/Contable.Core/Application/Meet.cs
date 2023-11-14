@@ -1,5 +1,7 @@
 ﻿using Abp.Domain.Entities.Auditing;
+using Contable.Application.MeetsResponsibles.Dto;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Contable.Application
@@ -34,5 +36,11 @@ namespace Contable.Application
         public string ResponsibleName { get; set; }
         public int RolId { get; set; }
         public string FactorRisk { get; set; }
+        public List<MeetParticipants> Participants { get; set; }
+
+        public Meet()
+        {
+            Participants = new List<MeetParticipants>();
+        }
     }
 }
