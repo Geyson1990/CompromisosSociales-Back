@@ -761,6 +761,7 @@ namespace Contable
                 .ForMember(p => p.ActorMovement, options => options.Ignore());
             configuration.CreateMap<ActorType, ActorTypeDto>().ReverseMap();
             configuration.CreateMap<ActorMovement, ActorMovementDto>().ReverseMap();
+            configuration.CreateMap<User, ActorUserDto>().ReverseMap();
 
             //Social conflict actor types
             configuration.CreateMap<ActorType, ActorTypeGetAllDto>();

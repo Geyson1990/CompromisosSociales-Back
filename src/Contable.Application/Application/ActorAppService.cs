@@ -1,4 +1,4 @@
-using Abp.Application.Services.Dto;
+﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
@@ -120,6 +120,7 @@ namespace Contable.Application
             var query = _actorRepository
                .GetAll()
                .Include(p => p.ActorType)
+               .Include(p => p.ActorMovement)
                .LikeAllBidirectional(input.Filter.SplitByLike().Select(word => (Expression<Func<Actor, bool>>)(expression => EF.Functions.Like(expression.FullName, $"%{word}%"))).ToArray());
 
             var count = await query.CountAsync();
