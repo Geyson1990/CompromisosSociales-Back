@@ -116,6 +116,8 @@ using Contable.Application.DialogSpaceHolidays.Dto;
 using Contable.Application.DialogSpaceDocuments.Dto;
 using Contable.Application.DialogSpaceTypes.Dto;
 using Contable.Application.DialogSpaceDocumentSituations.Dto;
+using Contable.Application.Meets.Dto;
+using Contable.Application.MeetsResponsibles.Dto;
 
 namespace Contable
 {
@@ -140,7 +142,7 @@ namespace Contable
 
             //Level
             configuration.CreateMap<Level, SessionLevelDto>();
-            
+
             //Chat
             configuration.CreateMap<ChatMessage, ChatMessageDto>();
             configuration.CreateMap<ChatMessage, ChatMessageExportDto>();
@@ -207,7 +209,7 @@ namespace Contable
             configuration.CreateMap<CurrentUserProfileEditDto, User>().ReverseMap();
             configuration.CreateMap<UserLoginAttemptDto, UserLoginAttempt>().ReverseMap();
             configuration.CreateMap<ImportUserDto, User>();
-            configuration.CreateMap<AlertResponsible, UserAlertResponsibleDto>().ReverseMap(); 
+            configuration.CreateMap<AlertResponsible, UserAlertResponsibleDto>().ReverseMap();
 
             //AuditLog
             configuration.CreateMap<AuditLog, AuditLogListDto>();
@@ -301,7 +303,7 @@ namespace Contable
                 .ForMember(p => p.ProblemVerificationState, options => options.MapFrom(p => p.ProblemVerification ? "true" : "false"))
                 .ForMember(p => p.DescriptionVerificationState, options => options.MapFrom(p => p.DescriptionVerification ? "true" : "false"));
             configuration.CreateMap<SocialConflict, SocialConflictGetAllDto>();
-            configuration.CreateMap<SocialConflict, SocialConflictMatrizExportDto>();            
+            configuration.CreateMap<SocialConflict, SocialConflictMatrizExportDto>();
             configuration.CreateMap<SocialConflict, SocialConflictGeoDto>();
             configuration.CreateMap<SocialConflictCreateDto, SocialConflict>()
                 .ForMember(dto => dto.Analyst, options => options.Ignore())
@@ -320,7 +322,7 @@ namespace Contable
                 .ForMember(dto => dto.Resources, options => options.Ignore())
                 .ForMember(dto => dto.Notes, options => options.Ignore())
                 .ForMember(dto => dto.Risks, options => options.Ignore());
-            
+
             configuration.CreateMap<SocialConflictUpdateDto, SocialConflict>()
                 .ForMember(dto => dto.Analyst, options => options.Ignore())
                 .ForMember(dto => dto.Coordinator, options => options.Ignore())
@@ -353,7 +355,7 @@ namespace Contable
             configuration.CreateMap<SocialConflictActor, SocialConflictActorGetAllDto>();
             configuration.CreateMap<UploadResourceOutputDto, SocialConflictResource>();
             configuration.CreateMap<SocialConflictResource, SocialConflictResourceDto>()
-                .ReverseMap(); 
+                .ReverseMap();
             configuration.CreateMap<SocialConflictActor, SocialConflictActorLocationDto>()
                 .ReverseMap();
             configuration.CreateMap<ActorType, SocialConflictActorTypeRelationDto>()
@@ -449,7 +451,7 @@ namespace Contable
             //Utilities / Utilidades
             configuration.CreateMap<TerritorialUnit, UtilityTerritorialUnitDto>();
             configuration.CreateMap<SocialConflict, UtilitySocialConflictDto>();
-            configuration.CreateMap<SocialConflict, UtilitySocialConflictUserDto>(); 
+            configuration.CreateMap<SocialConflict, UtilitySocialConflictUserDto>();
             configuration.CreateMap<Record, UtilityRecordDto>();
             configuration.CreateMap<SocialConflictLocation, UtilitySocialConflictLocationDto>();
             configuration.CreateMap<Department, UtilityDepartmentDto>();
@@ -486,7 +488,7 @@ namespace Contable
             configuration.CreateMap<User, RecordUserDto>();
             configuration.CreateMap<RecordResource, RecordResourceDto>();
             configuration.CreateMap<RecordResourceType, RecordResourceTypeDto>();
-            
+
             //Compromise 
             configuration.CreateMap<CompromiseCreateDto, Compromise>()
                 .ForMember(p => p.Record, options => options.Ignore())
@@ -682,7 +684,7 @@ namespace Contable
             configuration.CreateMap<StaticVariableOption, StaticVariableOptionGetDto>();
             configuration.CreateMap<StaticVariableOptionDetail, StaticVariableOptionDetailGetDto>();
             configuration.CreateMap<DinamicVariable, StaticVariableCuantitativeDto>();
-            
+
             //Propestive Risk
             configuration.CreateMap<ProspectiveRisk, ProspectiveRiskGetAllDto>();
             configuration.CreateMap<TerritorialUnit, ProspectiveRiskTerritorialUnitDto>();
@@ -743,7 +745,7 @@ namespace Contable
 
             configuration.CreateMap<ProjectRiskHistory, ProjectRiskHistoryGetDto>();
             configuration.CreateMap<ProjectStage, ProjectRiskHistoryStageGetDto>()
-                .ForMember(p => p.Details, options => options.Ignore()); 
+                .ForMember(p => p.Details, options => options.Ignore());
             configuration.CreateMap<ProjectStageDetail, ProjectRiskHistoryStageDetailGetDto>();
             configuration.CreateMap<StaticVariable, ProjectRiskHistoryStaticVariableGetDto>()
                 .ForMember(p => p.Options, options => options.Ignore());
@@ -856,7 +858,7 @@ namespace Contable
             configuration.CreateMap<ActorMovement, SocialConflictAlertActorMovementGetAllDto>();
             configuration.CreateMap<SocialConflictAlertRisk, SocialConflictAlertRiskLocationGetAllDto>();
             configuration.CreateMap<AlertRisk, SocialConflictAlertRiskGetAllDto>();
-            configuration.CreateMap<User, SocialConflictAlertUserDto>(); 
+            configuration.CreateMap<User, SocialConflictAlertUserDto>();
             configuration.CreateMap<SocialConflictAlertCreateDto, SocialConflictAlert>()
                 .ForMember(p => p.SocialConflict, options => options.Ignore())
                 .ForMember(p => p.Analyst, options => options.Ignore())
@@ -902,7 +904,7 @@ namespace Contable
             configuration.CreateMap<SocialConflictActor, SocialConflictAlertActorLocationDto>()
                 .ReverseMap();
             configuration.CreateMap<TerritorialUnit, SocialConflictAlertTerritorialUnitLocationDto>()
-                .ReverseMap(); 
+                .ReverseMap();
             configuration.CreateMap<Department, SocialConflictAlertDepartmentLocationDto>()
                 .ReverseMap();
             configuration.CreateMap<Province, SocialConflictAlertProvinceLocationDto>()
@@ -931,7 +933,7 @@ namespace Contable
                 .ReverseMap();
             configuration.CreateMap<Region, SocialConflictAlertRegionLocationDto>()
                 .ReverseMap();
-            configuration.CreateMap<SocialConflictAlertResource, SocialConflictAlertResourceDto>()                
+            configuration.CreateMap<SocialConflictAlertResource, SocialConflictAlertResourceDto>()
                 .ReverseMap();
 
             //Social conflict alert risks
@@ -1095,7 +1097,7 @@ namespace Contable
                 .ReverseMap();
             configuration.CreateMap<DirectoryGovernmentType, DirectoryGovernmentTypeDto>()
                 .ReverseMap();
-            
+
 
             //Directory Government Sectors
             configuration.CreateMap<DirectoryGovernmentSector, DirectoryGovernmentSectorGetAllDto>();
@@ -1319,7 +1321,7 @@ namespace Contable
             configuration.CreateMap<CrisisCommitteeDirectoryGovernmentSectorRelationDto, DirectoryGovernmentSector>().ReverseMap();
             configuration.CreateMap<CrisisCommitteeTaskRelationDto, CrisisCommitteeTask>().ReverseMap();
             configuration.CreateMap<CrisisCommitteeAgreementRelationDto, CrisisCommitteeAgreement>().ReverseMap();
-            
+
             //Crisis Committee Job
             configuration.CreateMap<CrisisCommitteeJobCreateDto, CrisisCommitteeJob>();
             configuration.CreateMap<CrisisCommitteeJobUpdateDto, CrisisCommitteeJob>();
@@ -1409,6 +1411,26 @@ namespace Contable
             configuration.CreateMap<TerritorialUnit, SectorMeetTerritorialUnitRelationDto>();
             configuration.CreateMap<SocialConflict, SectorMeetSocialConflictRelationDto>();
 
+            //Meets
+
+            configuration.CreateMap<MeetCreateDto, Meet>()
+                .ForMember(dto => dto.SocialConflict, opt => opt.Ignore())
+                .ForMember(prop => prop.SocialConflictId, opt => opt.MapFrom(p => p.SocialConflict.Id));
+
+
+            configuration.CreateMap<Meet, MeetGetDto>()
+                .ForMember(p => p.SocialConflict, options => options.Ignore())
+                .ForMember(p => p.Participants, options => options.Ignore())
+                ;
+
+            configuration.CreateMap<MeetParticipants, MeetParticipantsGetDto>()
+                .ForMember(p => p.Meets, options => options.Ignore())
+                ;
+            configuration.CreateMap<MeetParticipantsCreateDto, MeetParticipants>()
+                .ForMember(p => p.Meets, options => options.Ignore());
+
+
+
             //Sector Meet Sessions
             configuration.CreateMap<SectorMeetSessionCreateDto, SectorMeetSession>()
                 .ForMember(p => p.SectorMeet, options => options.Ignore())
@@ -1483,7 +1505,7 @@ namespace Contable
             configuration.CreateMap<DialogSpaceLocation, DialogSpaceLocationRelationDto>();
             configuration.CreateMap<DialogSpaceLeader, DialogSpaceLeaderRelationDto>();
             configuration.CreateMap<DialogSpaceTeam, DialogSpaceTeamRelationDto>();
-            configuration.CreateMap<SocialConflictLocation, DialogSpaceLocationReferenceDto>();            
+            configuration.CreateMap<SocialConflictLocation, DialogSpaceLocationReferenceDto>();
             configuration.CreateMap<TerritorialUnit, DialogSpaceTerritorialUnitDto>();
             configuration.CreateMap<TerritorialUnit, DialogSpaceTerritorialUnitRelationDto>();
             configuration.CreateMap<Department, DialogSpaceDepartmentDto>();
@@ -1497,7 +1519,7 @@ namespace Contable
             configuration.CreateMap<Province, DialogSpaceDirectoryProvinceRelationDto>();
             configuration.CreateMap<Region, DialogSpaceRegionRelationDto>();
             configuration.CreateMap<SocialConflict, DialogSpaceSocialConflictRelationDto>();
-            configuration.CreateMap<User, DialogSpaceUserDto>();            
+            configuration.CreateMap<User, DialogSpaceUserDto>();
             configuration.CreateMap<DirectoryGovernment, DialogSpaceDirectoryGovernmentRelationDto>();
             configuration.CreateMap<DirectoryGovernmentSector, DialogSpaceDirectorySectorRelationDto>();
             configuration.CreateMap<DialogSpaceType, DialogSpaceDialogSpaceTypeRelatioDto>();
