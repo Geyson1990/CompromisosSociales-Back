@@ -45,6 +45,11 @@ namespace Contable.Manager.Base
             await _procedureRepository.CallCreateCompromiseCodeProcess(compromiseId);
         }
 
+        public async Task CallUpdateCompromiseCodeProcess(long compromiseId)
+        {
+            await _procedureRepository.CallUpdateCompromiseCodeProcess(compromiseId);
+        }
+
         public async Task CallProspectiveRiskProcess(UserIdentifier userIdentifier)
         {
             await _procedureRepository.CallProspectiveRiskProcess(userIdentifier.UserId);

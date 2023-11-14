@@ -429,6 +429,10 @@ namespace Contable.Application
 
             await CurrentUnitOfWork.SaveChangesAsync();
 
+
+            await FunctionManager.CallUpdateCompromiseCodeProcess(compromiseId);
+
+
             var compromise = _compromiseRepository
                 .GetAll()
                 .Include(p => p.Record)

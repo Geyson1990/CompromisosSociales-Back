@@ -58,6 +58,20 @@ namespace Contable.EntityFrameworkCore.Repositories
             return await command.ExecuteNonQueryAsync();
         }
 
+        public async Task<int> CallUpdateCompromiseCodeProcess(long compromiseId)
+        {
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@CompromiseId", compromiseId)
+            };
+
+            await EnsureConnectionOpenAsync();
+
+            using var command = CreateCommand("update_compromise_code", CommandType.StoredProcedure, parameters);
+
+            return await command.ExecuteNonQueryAsync();
+        }
+
         public async Task<int> CallProspectiveRiskProcess(long userId)
         {
             SqlParameter[] parameters =

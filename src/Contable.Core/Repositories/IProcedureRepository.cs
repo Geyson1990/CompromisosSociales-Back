@@ -13,6 +13,7 @@ namespace Contable.Repositories
     {        
         Task<int> CallCreateRecordCodeProcess(int socialConflictId, long recordId);
         Task<int> CallCreateCompromiseCodeProcess(long compromiseId);
+        Task<int> CallUpdateCompromiseCodeProcess(long compromiseId);
         Task<int> CallProspectiveRiskProcess(long userId);
         Task<int> CallProjectRiskProcess(long userId);
         Task<int> CallCreateSocialConflictCodeProcess(int socialConflictId);
