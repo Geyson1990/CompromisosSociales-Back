@@ -20,11 +20,18 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public List<SectorMeetSessionActionRelationDto> Actions { get; set; }
         public List<SectorMeetSessionAgreementRelationDto> Agreements { get; set; }
         public List<SectorMeetSessionCriticalAspectRelationDto> CriticalAspects { get; set; }
+        public List<SectorMeetSessionRiskFactorsRelationDto> RiskFactors { get; set; }
         public List<SectorMeetSessionScheduleRelationDto> Schedules { get; set; }
         public List<SectorMeetSessionSummaryRelationDto> Summaries { get; set; }
         public List<SectorMeetSessionResourceRelationDto> Resources { get; set; }
         public List<SectorMeetSessionLeaderRelationDto> Leaders { get; set; }
         public List<SectorMeetSessionAttachmentDto> UploadFiles { get; set; }
         public List<SectorMeetSessionAttachmentDto> UploadFilesPDF { get; set; }
+
+        public int Modality { get; set; }
+        public int MeetType { get; set; }
+        public int RiskLevel { get; set; }
+        public string Object { get; set; }
+        public int RolId { get; set; }
     }
 }

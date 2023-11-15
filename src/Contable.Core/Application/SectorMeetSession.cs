@@ -58,10 +58,16 @@ namespace Contable.Application
         public List<SectorMeetSessionAction> Actions { get; set; }
         public List<SectorMeetSessionAgreement> Agreements { get; set; }
         public List<SectorMeetSessionCriticalAspect> CriticalAspects { get; set; }
+        public List<SectorMeetSessionRiskFactors> RiskFactors { get; set; }
         public List<SectorMeetSessionSchedule> Schedules { get; set; }
         public List<SectorMeetSessionSummary> Summaries { get; set; }
         public List<SectorMeetSessionResource> Resources { get; set; }
         public List<SectorMeetSessionLeader> Leaders { get; set; }
         public List<SectorMeetSessionResourceFile> ResourcesFiles { get; set; }
+        public int Modality { get; set; }
+        public int MeetType { get; set; }
+        public int RiskLevel { get; set; }
+        public string Object { get; set; }
+        public int RolId { get; set; }
     }
 }
