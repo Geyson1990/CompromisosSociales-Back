@@ -33,5 +33,6 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public int RiskLevel { get; set; }
         public string Object { get; set; }
         public int RolId { get; set; }
+        public int State { get; set; }
     }
 }

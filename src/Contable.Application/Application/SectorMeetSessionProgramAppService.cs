@@ -33,6 +33,8 @@ namespace Contable.Application
         private readonly IRepository<SectorMeetSessionResource> _sectorMeetSessionResourceRepository;
         private readonly IRepository<SectorMeetSessionResourceFile> _sectorMeetSessionResourceFileRepository;
 
+        private readonly IRepository<SectorMeetSessionRiskFactors> _sectorMeetSessionRiskFactorRepository;
+
 
 
         private readonly IRepository<SectorMeetSessionLeader> _sectorMeetSessionLeaderRepository;
@@ -50,6 +52,7 @@ namespace Contable.Application
             IRepository<SectorMeetSessionAction> sectorMeetSessionActionRepository,
             IRepository<SectorMeetSessionAgreement> sectorMeetSessionAgreementRepository,
             IRepository<SectorMeetSessionCriticalAspect> sectorMeetSessionCriticalAspectRepository,
+            IRepository<SectorMeetSessionRiskFactors> sectorMeetSessionRiskFactorRepository,
             IRepository<SectorMeetSessionSchedule> sectorMeetSessionScheduleRepository,
             IRepository<SectorMeetSessionSummary> sectorMeetSessionSummaryRepository,
             IRepository<SectorMeetSessionResource> sectorMeetSessionResourceRepository,
@@ -69,6 +72,7 @@ namespace Contable.Application
             _sectorMeetSessionActionRepository = sectorMeetSessionActionRepository;
             _sectorMeetSessionAgreementRepository = sectorMeetSessionAgreementRepository;
             _sectorMeetSessionCriticalAspectRepository = sectorMeetSessionCriticalAspectRepository;
+            _sectorMeetSessionRiskFactorRepository = sectorMeetSessionRiskFactorRepository;
             _sectorMeetSessionScheduleRepository = sectorMeetSessionScheduleRepository;
             _sectorMeetSessionSummaryRepository = sectorMeetSessionSummaryRepository;
             _sectorMeetSessionResourceRepository = sectorMeetSessionResourceRepository;
@@ -85,6 +89,8 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Create)]
         public async Task<EntityDto> Create(SectorMeetSessionCreateDto input)
         {
+            input.State = 0;
+
             var dbSectorMeetSession = await ValidateEntity(
                 input: ObjectMapper.Map<SectorMeetSession>(input),
                 sectorMeetId: input.SectorMeet == null ? -1 : input.SectorMeet.Id,
@@ -99,8 +105,8 @@ namespace Contable.Application
                 summaries: input.Summaries ?? new List<SectorMeetSessionSummaryRelationDto>(),
                 resources: input.Resources ?? new List<SectorMeetSessionResourceRelationDto>(),
                 leaders: input.Leaders ?? new List<SectorMeetSessionLeaderRelationDto>(),
-                uploadFiles: null,
-                uploadFilesPDF: null
+                 uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>(),
+                uploadFilesPDF: input.UploadFilesPDF ?? new List<SectorMeetSessionAttachmentDto>()
                 );
 
             var sectorMeetSessionId = await _sectorMeetSessionRepository.InsertAndGetIdAsync(dbSectorMeetSession);
@@ -140,6 +146,7 @@ namespace Contable.Application
                     .Include(p => p.Department)
                     .Include(p => p.Province)
                     .Include(p => p.District)
+                    .Include(p=> p.RiskFactors)
                     .Where(p => p.Id == input.SectorMeetSessionId.Value)
                     .First();
 
@@ -384,15 +391,18 @@ namespace Contable.Application
         {
             var query = _sectorMeetSessionRepository
                 .GetAll()
-                .Include(p => p.Department)
-                .Include(p => p.Province)
-                .Include(p => p.District)
+                //.Include(p => p.Department)
+                //.Include(p => p.Province)
+                //.Include(p => p.District)
+                //.Include(p => p.RiskFactors)
                 .WhereIf(input.SectorMeetId.HasValue, p => p.SectorMeetId == input.SectorMeetId.Value);
 
             var count = await query.CountAsync();
             var result = query.OrderBy(input.Sorting).PageBy(input);
 
-            return new PagedResultDto<SectorMeetSessionGetAllDto>(count, ObjectMapper.Map<List<SectorMeetSessionGetAllDto>>(result));
+            var resultMap = ObjectMapper.Map<List<SectorMeetSessionGetAllDto>>(result);
+
+            return new PagedResultDto<SectorMeetSessionGetAllDto>(count, resultMap);
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet)]
@@ -656,30 +666,30 @@ namespace Contable.Application
             {
                 if (riskItem.Remove)
                 {
-                    if (riskItem.Id > 0 && input.Id > 0 && await _sectorMeetSessionCriticalAspectRepository.CountAsync(p => p.Id == riskItem.Id && p.SectorMeetSessionId == input.Id) > 0)
+                    if (riskItem.Id > 0 && input.Id > 0 && await _sectorMeetSessionRiskFactorRepository.CountAsync(p => p.Id == riskItem.Id && p.SectorMeetSessionId == input.Id) > 0)
                     {
-                        await _sectorMeetSessionCriticalAspectRepository.DeleteAsync(riskItem.Id);
+                        await _sectorMeetSessionRiskFactorRepository.DeleteAsync(riskItem.Id);
                     }
                 }
                 else
                 {
-                    riskItem.Description.IsValidOrException("Aviso", "La descripción de los aspectos críticos son obligatorias");
+                    riskItem.Description.IsValidOrException("Aviso", "La descripción de los factores críticos son obligatorias");
                     riskItem.Description.VerifyTableColumn(SectorMeetSessionCriticalAspectConsts.DescriptionMinLength,
                         SectorMeetSessionCriticalAspectConsts.DescriptionMaxLength,
                         DefaultTitleMessage,
-                        $"La descripción de los aspectos críticos \"{riskItem.Description}\" no debe exceder los " +
+                        $"La descripción de los factores críticos \"{riskItem.Description}\" no debe exceder los " +
                         $"{SectorMeetSessionCriticalAspectConsts.DescriptionMaxLength} caracteres");
 
                     if (riskItem.Id > 0)
                     {
-                        if (await _sectorMeetSessionCriticalAspectRepository.CountAsync(p => p.Id == riskItem.Id && p.SectorMeetSessionId == input.Id) > 0)
+                        if (await _sectorMeetSessionRiskFactorRepository.CountAsync(p => p.Id == riskItem.Id && p.SectorMeetSessionId == input.Id) > 0)
                         {
-                            var dbSectorMeetSessionCriticalAspect = await _sectorMeetSessionCriticalAspectRepository.GetAsync(riskItem.Id);
+                            var dbSectorMeetSessionRiskFactor = await _sectorMeetSessionRiskFactorRepository.GetAsync(riskItem.Id);
 
-                            dbSectorMeetSessionCriticalAspect.Description = riskItem.Description;
-                            dbSectorMeetSessionCriticalAspect.Index = index;
+                            dbSectorMeetSessionRiskFactor.Description = riskItem.Description;
+                            dbSectorMeetSessionRiskFactor.Index = index;
 
-                            await _sectorMeetSessionCriticalAspectRepository.UpdateAsync(dbSectorMeetSessionCriticalAspect);
+                            await _sectorMeetSessionRiskFactorRepository.UpdateAsync(dbSectorMeetSessionRiskFactor);
                         }
                     }
                     else

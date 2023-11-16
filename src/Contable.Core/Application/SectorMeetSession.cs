@@ -13,6 +13,7 @@ namespace Contable.Application
         public SectorMeetSession()
         {
             ResourcesFiles = new List<SectorMeetSessionResourceFile>();
+            RiskFactors = new List<SectorMeetSessionRiskFactors>();
         }
 
         [Column(TypeName = SectorMeetSessionConsts.SectorMeetIdType)]
@@ -69,5 +70,6 @@ namespace Contable.Application
         public int RiskLevel { get; set; }
         public string Object { get; set; }
         public int RolId { get; set; }
+        public int State { get; set; }
     }
 }
