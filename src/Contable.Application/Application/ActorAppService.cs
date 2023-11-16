@@ -19,7 +19,9 @@ using Contable.Application.Managers.Dto;
 using Contable.Application.Orders.Dto;
 using Contable.Authorization.Users;
 using Contable.Application.Compromises.Dto;
-
+using Contable.Application.SocialConflicts.Dto;
+using Contable.Application.SocialConflictAlerts.Dto;
+using Contable.Application.SocialConflictSensibles.Dto;
 namespace Contable.Application
 {
     [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor)]
@@ -30,18 +32,30 @@ namespace Contable.Application
         private readonly IRepository<ActorMovement> _actorMovementRepository;
         private readonly EmailAddressAttribute _emailAddressAttribute;
         private readonly IRepository<User, long> _userRepository;
+        private readonly IRepository<SocialConflictActor> _socialConflictActorRepository;
+        private readonly IRepository<SocialConflict> _socialConflictRepository;
+        private readonly IRepository<SocialConflictAlert> _socialConflictAlertRepository;
+        private readonly IRepository<SocialConflictSensible> _socialConflictSensibleRepository;
 
         public ActorAppService(
             IRepository<Actor> actorRepository, 
             IRepository<ActorType> actorTypeRepository, 
             IRepository<ActorMovement> actorMovementRepository,
-            IRepository<User, long> userRepository)
+            IRepository<User, long> userRepository,
+            IRepository<SocialConflictActor> socialConflictActorRepository,
+            IRepository<SocialConflict> socialConflictRepository,
+            IRepository<SocialConflictAlert> socialConflictAlertRepository,
+            IRepository<SocialConflictSensible> socialConflictSensibleRepository)
         {
             _actorRepository = actorRepository;
             _actorTypeRepository = actorTypeRepository;
             _actorMovementRepository = actorMovementRepository;
             _emailAddressAttribute = new EmailAddressAttribute();
             _userRepository = userRepository;
+            _socialConflictActorRepository = socialConflictActorRepository;
+            _socialConflictRepository = socialConflictRepository;
+            _socialConflictAlertRepository = socialConflictAlertRepository;
+            _socialConflictSensibleRepository = socialConflictSensibleRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_Maintenance_Actor_Create)]
@@ -61,6 +75,33 @@ namespace Contable.Application
         {
             VerifyCount(await _actorRepository.CountAsync(p => p.Id == input.Id));
 
+
+            var socialConflictActors = ObjectMapper.Map<List<SocialConflictActorLocationDto>>(_socialConflictActorRepository
+                .GetAll()
+                .Where(p => p.ActorId == input.Id && p.SocialConflictId >0 && p.Site == ActorSite.SocialConflict)
+                .ToList());
+
+            var socialConflictAlertActors = ObjectMapper.Map<List<SocialConflictActorLocationDto>>(_socialConflictActorRepository
+                .GetAll()
+                .Where(p => p.ActorId == input.Id && p.SocialConflictAlertId > 0 && p.Site == ActorSite.SocialConflictAlert)
+                .ToList());
+
+            var socialConflictSensibleActors = ObjectMapper.Map<List<SocialConflictActorLocationDto>>(_socialConflictActorRepository
+                .GetAll()
+                .Where(p => p.ActorId == input.Id && p.SocialConflictSensibleId > 0 && p.Site == ActorSite.SocialConflictSensible)
+                .ToList());
+
+            string mensaje = $"El actor no se puede eliminar porque se encuentra en :{Environment.NewLine}";
+            if (socialConflictActors.Count > 0)
+                mensaje += $"{socialConflictActors.Count} casos de conflicto.{Environment.NewLine}";
+            if (socialConflictAlertActors.Count > 0)
+                mensaje += $"{socialConflictAlertActors.Count} alertas de situaciones conflictivas.{Environment.NewLine}";
+            if (socialConflictSensibleActors.Count > 0)
+                mensaje += $"{socialConflictSensibleActors.Count} situaciones sensibles al conflicto.{Environment.NewLine}";
+
+            if (socialConflictActors.Count > 0 || socialConflictAlertActors.Count > 0 || socialConflictSensibleActors.Count > 0)
+                throw new UserFriendlyException(DefaultTitleMessage, mensaje +"Verifique la información antes de continuar");
+
             await _actorRepository.DeleteAsync(input.Id);
         }
 
@@ -72,6 +113,11 @@ namespace Contable.Application
                 Actor = new ActorGetDto()
             };
 
+            //output.Actor.ActorType = new ActorTypeDto();
+            //output.Actor.ActorMovement = new ActorMovementDto();
+            //output.Actor.ActorType.Id = -1;
+            //output.Actor.ActorMovement.Id = -1;
+
             if (input.Id.HasValue)
             {
                 VerifyCount(await _actorRepository.CountAsync(p => p.Id == input.Id));
@@ -79,24 +125,41 @@ namespace Contable.Application
                 var actor = _actorRepository
                     .GetAll()
                     .Include(p => p.ActorType)
-                    //.Include(p => p.Typology)
-                    //.Include(p => p.SubTypology)
                     .Include(p => p.ActorMovement)
                     .Where(p => p.Id == input.Id.Value)
-                    .First();
+                    .First();             
+
+                output.SocialConflicts = ObjectMapper.Map<List<SocialConflictGetAllDto>>(_socialConflictRepository
+                .GetAll()
+                .Include(p => p.Analyst)
+                .Include(p => p.Coordinator)
+                .Include(p => p.Manager)
+                .Include(p => p.Typology)
+                .Include(p => p.SubTypology)
+                .Include(p => p.Sector)
+                .Include(p => p.Actors)
+                .Where(p => p.Actors.Any(a => a.ActorId == input.Id)));
+
+                output.SocialConflictAlerts = ObjectMapper.Map<List<SocialConflictAlertGetAllDto>>(_socialConflictAlertRepository
+                .GetAll()
+                .Include(p => p.Analyst)
+                .Include(p => p.Coordinator)
+                .Include(p => p.Manager)
+                .Include(p => p.Typology)
+                .Include(p => p.SubTypology)
+                .Include(p => p.Actors)
+                .Where(p => p.Actors.Any(a => a.ActorId == input.Id)));
+
+                output.SocialConflictSensibles = ObjectMapper.Map<List<SocialConflictSensibleGetAllDto>>(_socialConflictSensibleRepository
+                .GetAll()
+                .Include(p => p.Analyst)
+                .Include(p => p.Coordinator)
+                .Include(p => p.Manager)
+                .Include(p => p.Typology)
+                .Include(p => p.Actors)
+                .Where(p => p.Actors.Any(a => a.ActorId == input.Id)));
 
                 output.Actor = ObjectMapper.Map<ActorGetDto>(actor);
-
-                output.ActorTypes = ObjectMapper.Map<List<ActorTypeDto>>(_actorTypeRepository
-               .GetAll()
-               .OrderBy(p => p.Name)
-               .ToList());
-
-                output.ActorMovements = ObjectMapper.Map<List<ActorMovementDto>>(_actorMovementRepository
-                .GetAll()
-                .OrderBy(p => p.Name)
-                .ToList());
-
                 var creatorUser = actor.CreatorUserId.HasValue ? _userRepository
                 .GetAll()
                 .Where(p => p.Id == actor.CreatorUserId.Value)
@@ -111,6 +174,16 @@ namespace Contable.Application
                 output.Actor.EditUser = editUser == null ? null : ObjectMapper.Map<ActorUserDto>(editUser);
 
             }
+            output.ActorTypes = ObjectMapper.Map<List<ActorTypeDto>>(_actorTypeRepository
+            .GetAll()
+            .OrderBy(p => p.Name)
+            .ToList());
+
+            output.ActorMovements = ObjectMapper.Map<List<ActorMovementDto>>(_actorMovementRepository
+            .GetAll()
+            .OrderBy(p => p.Name)
+            .ToList());
+
             return output;
         }
 

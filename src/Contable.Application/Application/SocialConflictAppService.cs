@@ -21,6 +21,7 @@ using Contable.Application.Uploaders.Dto;
 using Contable.Application.Exporting;
 using Contable.Dto;
 using Contable.Application.Actors.Dto;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Contable.Application
 {
@@ -106,6 +107,7 @@ namespace Contable.Application
             _typologyRepository = typologyRepository;
             _subTypologyRepository = subTypologyRepository;
             _factRepository = factRepository;
+            _actorRepository = actorRepository;
             _actorTypeRepository = actorTypeRepository;
             _actorMovementRepository = actorMovementRepository;
             _sectorRepository = sectorRepository;
@@ -223,12 +225,51 @@ namespace Contable.Application
                     .Where(p => p.SocialConflict.Id == input.Id)
                     .ToList());
 
-                socialConflictItem.Actors = ObjectMapper.Map<List<SocialConflictActorLocationDto>>(_socialConflictActorRepository
+                //socialConflictItem.Actors = ObjectMapper.Map<List<SocialConflictActorLocationDto>>(_socialConflictActorRepository
+                //    .GetAll()
+                //    .Include(p => p.ActorMovement)
+                //    .Include(p => p.ActorType)
+                //    .Where(p => p.SocialConflictId == input.Id)
+                //.ToList());
+                socialConflictItem.Actors = new List<SocialConflictActorLocationDto>();
+
+                var actoresRelacionados = _socialConflictActorRepository
                     .GetAll()
                     .Include(p => p.ActorMovement)
                     .Include(p => p.ActorType)
                     .Where(p => p.SocialConflictId == input.Id)
-                    .ToList());
+                    .ToList();
+
+                foreach (var actor in actoresRelacionados)
+                {
+                    var actorItem = ObjectMapper.Map<SocialConflictActorLocationDto>(actor);            
+                    var actorExists = await _actorRepository.CountAsync(p => p.Id == actorItem.ActorId) > 0;
+                    if (actorExists)
+                    {
+                        var a = await _actorRepository.GetAsync(actorItem.ActorId);
+                        actorItem.Name = a.FullName;
+                        actorItem.Document = a.DocumentNumber;
+                        actorItem.Job = a.JobPosition;
+                        actorItem.Community = a.Institution;
+                        actorItem.PhoneNumber = a.PhoneNumber;
+                        actorItem.EmailAddress = a.EmailAddress;
+                        actorItem.IsPoliticalAssociation = a.IsPoliticalAssociation;
+                        actorItem.PoliticalAssociation = a.PoliticalAssociation;
+                        actorItem.Position = a.Position;
+                        actorItem.Interest = a.Interest;
+                        actorItem.ActorType.Name = a.ActorType.Name;
+                        actorItem.ActorType.ShowMovement = a.ActorType.ShowMovement;
+                        actorItem.ActorType.ShowDetail = a.ActorType.ShowDetail;
+                        if (a.ActorMovement != null)
+                            actorItem.ActorMovement.Name = a.ActorMovement.Name;
+                        else
+                            actorItem.ActorMovement = null;
+                        actorItem.ActorId = a.Id;
+                    }
+                    socialConflictItem.Actors.Add(actorItem);
+                }
+
+
 
                 socialConflictItem.Risks = ObjectMapper.Map<List<SocialConflictRiskLocationDto>>(_socialConflictRiskRepository
                     .GetAll()
