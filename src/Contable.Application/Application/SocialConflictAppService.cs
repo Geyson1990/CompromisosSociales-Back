@@ -22,6 +22,9 @@ using Contable.Application.Exporting;
 using Contable.Dto;
 using PayPalCheckoutSdk.Orders;
 using Contable.Application.Compromises.Dto;
+using Contable.Application.SectorMeets.Dto;
+using Contable.Migrations;
+using Contable.Application.Records.Dto;
 
 namespace Contable.Application
 {
@@ -60,6 +63,9 @@ namespace Contable.Application
         private readonly IRepository<SocialConflictNote> _socialConflictNoteRepository;
         private readonly IRepository<SocialConflictResource> _socialConflictResourceRepository;
         private readonly ISocialConflictExcelExporter _socialConflictExporter;
+        private readonly IRepository<Record, long> _recordRepository;
+        private readonly IRepository<RecordResource, long> _recordResourceRepository;
+        private readonly IRepository<RecordResourceType> _recordResourceTypeRepository;
 
         public SocialConflictAppService(
             IRepository<Department> departmentRepository,
@@ -93,7 +99,10 @@ namespace Contable.Application
             IRepository<SocialConflictCondition> socialConflictConditionRepository,
             IRepository<SocialConflictNote> socialConflictNoteRepository,
             IRepository<SocialConflictResource> socialConflictResourceRepository,
-            ISocialConflictExcelExporter socialConflictExporter)
+            ISocialConflictExcelExporter socialConflictExporter,
+            IRepository<Record, long> recordRepository,
+            IRepository<RecordResource, long> recordResourceRepository,
+            IRepository<RecordResourceType> recordResourceTypeRepository)
         {
             _departmentRepository = departmentRepository;
             _provinceRepository = provinceRepository;
@@ -126,6 +135,9 @@ namespace Contable.Application
             _socialConflictNoteRepository = socialConflictNoteRepository;
             _socialConflictResourceRepository = socialConflictResourceRepository;
             _socialConflictExporter = socialConflictExporter;
+            _recordRepository = recordRepository;
+            _recordResourceRepository = recordResourceRepository;
+            _recordResourceTypeRepository = recordResourceTypeRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_SocialConflict_Create)]
@@ -209,11 +221,24 @@ namespace Contable.Application
                     .Include(p => p.Typology)
                     .Include(p => p.SubTypology)
                     .Include(p => p.Sector)
+                    .Include(p => p.Records)
                     .Where(p => p.Id == input.Id)
                     .First();
 
                 var socialConflictItem = ObjectMapper.Map<SocialConflictGetDto>(socialConflict);
 
+                foreach (var item in socialConflictItem.Records)
+                {
+                    var record = _recordRepository
+                    .GetAll()
+                    .Include(p => p.Resources)
+                    .Where(p => p.Id == item.Id)
+                    .First();
+
+                    if (record.Resources.Any())
+                        item.Resources = ObjectMapper.Map<List<RecordResourceDto>>(record.Resources);
+                }
+                
                 socialConflictItem.Locations = ObjectMapper.Map<List<SocialConflictLocationDto>>(_socialConflictLocationRepository
                     .GetAll()
                     .Include(p => p.TerritorialUnit)

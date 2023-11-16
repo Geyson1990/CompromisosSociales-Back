@@ -42,5 +42,9 @@ namespace Contable.Application
         [ForeignKey("RecordResourceType")]
         public int? RecordResourceTypeId { get; set; }
         public RecordResourceType RecordResourceType { get; set; }
+
+        //[Column(TypeName = RecordResourceConsts.RecordResourceTypeIdType)]
+        //[ForeignKey("RecordId")]
+        //public int? RecordId { get; set; }
     }
 }
