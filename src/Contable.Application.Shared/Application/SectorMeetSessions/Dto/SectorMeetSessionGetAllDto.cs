@@ -18,5 +18,12 @@ namespace Contable.Application.SectorMeetSessions.Dto
         public string Longitude { get; set; }
         public string MainSummary { get; set; }
         public bool IsDescriptionSocialConflict { get; set; }
+
+        public int? Modality { get; set; }
+        public int? MeetType { get; set; }
+        public int? RiskLevel { get; set; }
+        public string Object { get; set; }
+        public int? RolId { get; set; }
+        public int? State { get; set; }
     }
 }
