@@ -38,12 +38,19 @@ namespace Contable.Application
 
         public List<SectorMeetResource> Resources { get; set; }
 
+        [Column(TypeName = SectorMeetConsts.CountType)]
         public int? Modality { get; set; }
+        [Column(TypeName = SectorMeetConsts.CountType)]
         public int? MeetType { get; set; }
+        [Column(TypeName = SectorMeetConsts.CountType)]
         public int? RiskLevel { get; set; }
+        [Column(TypeName = SectorMeetConsts.MeetNameType)]
         public string Object { get; set; }
+        [Column(TypeName = SectorMeetConsts.CountType)]
         public int? RolId { get; set; }
+        [Column(TypeName = SectorMeetConsts.CountType)]
         public int? State { get; set; }
+        [Column(TypeName = SectorMeetConsts.MeetNameType)]
         public string ResponsibleName { get; set; }
     }
 }
