@@ -50,25 +50,26 @@ namespace Contable.Application
             //        throw new UserFriendlyException("Aviso", "El Código (Año) de reemplazo es obligatorio");
             //    if (input.ReplaceCount <= 0)
             //        throw new UserFriendlyException("Aviso", "El Código (Número) de reemplazo es obligatorio");
-                
+
             //    if (await _meetRepository.CountAsync(p => p.Code == $"{input.ReplaceYear} - {input.ReplaceCount}") > 0)
             //        throw new UserFriendlyException(DefaultTitleMessage, "El código de reemplazo ya esta en uso. Verifique la información antes de continuar");
             //}
 
-            var data = new Meet() { 
-                Year= input.ReplaceYear,
-                Objet= input.Objet,
-                ModalityId= input.ModalityId,   
-                MeetName= input.MeetName,
-                LevelRiskId= input.LevelRiskId,
-                PlaceId= input.PlaceId,
-                RolId= input.RolId,
-                SocialConflictId= input.SocialConflict.Id,
-                ResponsibleId= input.ResponsibleId, 
-                ResponsibleName= input.ResponsibleName, 
-                TypeId= input.TypeId,
-                FactorRisk= input.FactorRisk,
-                CreationTime= DateTime.Now,
+            var data = new Meet()
+            {
+                Year = input.ReplaceYear,
+                Objet = input.Objet,
+                ModalityId = input.ModalityId,
+                MeetName = input.MeetName,
+                LevelRiskId = input.LevelRiskId,
+                PlaceId = input.PlaceId,
+                RolId = input.RolId,
+                SocialConflictId = input.SocialConflict.Id,
+                ResponsibleId = input.ResponsibleId,
+                ResponsibleName = input.ResponsibleName,
+                TypeId = input.TypeId,
+                FactorRisk = input.FactorRisk,
+                CreationTime = DateTime.Now,
                 //Participants= ObjectMapper.Map<Meet>(input)
 
             };
@@ -78,7 +79,7 @@ namespace Contable.Application
             var sectorMeetId = await _meetRepository.InsertAndGetIdAsync(await ValidateEntity(
                 input: meetModel,
                 socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id
-             
+
             ));
 
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -109,37 +110,37 @@ namespace Contable.Application
                 VerifyCount(await _meetRepository.CountAsync(p => p.Id == input.Id.Value));
 
                 var dbSectorMeet = _meetRepository
-                    .GetAll()                   
+                    .GetAll()
                     .Include(p => p.SocialConflict)
                     .Include(p => p.Participants)
                     .Where(p => p.Id == input.Id.Value)
                     .First();
 
-                output.Meet = ObjectMapper.Map<MeetGetDto>(dbSectorMeet); 
-                
+                output.Meet = ObjectMapper.Map<MeetGetDto>(dbSectorMeet);
+
                 output.MeetsParticipants = ObjectMapper.Map<List<MeetParticipantsGetDto>>(dbSectorMeet.Participants);
             }
 
-            
+
 
             return output;
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet)]
-        public async Task<PagedResultDto<SectorMeetGetAllDto>> GetAll(SectorMeetGetAllInputDto input)
+        public async Task<PagedResultDto<MeetGetDataDto>> GetAll(MeetGetAllInputDto input)
         {
             var query = _meetRepository
                 .GetAll()
-                .Include(p => p.SocialConflict)              
-               
+                .Include(p => p.SocialConflict)
+                .Include(p => p.Participants)
                 .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.CreationTime >= input.StartTime.Value && p.CreationTime <= input.EndTime.Value)
-                .LikeAllBidirectional(input.SectorMeetCode.SplitByLike(), nameof(Meet.Code))
-                .LikeAllBidirectional(input.SectorMeetName.SplitByLike(), nameof(Meet.MeetName));
+                .LikeAllBidirectional(input.MeetCode.SplitByLike(), nameof(Meet.Code))
+                .LikeAllBidirectional(input.MeetName.SplitByLike(), nameof(Meet.MeetName));
 
             var count = await query.CountAsync();
             var result = query.OrderBy(input.Sorting).PageBy(input);
 
-            return new PagedResultDto<SectorMeetGetAllDto>(count, ObjectMapper.Map<List<SectorMeetGetAllDto>>(result));
+            return new PagedResultDto<MeetGetDataDto>(count, ObjectMapper.Map<List<MeetGetDataDto>>(result));
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Edit)]
@@ -151,12 +152,12 @@ namespace Contable.Application
                     throw new UserFriendlyException("Aviso", "El Código (Año) de reemplazo es obligatorio");
                 if (input.ReplaceCount <= 0)
                     throw new UserFriendlyException("Aviso", "El Código (Número) de reemplazo es obligatorio");
-                
+
             }
 
             var sectorMeetId = await _meetRepository.InsertOrUpdateAndGetIdAsync(await ValidateEntity(
                 input: ObjectMapper.Map(input, await _meetRepository.GetAsync(input.Id)),
-                socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id              
+                socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id
                 ));
 
             await CurrentUnitOfWork.SaveChangesAsync();
@@ -175,7 +176,7 @@ namespace Contable.Application
                 "Aviso",
                 $"El nombre de la reunión no debe exceder los {SectorMeetConsts.MeetNameMaxLength} caracteres");
 
-           
+
 
             if (socialConflictId > 0)
             {
@@ -195,7 +196,7 @@ namespace Contable.Application
                 input.SocialConflict = null;
                 input.SocialConflictId = null;
             }
-            
+
 
             return input;
         }

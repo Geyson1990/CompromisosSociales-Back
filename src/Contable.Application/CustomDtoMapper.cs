@@ -1443,6 +1443,7 @@ namespace Contable
                 .ForMember(p => p.Actions, options => options.Ignore())
                 .ForMember(p => p.Agreements, options => options.Ignore())
                 .ForMember(p => p.CriticalAspects, options => options.Ignore())
+                .ForMember(p => p.RiskFactors, options => options.Ignore())
                 .ForMember(p => p.Schedules, options => options.Ignore())
                 .ForMember(p => p.Summaries, options => options.Ignore())
                 .ForMember(p => p.Leaders, options => options.Ignore())
@@ -1456,6 +1457,7 @@ namespace Contable
                 .ForMember(p => p.Actions, options => options.Ignore())
                 .ForMember(p => p.Agreements, options => options.Ignore())
                 .ForMember(p => p.CriticalAspects, options => options.Ignore())
+                .ForMember(p => p.RiskFactors, options => options.Ignore())
                 .ForMember(p => p.Schedules, options => options.Ignore())
                 .ForMember(p => p.Summaries, options => options.Ignore())
                 .ForMember(p => p.Leaders, options => options.Ignore())
@@ -1472,6 +1474,7 @@ namespace Contable
             configuration.CreateMap<SectorMeetSessionAction, SectorMeetSessionActionRelationDto>();
             configuration.CreateMap<SectorMeetSessionAgreement, SectorMeetSessionAgreementRelationDto>();
             configuration.CreateMap<SectorMeetSessionCriticalAspect, SectorMeetSessionCriticalAspectRelationDto>();
+            configuration.CreateMap<SectorMeetSessionRiskFactors, SectorMeetSessionRiskFactorsRelationDto>();
             configuration.CreateMap<SectorMeetSessionSchedule, SectorMeetSessionScheduleRelationDto>();
             configuration.CreateMap<SectorMeetSessionSummary, SectorMeetSessionSummaryRelationDto>();
             configuration.CreateMap<SectorMeetSessionResource, SectorMeetSessionResourceRelationDto>();

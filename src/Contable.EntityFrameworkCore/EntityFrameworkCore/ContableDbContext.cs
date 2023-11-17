@@ -1,4 +1,4 @@
-﻿using Abp.IdentityServer4;
+using Abp.IdentityServer4;
 using Abp.Organizations;
 using Abp.Zero.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -173,6 +173,10 @@ namespace Contable.EntityFrameworkCore
 
         public virtual DbSet<Risk> Risks { get; set; }
         public virtual DbSet<Actor> Actors { get; set; }
+        public virtual DbSet<SectorMeetSessionRiskFactors> SectorMeetSessionRiskFactors { get; set; }
+
+
+        
 
         public virtual DbSet<ActorType> ActorType { get; set; }
 
