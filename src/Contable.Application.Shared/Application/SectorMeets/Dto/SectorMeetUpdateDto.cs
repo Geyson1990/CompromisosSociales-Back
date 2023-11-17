@@ -13,6 +13,12 @@ namespace Contable.Application.SectorMeets.Dto
         public EntityDto TerritorialUnit { get; set; }
         public EntityDto SocialConflict { get; set; }
         public List<SectorMeetSessionAttachmentDto> UploadFiles { get; set; }
+        public int? Modality { get; set; }
+        public int? MeetType { get; set; }
+        public int? RiskLevel { get; set; }
+        public string Object { get; set; }
+        public int? RolId { get; set; }
+        public int? State { get; set; }
 
     }
 }

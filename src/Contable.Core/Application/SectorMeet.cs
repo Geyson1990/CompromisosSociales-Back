@@ -37,5 +37,13 @@ namespace Contable.Application
         public List<SectorMeetSession> Sessions { get; set; }
 
         public List<SectorMeetResource> Resources { get; set; }
+
+        public int? Modality { get; set; }
+        public int? MeetType { get; set; }
+        public int? RiskLevel { get; set; }
+        public string Object { get; set; }
+        public int? RolId { get; set; }
+        public int? State { get; set; }
+        public string ResponsibleName { get; set; }
     }
 }
