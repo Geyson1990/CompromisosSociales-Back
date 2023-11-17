@@ -358,6 +358,8 @@ namespace Contable
                 .ReverseMap();
             configuration.CreateMap<SocialConflictActor, SocialConflictActorLocationDto>()
                 .ReverseMap();
+            configuration.CreateMap<Actor, SocialConflictActorRelationDto>()
+                .ReverseMap();
             configuration.CreateMap<ActorType, SocialConflictActorTypeRelationDto>()
                 .ReverseMap();
             configuration.CreateMap<ActorMovement, SocialConflictActorMovementRelationDto>()
