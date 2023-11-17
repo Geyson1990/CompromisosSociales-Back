@@ -33,7 +33,7 @@ namespace Contable.Application
         private readonly IRepository<SectorMeetSessionSummary> _sectorMeetSessionSummaryRepository;
         private readonly IRepository<SectorMeetSessionResource> _sectorMeetSessionResourceRepository;
         private readonly IRepository<SectorMeetSessionResourceFile> _sectorMeetSessionResourceFileRepository;
-
+        private readonly IRepository<SectorMeetSessionRiskFactors> _sectorMeetSessionRiskFactorsRepository;
 
 
         private readonly IRepository<SectorMeetSessionLeader> _sectorMeetSessionLeaderRepository;
@@ -64,7 +64,8 @@ namespace Contable.Application
             IRepository<Person> personRepository,
             IRepository<DirectoryIndustry> directoryIndustryRepository,
             IRepository<DirectoryGovernment> directoryGovernmentRepository,
-            IRepository<SocialConflictState> socialConflictStateRepository)
+            IRepository<SocialConflictState> socialConflictStateRepository,
+            IRepository<SectorMeetSessionRiskFactors> sectorMeetSessionRiskFactorsRepository)
         {
             _sectorMeetSessionRepository = sectorMeetSessionRepository;
             _sectorMeetSessionResourceFileRepository = sectorMeetSessionResourceFileRepository;
@@ -84,6 +85,7 @@ namespace Contable.Application
             _directoryIndustryRepository = directoryIndustryRepository;
             _directoryGovernmentRepository = directoryGovernmentRepository;
             _socialConflictStateRepository = socialConflictStateRepository;
+            _sectorMeetSessionRiskFactorsRepository = sectorMeetSessionRiskFactorsRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Create)]
@@ -104,6 +106,7 @@ namespace Contable.Application
                 resources: input.Resources ?? new List<SectorMeetSessionResourceRelationDto>(),
                 leaders: input.Leaders ?? new List<SectorMeetSessionLeaderRelationDto>(),
                 uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>(),
+                riskFactors: input.RiskFactors ?? new List<SectorMeetSessionRiskFactorsRelationDto>(),
                 uploadFilesPDF: input.UploadFilesPDF ?? new List<SectorMeetSessionAttachmentDto>());
 
             var sectorMeetSessionId = await _sectorMeetSessionRepository.InsertAndGetIdAsync(dbSectorMeetSession);
@@ -201,6 +204,12 @@ namespace Contable.Application
                 output.SectorMeetSession.Resources = ObjectMapper.Map<List<SectorMeetSessionResourceRelationDto>>(_sectorMeetSessionResourceRepository
                     .GetAll()
                     .Where(p => p.SectorMeetSessionId == dbSectorMeetSession.Id)
+                    .ToList());
+
+                output.SectorMeetSession.RiskFactors = ObjectMapper.Map<List<SectorMeetSessionRiskFactorsRelationDto>>(_sectorMeetSessionRiskFactorsRepository
+                    .GetAll()
+                    .Where(p => p.SectorMeetSessionId == dbSectorMeetSession.Id)
+                    .OrderBy(p => p.Index)
                     .ToList());
 
                 var objArchivos = _sectorMeetSessionResourceFileRepository
@@ -468,6 +477,7 @@ namespace Contable.Application
                 resources: input.Resources ?? new List<SectorMeetSessionResourceRelationDto>(),
                 leaders: input.Leaders ?? new List<SectorMeetSessionLeaderRelationDto>(),
                 uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>(),
+                riskFactors: input.RiskFactors ?? new List< SectorMeetSessionRiskFactorsRelationDto>(),
                 uploadFilesPDF: input.UploadFilesPDF ?? new List<SectorMeetSessionAttachmentDto>());
 
             await _sectorMeetSessionRepository.UpdateAsync(resultDbSectorMeetSession);
@@ -515,6 +525,7 @@ namespace Contable.Application
             List<SectorMeetSessionResourceRelationDto> resources,
             List<SectorMeetSessionLeaderRelationDto> leaders,
             List<SectorMeetSessionAttachmentDto> uploadFiles,
+            List<SectorMeetSessionRiskFactorsRelationDto> riskFactors,
             List<SectorMeetSessionAttachmentDto> uploadFilesPDF)
         {
             input.SessionTime = new DateTime(input.SessionTime.Year, input.SessionTime.Month, input.SessionTime.Day, input.SessionTime.Hour, input.SessionTime.Minute, 0);
@@ -602,6 +613,7 @@ namespace Contable.Application
             input.Summaries = new List<SectorMeetSessionSummary>();
             input.Resources = new List<SectorMeetSessionResource>();
             input.Leaders = new List<SectorMeetSessionLeader>();
+            input.RiskFactors = new List<SectorMeetSessionRiskFactors>();
 
             var index = 0;
 
@@ -832,6 +844,51 @@ namespace Contable.Application
                         {
                             Description = summary.Description,
                             SectorMeetSessionLeaderId = dbSectorMeetSessionLeader == null ? (int?)null : dbSectorMeetSessionLeader.Id,
+                            Index = index
+                        });
+                    }
+
+                    index++;
+                }
+            }
+
+            index = 0;
+
+            foreach (var risk in riskFactors)
+            {
+                if (risk.Remove)
+                {
+                    if (risk.Id > 0 && input.Id > 0 && await _sectorMeetSessionRiskFactorsRepository.CountAsync(p => p.Id == risk.Id && p.SectorMeetSessionId == input.Id) > 0)
+                    {
+                        await _sectorMeetSessionRiskFactorsRepository.DeleteAsync(risk.Id);
+                    }
+                }
+                else
+                {
+                    risk.Description.IsValidOrException("Aviso", "La descripción de los aspectos críticos son obligatorias");
+                    risk.Description.VerifyTableColumn(SectorMeetSessionCriticalAspectConsts.DescriptionMinLength,
+                        SectorMeetSessionCriticalAspectConsts.DescriptionMaxLength,
+                        DefaultTitleMessage,
+                        $"La descripción de los factores de riesgos \"{risk.Description}\" no debe exceder los " +
+                        $"{SectorMeetSessionCriticalAspectConsts.DescriptionMaxLength} caracteres");
+
+                    if (risk.Id > 0)
+                    {
+                        if (await _sectorMeetSessionRiskFactorsRepository.CountAsync(p => p.Id == risk.Id && p.SectorMeetSessionId == input.Id) > 0)
+                        {
+                            var dbSectorMeetSessionCriticalAspect = await _sectorMeetSessionRiskFactorsRepository.GetAsync(risk.Id);
+
+                            dbSectorMeetSessionCriticalAspect.Description = risk.Description;
+                            dbSectorMeetSessionCriticalAspect.Index = index;
+
+                            await _sectorMeetSessionRiskFactorsRepository.UpdateAsync(dbSectorMeetSessionCriticalAspect);
+                        }
+                    }
+                    else
+                    {
+                        input.RiskFactors.Add(new SectorMeetSessionRiskFactors()
+                        {
+                            Description = risk.Description,
                             Index = index
                         });
                     }
@@ -1087,6 +1144,8 @@ namespace Contable.Application
 
 
                 };
+
+
 
                 var dbResource = ObjectMapper.Map<SectorMeetSessionResourceFile>(archivoMapper);
 

@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using Contable.Application.SectorMeetSessions.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,7 +14,7 @@ namespace Contable.Application.SectorMeets.Dto
         public string MeetName { get; set; }
         public SectorMeetTerritorialUnitRelationDto TerritorialUnit { get; set; }
         public SectorMeetSocialConflictRelationDto SocialConflict { get; set; }
-
+        public List<SectorMeetSessionRiskFactorsRelationDto> RiskFactors { get; set; }
         public List<SectorMeetResourceRelationDto> Resources { get; set; }
 
         public int? Modality { get; set; }
