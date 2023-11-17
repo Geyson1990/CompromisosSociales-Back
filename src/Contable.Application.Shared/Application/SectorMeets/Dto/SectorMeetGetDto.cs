@@ -16,6 +16,14 @@ namespace Contable.Application.SectorMeets.Dto
 
         public List<SectorMeetResourceRelationDto> Resources { get; set; }
 
+        public int? Modality { get; set; }
+        public int? MeetType { get; set; }
+        public int? RiskLevel { get; set; }
+        public string Object { get; set; }
+        public int? RolId { get; set; }
+        public int? State { get; set; }
+        public string ResponsibleName { get; set; }
+
         public SectorMeetGetDto()
         {
             Resources = new List<SectorMeetResourceRelationDto>();
