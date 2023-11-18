@@ -593,5 +593,19 @@ namespace Contable.EntityFrameworkCore.Repositories
                 {"MultiTenancySide", MultiTenancySide }
             });
         }
+
+        public async Task<int> CallGenerateMeetProcess(int sectorMeetId)
+        {
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@SectorMeetId", sectorMeetId)
+            };
+
+            await EnsureConnectionOpenAsync();
+
+            using var command = CreateCommand("generate_meet", CommandType.StoredProcedure, parameters);
+
+            return await command.ExecuteNonQueryAsync();
+        }
     }
 }

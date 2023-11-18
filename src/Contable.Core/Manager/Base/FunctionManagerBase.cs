@@ -174,5 +174,10 @@ namespace Contable.Manager.Base
         {
             await _procedureRepository.CallCreateDialogSpaceStateProcess(dialogSpaceId);
         }
+
+        public async Task CallGenerateMeetProcess(int sectorMeetId)
+        {
+            await _procedureRepository.CallGenerateMeetProcess(sectorMeetId);
+        }
     }
 }

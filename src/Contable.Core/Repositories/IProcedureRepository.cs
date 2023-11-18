@@ -57,5 +57,6 @@ namespace Contable.Repositories
         Task<int> CallCreateDialogSpaceCodeProcess(int dialogSpaceId);
         Task<int> CallCreateDialogSpaceCodeReplaceProcess(int dialogSpaceId, int year, int count);
         Task<int> CallCreateDialogSpaceStateProcess(int dialogSpaceId);
+        Task<int> CallGenerateMeetProcess(int sectorMeetId);
     }
 }

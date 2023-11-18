@@ -182,6 +182,14 @@ namespace Contable.Application
             return new EntityDto(sectorMeetId);
         }
 
+        [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Edit)]
+        public async Task<EntityDto> GenerateMeetProcess(EntityDto input)
+        {
+            await FunctionManager.CallGenerateMeetProcess(input.Id);
+
+            return new EntityDto(input.Id);
+        }
+
         private async Task<SectorMeet> ValidateEntity(SectorMeet input, int socialConflictId, int territorialUnitId, List<SectorMeetSessionAttachmentDto> uploadFiles)
         {
             input.MeetName.IsValidOrException("Aviso", "El nombre de la reunión es obligatorio");
