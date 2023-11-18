@@ -21,7 +21,7 @@ namespace Contable.Application.SectorMeets.Dto
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public bool FilterByDate { get; set; }
-
+        public int? State { get; set; }
 
         public void Normalize()
         {

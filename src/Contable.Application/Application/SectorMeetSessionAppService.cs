@@ -415,8 +415,7 @@ namespace Contable.Application
                 .Include(p => p.Department)
                 .Include(p => p.Province)
                 .Include(p => p.District)
-                .WhereIf(input.SectorMeetId.HasValue, p => p.SectorMeetId == input.SectorMeetId.Value)
-                .WhereIf(input.State.HasValue, p => p.State == input.State.Value);
+                .WhereIf(input.SectorMeetId.HasValue, p => p.SectorMeetId == input.SectorMeetId.Value);
 
             var count = await query.CountAsync();
             var result = query.OrderBy(input.Sorting).PageBy(input);

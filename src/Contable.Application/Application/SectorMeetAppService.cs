@@ -142,6 +142,7 @@ namespace Contable.Application
                 .WhereIf(input.ProvinceId.HasValue, p => p.Sessions.Any(p => p.ProvinceId == input.ProvinceId.Value))
                 .WhereIf(input.DistrictId.HasValue, p => p.Sessions.Any(p => p.DistrictId == input.DistrictId.Value))
                 .WhereIf(input.PersonId.HasValue, p => p.Sessions.Any(p => p.PersonId == input.PersonId.Value))
+                .WhereIf(input.State.HasValue, p => p.State == input.State.Value)
                 .WhereIf(input.SectorMeetSessionType.HasValue && input.SectorMeetSessionType.Value != SectorMeetSessionType.NONE, p => p.Sessions.Any(d => d.Type == input.SectorMeetSessionType.Value))
                 .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.CreationTime >= input.StartTime.Value && p.CreationTime <= input.EndTime.Value)
                 .LikeAllBidirectional(input.SectorMeetCode.SplitByLike(), nameof(SectorMeet.Code))

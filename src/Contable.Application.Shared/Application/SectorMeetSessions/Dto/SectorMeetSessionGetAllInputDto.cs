@@ -9,7 +9,6 @@ namespace Contable.Application.SectorMeetSessions.Dto
     public class SectorMeetSessionGetAllInputDto : PagedAndSortedInputDto, IShouldNormalize
     {
         public int? SectorMeetId { get; set; }
-        public int? State { get; set; }
 
         public void Normalize()
         {
