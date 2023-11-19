@@ -21,6 +21,7 @@ using Contable.Editions;
 using Contable.Manager.Base;
 using Contable.Net.Emailing;
 using Contable.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Contable.Worker
 {
@@ -35,6 +36,7 @@ namespace Contable.Worker
         private readonly EmailAddressAttribute _emailValidator;
 
         private readonly IReportManagerBase _reportManagerBase;
+        private readonly IRepository<Person> _personRepository;
 
         public EnviarActasTaskManagementCheckWorker(
             AbpTimer timer,
@@ -42,7 +44,8 @@ namespace Contable.Worker
             IRepository<SocialConflictTaskManagementHistory> socialConflictTaskManagementHistoryRepository,
             IProcedureRepository procedureRepository,
             IReportManagerBase reportManagerBase,
-            IAppEmailSender appEmailSender) : base(timer)
+            IAppEmailSender appEmailSender,
+            IRepository<Person> personRepository) : base(timer)
         {
             _taskManagementRepository = taskManagementRepository;
             _socialConflictTaskManagementHistoryRepository = socialConflictTaskManagementHistoryRepository;
@@ -56,6 +59,7 @@ namespace Contable.Worker
             LocalizationSourceName = ContableConsts.LocalizationSourceName;
 
             _reportManagerBase = reportManagerBase;
+            _personRepository = personRepository;
         }
 
         protected override void DoWork()
@@ -88,16 +92,10 @@ namespace Contable.Worker
             if (ExecuteActaTask())
             {
 
-                var tasks = _taskManagementRepository.GetAllList(
-                    task => (task.Title == "Reporte_Acta"));
-
-                foreach (var task in tasks)
-                {
-                    try
+                try
                     {
-                        var persons = await _procedureRepository.CallSocialConflictTaskManagementForRecordsGetAllPersons(task.Id);
+                        var persons = _personRepository.GetAll().Include(p=>p.Type).Where(p=>p.AlertSend);
 
-                        //var coordinators = persons.Where(p => p.Type == PersonType.Coordinator && p.Id == 13 && p.AlertSend).ToList();
                         var personal = persons.Where(p => p.AlertSend).ToList();
 
                         if (!personal.Any()) throw new Exception("No hay registros del personal");
@@ -114,8 +112,6 @@ namespace Contable.Worker
 
                         try
                         {
-                            if (task.SendedCreation == true)
-                            {
                                 if (toAddress.Count() > 0)
                                 {
                                     var template = ContableConsts.SubjectAlertConflict;
@@ -153,9 +149,6 @@ namespace Contable.Worker
 
                                 }
 
-                                task.SendedCreation = true;
-                                _taskManagementRepository.Update(task);
-                            }
                         }
                         catch (Exception ex)
                         {
@@ -166,7 +159,6 @@ namespace Contable.Worker
                     {
                         throw;
                     }
-                }
             }
         }
     }
