@@ -69,6 +69,7 @@ namespace Contable.Web.Startup
             {
                 workManager.Add(IocManager.Resolve<TaskManagementCheckWorker>());
                 workManager.Add(IocManager.Resolve<SocialConflictTaskManagementCheckWorker>());
+                workManager.Add(IocManager.Resolve<EnviarActasTaskManagementCheckWorker>());
             }
 
             ConfigureExternalAuthProviders();

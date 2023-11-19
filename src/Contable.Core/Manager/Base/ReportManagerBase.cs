@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Contable.Manager.Base
 {
-    public class ReportManagerBase : IDomainService, ITransientDependency
+    public class ReportManagerBase : IDomainService, ITransientDependency, IReportManagerBase
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IConfigurationRoot _configurationRoot;
@@ -47,9 +47,9 @@ namespace Contable.Manager.Base
                 throw new UserFriendlyException("Aviso", "La funcionalidad de reportes esta deshabilitada");
             if (string.IsNullOrWhiteSpace(input.Name))
                 throw new UserFriendlyException("Aviso", "El nombre del reporte es obligatorio");
-            if(string.IsNullOrWhiteSpace(input.Type))
+            if (string.IsNullOrWhiteSpace(input.Type))
                 throw new UserFriendlyException("Aviso", "El formato del reporte es obligatorio");
-            if(ReportTypes.Where(p => p == input.Type).Count() == 0)
+            if (ReportTypes.Where(p => p == input.Type).Count() == 0)
                 throw new UserFriendlyException("Aviso", "El formato del reporte solicitado es inválido");
 
             var report = _reportRepository
@@ -59,7 +59,7 @@ namespace Contable.Manager.Base
 
             if (report == null)
                 throw new UserFriendlyException("Aviso", "El reporte solicitado es inválido");
-            if(report.Enabled == false)
+            if (report.Enabled == false)
                 throw new UserFriendlyException("Aviso", "El reporte solicitado se encuentra deshabilitado");
 
             using var client = new HttpClient();
@@ -168,6 +168,11 @@ namespace Contable.Manager.Base
         public string CreateSectorMeetSessionReportName(SectorMeet sectorMeet, SectorMeetSession sectorMeetSession, ReportType type)
         {
             return @$"RGD_{sectorMeet.Count}_{sectorMeet.Count}_{sectorMeetSession.Id}.{GetType(type).ToLower()}";
+        }
+
+        public string CreateActasReportName( ReportType type)
+        {
+            return @$"ReporteDeActas.{GetType(type).ToLower()}";
         }
     }
 }
