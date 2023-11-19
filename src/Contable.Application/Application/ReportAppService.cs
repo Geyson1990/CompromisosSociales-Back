@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services.Dto;
+using Abp.Application.Services.Dto;
 using Abp.AspNetCore.Mvc.Controllers;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Contable.Net.Emailing;
 using Castle.MicroKernel.Registration;
 using System.Collections;
+using Contable.Application.SocialConflicts.Dto;
 
 namespace Contable.Application
 {
@@ -417,6 +418,43 @@ namespace Contable.Application
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return Json(new AjaxResponse(new ErrorInfo(ex.Message, ex.Details)));
             }
+        }
+
+        [HttpPost]
+        [Route("ReportTeams")]
+        [AbpAuthorize(AppPermissions.Pages_Report_SocialConflictAlertResume)]
+        public async Task<ActionResult> ReportTeams([FromBody] SocialConflictReportGetAllInputDto input)
+        {
+            return await ResolveReport(new ReportRequestDto()
+            {
+                ReportName = ReportNames.SocialConflictAlertResume,
+                ReportType = input.Type,
+                FileName = _reportManager.CreateTeamsReportName(input.Type),
+                Parameters = new List<JasperReportParameter>()
+                {
+                    new JasperReportParameter()
+                    {
+                        Name = "FECHA_INICIO",
+                        Value = input.StartTime?.ToString("dd/MM/yyyy")
+                    },
+                    new JasperReportParameter()
+                    {
+                        Name = "FECHA_FIN",
+                        Value = input.EndTime?.ToString("dd/MM/yyyy")
+                    },
+                    new JasperReportParameter()
+                    {
+                        Name = "SOCIAL_CONFLICT_ID",
+                        Value = input.SocialConflictId?.ToString()
+                    },
+                    new JasperReportParameter()
+                    {
+                        Name = "TERRITORIAL_UNIT_ID",
+                        Value = input.TerritorialUnitId?.ToString()
+                    },
+
+                }
+            }); ;
         }
     }
 }

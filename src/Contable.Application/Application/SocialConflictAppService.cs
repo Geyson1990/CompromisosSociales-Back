@@ -27,6 +27,8 @@ using Contable.Migrations;
 using Contable.Application.Records.Dto;
 using Contable.Application.Actors.Dto;
 using Microsoft.AspNetCore.Mvc;
+using Contable.Application.Reports.Dto;
+using Contable.Manager;
 
 namespace Contable.Application
 {
@@ -1336,9 +1338,7 @@ namespace Contable.Application
             }
 
             return _socialConflictExporter.ExportActorToFile(data);
-        }
-
-      
+        }        
 
         async Task<SocialConflict> ValidateEntity(
             SocialConflict input,
@@ -2342,5 +2342,5 @@ namespace Contable.Application
             
             return input;
         }
-    }
+    }    
 }

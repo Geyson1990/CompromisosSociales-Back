@@ -145,6 +145,11 @@ namespace Contable.Manager.Base
             return @$"AM_XXXX_SGSD_XXXX.{GetType(type).ToLower()}";
         }
 
+        public string CreateTeamsReportName(ReportType type)
+        {
+            return @$"REPORT_TEAMS.{GetType(type).ToLower()}";
+        }
+
         public string CreateHelpMemoryReportName(SocialConflictSensible socialConflictSensible, ReportType type)
         {
             return @$"AM_XXXX_SGSD_XXXX.{GetType(type).ToLower()}";
