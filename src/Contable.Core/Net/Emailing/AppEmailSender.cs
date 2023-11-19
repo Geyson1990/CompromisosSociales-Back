@@ -43,6 +43,7 @@ namespace Contable.Net.Emailing
                 IsBodyHtml = true,
                 SubjectEncoding = Encoding.UTF8,
                 BodyEncoding = Encoding.UTF8
+             
             };
 
             foreach (var emailAddress in to)
