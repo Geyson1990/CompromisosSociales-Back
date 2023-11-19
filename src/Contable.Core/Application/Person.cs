@@ -45,5 +45,8 @@ namespace Contable.Application
         public TerritorialUnit TerritorialUnit { get; set; }
 
         public List<TerritorialUnitCoordinator> TerritorialUnits { get; set; }
+
+        [Column(TypeName = PersonConsts.EnabledType)]
+        public bool AlertSend { get; set; }
     }
 }

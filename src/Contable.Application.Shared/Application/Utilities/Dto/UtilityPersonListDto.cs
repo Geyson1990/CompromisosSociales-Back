@@ -11,4 +11,12 @@ namespace Contable.Application.Utilities.Dto
         public string EmailAddress { get; set; }
         public PersonType Type { get; set; }
     }
+
+    public class UtilityPersonForRecordListDto : EntityDto
+    {
+        public string Name { get; set; }
+        public string EmailAddress { get; set; }
+        public PersonType Type { get; set; }
+        public bool AlertSend { get; set; }
+    }
 }

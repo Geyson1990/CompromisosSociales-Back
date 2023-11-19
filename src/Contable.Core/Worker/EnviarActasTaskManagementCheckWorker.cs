@@ -95,11 +95,14 @@ namespace Contable.Worker
                 {
                     try
                     {
-                        var persons = await _procedureRepository.CallSocialConflictTaskManagementGetAllPersons(task.Id);
+                        var persons = await _procedureRepository.CallSocialConflictTaskManagementForRecordsGetAllPersons(task.Id);
 
-                        var coordinators = persons.Where(p => p.Type == PersonType.Coordinator && p.Id == 13).ToList();
+                        //var coordinators = persons.Where(p => p.Type == PersonType.Coordinator && p.Id == 13 && p.AlertSend).ToList();
+                        var personal = persons.Where(p => p.AlertSend).ToList();
 
-                        var toAddress = coordinators
+                        if (!personal.Any()) throw new Exception("No hay registros del personal");
+
+                        var toAddress = personal
                             .Where(p => _emailValidator.IsValid(p.EmailAddress))
                             .Select(p => p.EmailAddress)
                             .Distinct();
@@ -115,7 +118,7 @@ namespace Contable.Worker
                             {
                                 if (toAddress.Count() > 0)
                                 {
-                                    var template = "Adjuntamos el Acta diaria";//_appEmailSender.CreateSocialConflictTaskTemplate(socialConflictTaskManagementAlertTemplate, task, coordinators, null);
+                                    var template = ContableConsts.SubjectAlertConflict;
 
                                     var attachments = new List<EmailAttachment>();
 
@@ -161,7 +164,7 @@ namespace Contable.Worker
                     }
                     catch
                     {
-
+                        throw;
                     }
                 }
             }

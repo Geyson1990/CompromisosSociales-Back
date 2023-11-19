@@ -26,5 +26,7 @@
         public const string DefaultTitleText = "Aviso";
 
         public const int DefaultTenantId = 1;
+
+        public const string SubjectAlertConflict = "<p> Estimados,\n Adjunto a este correo, les remitimos el documento que contiene la lista de casos, junto con el número de actas registradas y la correspondiente unidad territorial asignada.\n Agradecemos de antemano su atención.</p>";
     }
 }

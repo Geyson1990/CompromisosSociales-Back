@@ -34,6 +34,10 @@ using AutoMapper.Configuration.Conventions;
 using Abp.AspNetZeroCore.Net;
 using NPOI.SS.UserModel;
 using Contable.Storage;
+using Contable.Application.Utilities.Dto;
+using Stripe;
+using NPOI.SS.Formula.Functions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Contable.Application
 {
@@ -52,6 +56,7 @@ namespace Contable.Application
         private readonly IRecordExcelExporter _recordExcelExporter;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IConfigurationRoot _configurationRoot;
+        private readonly IRepository<Person> _personRepository;
 
         public RecordAppService(
             ITempFileCacheManager tempFileCacheManager,
@@ -64,7 +69,8 @@ namespace Contable.Application
             IRepository<SocialConflictLocation> socialConflictLocationRepository,
             IRecordExcelExporter recordExcelExporter,
             IRepository<Compromise, long> compromiseRepository,
-            IWebHostEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IRepository<Person> personRepository)
         {
             _tempFileCacheManager = tempFileCacheManager;
             _recordRepository = recordRepository;
@@ -82,6 +88,7 @@ namespace Contable.Application
 
             _separator = Path.DirectorySeparatorChar.ToString();
             _actasRoute = $"{_hostingEnvironment.ContentRootPath}{_separator}Uploads{_separator}Content{_separator}Resources{_separator}";
+            _personRepository = personRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_Record_Create)]
@@ -417,6 +424,52 @@ namespace Contable.Application
                      
             return true;
 
+        }
+
+
+        [AbpAuthorize(AppPermissions.Pages_Application_Record)]
+        public async Task<PagedResultDto<UtilityPersonForRecordListDto>> GetAllPersons(UtilityPersonGetAllInputDto input)
+        {
+            var personal = _personRepository.GetAll().Include(p=>p.Type).Where(p => p.AlertSend);
+
+            if (personal.Any())
+            {
+                List<UtilityPersonForRecordListDto> lista = new List<UtilityPersonForRecordListDto>();
+                var count = await personal.CountAsync();
+
+                foreach (var item in personal)
+                {
+                    var entidad = new UtilityPersonForRecordListDto
+                    {
+                        Type = item.Type,
+                        AlertSend = item.AlertSend,
+                        Id = item.Id,
+                        EmailAddress = item.EmailAddress,
+                        Name = item.Name
+                    };
+                    lista.Add(entidad);
+                }
+
+                var personalQuery = lista.AsQueryable();
+
+                var output = await personalQuery.OrderBy(input.Sorting).PageBy(input).ToListAsync();
+
+                return new PagedResultDto<UtilityPersonForRecordListDto>(count, output);
+
+            }
+            else
+            {
+                return new PagedResultDto<UtilityPersonForRecordListDto>(0, new List<UtilityPersonForRecordListDto>());
+            }
+            
+        }
+
+        [AbpAuthorize(AppPermissions.Pages_Application_Record_Edit)]
+        public async Task<EntityDto> GenerateSendAlert(EntityDto input)
+        {
+            await FunctionManager.CallGenerateSendAlert(input.Id);
+
+            return new EntityDto(input.Id);
         }
     }
 }

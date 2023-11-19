@@ -179,5 +179,10 @@ namespace Contable.Manager.Base
         {
             await _procedureRepository.CallGenerateMeetProcess(sectorMeetId);
         }
+
+        public async Task CallGenerateSendAlert(int idPerson)
+        {
+            await _procedureRepository.CallGenerateSendAlert(idPerson);
+        }
     }
 }

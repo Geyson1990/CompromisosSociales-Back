@@ -314,6 +314,35 @@ namespace Contable.EntityFrameworkCore.Repositories
             return result;
         }
 
+        public async Task<List<UtilityPersonForRecordListDto>> CallSocialConflictTaskManagementForRecordsGetAllPersons(long socialConflictTaskManagementId)
+        {
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@SocialConflictTaskManagementId", socialConflictTaskManagementId)
+            };
+
+            await EnsureConnectionOpenAsync();
+
+            using var command = CreateCommand("social_conflict_task_management_persons", CommandType.StoredProcedure, parameters);
+            using var reader = await command.ExecuteReaderAsync();
+
+            var result = new List<UtilityPersonForRecordListDto>();
+
+            while (reader.Read())
+            {
+                result.Add(new UtilityPersonForRecordListDto()
+                {
+                    Id = reader.GetInt32("Id"),
+                    Name = reader.GetString("Name"),
+                    EmailAddress = reader.GetString("EmailAddress"),
+                    Type = (PersonType)Enum.ToObject(typeof(PersonType), reader.GetInt32("Type")),
+                    AlertSend = reader.GetBoolean("AlertSend")
+                });
+            }
+
+            return result;
+        }
+
         public async Task<PagedResultDto<UtilityConflictListGetAllDto>> CallGetAllConflictList(
             string code,
             string caseName,
@@ -604,6 +633,20 @@ namespace Contable.EntityFrameworkCore.Repositories
             await EnsureConnectionOpenAsync();
 
             using var command = CreateCommand("generate_meet", CommandType.StoredProcedure, parameters);
+
+            return await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task<int> CallGenerateSendAlert(int idPerson)
+        {
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@PersonId", idPerson)
+            };
+
+            await EnsureConnectionOpenAsync();
+
+            using var command = CreateCommand("send_alert", CommandType.StoredProcedure, parameters);
 
             return await command.ExecuteNonQueryAsync();
         }
