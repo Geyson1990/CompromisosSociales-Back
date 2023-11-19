@@ -39,6 +39,7 @@ using Stripe;
 using NPOI.SS.Formula.Functions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Linq.Expressions;
+using Contable.Application.SocialConflictTaskManagements.Dto;
 
 namespace Contable.Application
 {
@@ -431,41 +432,48 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_Application_Record)]
         public async Task<PagedResultDto<UtilityPersonForRecordListDto>> GetAllPersons(UtilityPersonAlertGetAllInputDto input)
         {
-            var personal = _personRepository
+            try
+            {
+                var personal = _personRepository
                 .GetAll()
-                .Include(p=>p.Type)
-                .Where(p => p.AlertSend)
-                .LikeAllBidirectional(input.Filter.SplitByLike().Select(word => (Expression<Func<Person, bool>>)(expression => EF.Functions.Like(expression.Name, $"%{word}%"))).ToArray());
-
-            if (personal.Any())
-            {
-                List<UtilityPersonForRecordListDto> lista = new List<UtilityPersonForRecordListDto>();
-                var count = await personal.CountAsync();
-
-                foreach (var item in personal)
+                //.Include(p => p.t.Type)
+                //.LikeAllBidirectional(input.Filter.SplitByLike().Select(word => (Expression<Func<Person, bool>>)(expression => EF.Functions.Like(expression.Name, $"%{word}%"))).ToArray());
+                .LikeAnyBidirectional(input.Filter.SplitByLike(), nameof(UtilityPersonForRecordListDto.Name));
+                if (personal.Any())
                 {
-                    var entidad = new UtilityPersonForRecordListDto
+                    List<UtilityPersonForRecordListDto> lista = new List<UtilityPersonForRecordListDto>();
+                    //var count = await personal.CountAsync();
+
+                    foreach (var item in personal)
                     {
-                        Type = item.Type,
-                        AlertSend = item.AlertSend,
-                        Id = item.Id,
-                        EmailAddress = item.EmailAddress,
-                        Name = item.Name
-                    };
-                    lista.Add(entidad);
+                        var entidad = new UtilityPersonForRecordListDto
+                        {
+                            Type = item.Type,
+                            AlertSend = item.AlertSend,
+                            Id = item.Id,
+                            EmailAddress = item.EmailAddress,
+                            Name = item.Name
+                        };
+                        lista.Add(entidad);
+                    }
+
+                    var personalQuery = lista.AsQueryable();
+                    var count = personalQuery.Count();
+                    var output = personalQuery.OrderBy(input.Sorting).PageBy(input).ToList();
+
+                    return new PagedResultDto<UtilityPersonForRecordListDto>(count, output);
+
                 }
-
-                var personalQuery = lista.AsQueryable();
-
-                var output = await personalQuery.OrderBy(input.Sorting).PageBy(input).ToListAsync();
-
-                return new PagedResultDto<UtilityPersonForRecordListDto>(count, output);
-
+                else
+                {
+                    return new PagedResultDto<UtilityPersonForRecordListDto>(0, new List<UtilityPersonForRecordListDto>());
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return new PagedResultDto<UtilityPersonForRecordListDto>(0, new List<UtilityPersonForRecordListDto>());
+                return null;
             }
+            
             
         }
 
