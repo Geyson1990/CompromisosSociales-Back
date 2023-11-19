@@ -10,11 +10,13 @@ using Contable.Application.SectorMeetSessions.Dto;
 using Contable.Application.Uploaders.Dto;
 using Contable.Authorization;
 using Microsoft.EntityFrameworkCore;
+using NUglify.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Z.EntityFramework.Plus;
 
 namespace Contable.Application
 {
@@ -42,33 +44,41 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Create)]
         public async Task<EntityDto> Create(SectorMeetCreateDto input)
         {
-            if (input.ReplaceCode)
+            try
             {
-                if (input.ReplaceYear <= 0)
-                    throw new UserFriendlyException("Aviso", "El Código (Año) de reemplazo es obligatorio");
-                if (input.ReplaceCount <= 0)
-                    throw new UserFriendlyException("Aviso", "El Código (Número) de reemplazo es obligatorio");
-                if (await _sectorMeetRepository.CountAsync(p => p.Year == input.ReplaceYear && p.Count == input.ReplaceCount) > 0)
-                    throw new UserFriendlyException("Aviso", "El código de reemplazo ya esta en uso. Verifique la información antes de continuar");
-                if (await _sectorMeetRepository.CountAsync(p => p.Code == $"{input.ReplaceYear} - {input.ReplaceCount}") > 0)
-                    throw new UserFriendlyException(DefaultTitleMessage, "El código de reemplazo ya esta en uso. Verifique la información antes de continuar");
+                if (input.ReplaceCode)
+                {
+                    if (input.ReplaceYear <= 0)
+                        throw new UserFriendlyException("Aviso", "El Código (Año) de reemplazo es obligatorio");
+                    if (input.ReplaceCount <= 0)
+                        throw new UserFriendlyException("Aviso", "El Código (Número) de reemplazo es obligatorio");
+                    if (await _sectorMeetRepository.CountAsync(p => p.Year == input.ReplaceYear && p.Count == input.ReplaceCount) > 0)
+                        throw new UserFriendlyException("Aviso", "El código de reemplazo ya esta en uso. Verifique la información antes de continuar");
+                    if (await _sectorMeetRepository.CountAsync(p => p.Code == $"{input.ReplaceYear} - {input.ReplaceCount}") > 0)
+                        throw new UserFriendlyException(DefaultTitleMessage, "El código de reemplazo ya esta en uso. Verifique la información antes de continuar");
+                }
+
+                var sectorMeetId = await _sectorMeetRepository.InsertAndGetIdAsync(await ValidateEntity(
+                    input: ObjectMapper.Map<SectorMeet>(input),
+                    socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id,
+                    territorialUnitId: input.TerritorialUnit == null ? -1 : input.TerritorialUnit.Id,
+                    uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>()
+                ));
+
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                if (input.ReplaceCode)
+                    await FunctionManager.CallCreateSectorMeetCodeReplaceProcess(sectorMeetId, input.ReplaceYear, input.ReplaceCount);
+                else
+                    await FunctionManager.CallCreateSectorMeetCodeProcess(sectorMeetId);
+
+                return new EntityDto(sectorMeetId);
             }
-
-            var sectorMeetId = await _sectorMeetRepository.InsertAndGetIdAsync(await ValidateEntity(
-                input: ObjectMapper.Map<SectorMeet>(input),
-                socialConflictId: input.SocialConflict == null ? -1 : input.SocialConflict.Id,
-                territorialUnitId: input.TerritorialUnit == null ? -1 : input.TerritorialUnit.Id,
-                uploadFiles: input.UploadFiles ?? new List<SectorMeetSessionAttachmentDto>()
-            ));
-
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            if (input.ReplaceCode)
-                await FunctionManager.CallCreateSectorMeetCodeReplaceProcess(sectorMeetId, input.ReplaceYear, input.ReplaceCount);
-            else
-                await FunctionManager.CallCreateSectorMeetCodeProcess(sectorMeetId);
-
-            return new EntityDto(sectorMeetId);
+            catch(Exception ex)
+            {
+                return null;
+            }
+            
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Delete)]
@@ -134,7 +144,9 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet)]
         public async Task<PagedResultDto<SectorMeetGetAllDto>> GetAll(SectorMeetGetAllInputDto input)
         {
-            var query = _sectorMeetRepository
+            try
+            {
+                var query = _sectorMeetRepository
                 .GetAll()
                 .Include(p => p.SocialConflict)
                 .Include(p => p.TerritorialUnit)
@@ -142,17 +154,31 @@ namespace Contable.Application
                 .WhereIf(input.ProvinceId.HasValue, p => p.Sessions.Any(p => p.ProvinceId == input.ProvinceId.Value))
                 .WhereIf(input.DistrictId.HasValue, p => p.Sessions.Any(p => p.DistrictId == input.DistrictId.Value))
                 .WhereIf(input.PersonId.HasValue, p => p.Sessions.Any(p => p.PersonId == input.PersonId.Value))
-                .WhereIf(input.State.Value == 0, p => p.State == input.State.Value && p.State == 2)
-                .WhereIf(input.State.Value == 1, p => p.State == input.State.Value && p.State == 2)
                 .WhereIf(input.SectorMeetSessionType.HasValue && input.SectorMeetSessionType.Value != SectorMeetSessionType.NONE, p => p.Sessions.Any(d => d.Type == input.SectorMeetSessionType.Value))
                 .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.CreationTime >= input.StartTime.Value && p.CreationTime <= input.EndTime.Value)
                 .LikeAllBidirectional(input.SectorMeetCode.SplitByLike(), nameof(SectorMeet.Code))
                 .LikeAllBidirectional(input.SectorMeetName.SplitByLike(), nameof(SectorMeet.MeetName));
 
-            var count = await query.CountAsync();
-            var result = query.OrderBy(input.Sorting).PageBy(input);
+                List<SectorMeet> listado = new List<SectorMeet>();
 
-            return new PagedResultDto<SectorMeetGetAllDto>(count, ObjectMapper.Map<List<SectorMeetGetAllDto>>(result));
+                foreach (var item in query)
+                {
+                    if (item.State == input.State || item.State == 2)
+                    {
+                        listado.Add(item);
+                    }
+                }
+                query = listado.AsQueryable();
+
+                //var count = await query.CountAsync();
+                var result = query.OrderBy(input.Sorting).PageBy(input);
+
+                return new PagedResultDto<SectorMeetGetAllDto>(listado.Count(), ObjectMapper.Map<List<SectorMeetGetAllDto>>(result));
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         [AbpAuthorize(AppPermissions.Pages_ConflictTools_SectorMeet_Edit)]
@@ -193,66 +219,74 @@ namespace Contable.Application
 
         private async Task<SectorMeet> ValidateEntity(SectorMeet input, int socialConflictId, int territorialUnitId, List<SectorMeetSessionAttachmentDto> uploadFiles)
         {
-            input.MeetName.IsValidOrException("Aviso", "El nombre de la reunión es obligatorio");
-            input.MeetName.VerifyTableColumn(SectorMeetConsts.MeetNameMinLength,
-                SectorMeetConsts.MeetNameMaxLength,
-                "Aviso",
-                $"El nombre de la reunión no debe exceder los {SectorMeetConsts.MeetNameMaxLength} caracteres");
-
-            if (await _territorialUnitRepository.CountAsync(p => p.Id == territorialUnitId) == 0)
-                throw new UserFriendlyException("Aviso", "La unidad territorial seleccionada es inválida o ya no existe. Por favor verifique la información antes de continuar.");
-
-            if (socialConflictId > 0)
+            try
             {
-                var dbSocialConflict = _socialConflictRepository
-                    .GetAll()
-                    .Where(p => p.Id == socialConflictId)
-                    .FirstOrDefault();
+                input.MeetName.IsValidOrException("Aviso", "El nombre de la reunión es obligatorio");
+                input.MeetName.VerifyTableColumn(SectorMeetConsts.MeetNameMinLength,
+                    SectorMeetConsts.MeetNameMaxLength,
+                    "Aviso",
+                    $"El nombre de la reunión no debe exceder los {SectorMeetConsts.MeetNameMaxLength} caracteres");
 
-                if (dbSocialConflict == null)
-                    throw new UserFriendlyException("Aviso", "El caso seleccionado es inválido o ya no existe. Por favor verifique la información antes de continuar.");
+                if (await _territorialUnitRepository.CountAsync(p => p.Id == territorialUnitId) == 0)
+                    throw new UserFriendlyException("Aviso", "La unidad territorial seleccionada es inválida o ya no existe. Por favor verifique la información antes de continuar.");
 
-                input.SocialConflict = dbSocialConflict;
-                input.SocialConflictId = dbSocialConflict.Id;
-            }
-            else
-            {
-                input.SocialConflict = null;
-                input.SocialConflictId = null;
-            }
-
-            var territorialUnit = await _territorialUnitRepository.GetAsync(territorialUnitId);
-
-            input.TerritorialUnit = territorialUnit;
-            input.TerritorialUnitId = territorialUnit.Id;
-            input.Resources = new List<SectorMeetResource>();
-
-            foreach (var uploadFile in uploadFiles)
-            {
-                var recurso = ResourceManager.Create(
-                    resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
-                    section: ResourceConsts.SectorMeet
-                );
-                //var dbResource = ObjectMapper.Map<SectorMeetResource>(recurso);
-                var dbResource = new SectorMeetResource
+                if (socialConflictId > 0)
                 {
-                    Name = recurso.Name,
-                    LastModificationTime = DateTime.Now,
-                    ResourceFolder = recurso.ResourceFolder,
-                    Resource = recurso.Resource,
-                    FileName = recurso.FileName,
-                    ClassName = recurso.ClassName,
-                    SectionFolder = recurso.SectionFolder,
-                    CommonFolder = recurso.CommonFolder,
-                    Description = recurso.Description,
-                    Extension = recurso.Extension,
-                    Size = recurso.Size,
-                };
+                    var dbSocialConflict = _socialConflictRepository
+                        .GetAll()
+                        .Where(p => p.Id == socialConflictId)
+                        .FirstOrDefault();
 
-                input.Resources.Add(dbResource);
+                    if (dbSocialConflict == null)
+                        throw new UserFriendlyException("Aviso", "El caso seleccionado es inválido o ya no existe. Por favor verifique la información antes de continuar.");
+
+                    input.SocialConflict = dbSocialConflict;
+                    input.SocialConflictId = dbSocialConflict.Id;
+                }
+                else
+                {
+                    input.SocialConflict = null;
+                    input.SocialConflictId = null;
+                }
+
+                var territorialUnit = await _territorialUnitRepository.GetAsync(territorialUnitId);
+
+                input.TerritorialUnit = territorialUnit;
+                input.TerritorialUnitId = territorialUnit.Id;
+                input.Resources = new List<SectorMeetResource>();
+
+                foreach (var uploadFile in uploadFiles)
+                {
+                    var recurso = ResourceManager.Create(
+                        resource: ObjectMapper.Map<UploadResourceInputDto>(uploadFile),
+                        section: ResourceConsts.SectorMeet
+                    );
+                    //var dbResource = ObjectMapper.Map<SectorMeetResource>(recurso);
+                    var dbResource = new SectorMeetResource
+                    {
+                        Name = recurso.Name,
+                        LastModificationTime = DateTime.Now,
+                        ResourceFolder = recurso.ResourceFolder,
+                        Resource = recurso.Resource,
+                        FileName = recurso.FileName,
+                        ClassName = recurso.ClassName,
+                        SectionFolder = recurso.SectionFolder,
+                        CommonFolder = recurso.CommonFolder,
+                        Description = recurso.Description,
+                        Extension = recurso.Extension,
+                        Size = recurso.Size,
+                    };
+
+                    input.Resources.Add(dbResource);
+                }
+
+                return input;
             }
-
-            return input;
+            catch (Exception ex)
+            {
+                return null;
+            }
+            
         }
     }
 }
