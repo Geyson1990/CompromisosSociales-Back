@@ -38,6 +38,7 @@ using Contable.Application.Utilities.Dto;
 using Stripe;
 using NPOI.SS.Formula.Functions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq.Expressions;
 
 namespace Contable.Application
 {
@@ -428,9 +429,13 @@ namespace Contable.Application
 
 
         [AbpAuthorize(AppPermissions.Pages_Application_Record)]
-        public async Task<PagedResultDto<UtilityPersonForRecordListDto>> GetAllPersons(UtilityPersonGetAllInputDto input)
+        public async Task<PagedResultDto<UtilityPersonForRecordListDto>> GetAllPersons(UtilityPersonAlertGetAllInputDto input)
         {
-            var personal = _personRepository.GetAll().Include(p=>p.Type).Where(p => p.AlertSend);
+            var personal = _personRepository
+                .GetAll()
+                .Include(p=>p.Type)
+                .Where(p => p.AlertSend)
+                .LikeAllBidirectional(input.Filter.SplitByLike().Select(word => (Expression<Func<Person, bool>>)(expression => EF.Functions.Like(expression.Name, $"%{word}%"))).ToArray());
 
             if (personal.Any())
             {
