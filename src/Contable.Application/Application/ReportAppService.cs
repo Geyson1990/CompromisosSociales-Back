@@ -427,7 +427,7 @@ namespace Contable.Application
         {
             return await ResolveReport(new ReportRequestDto()
             {
-                ReportName = ReportNames.SocialConflictAlertResume,
+                ReportName = ReportNames.ReporteDeParticipantes,
                 ReportType = input.Type,
                 FileName = _reportManager.CreateTeamsReportName(input.Type),
                 Parameters = new List<JasperReportParameter>()

@@ -18,5 +18,6 @@ namespace Contable.Application
         public const string InterventionPlan = "intervention_plan";
         public const string SectorMeetSession = "sector_meet_session";
         public const string ReporteActasAlert = "TerritorialSocialConflict";
+        public const string ReporteDeParticipantes = "ReporteDeParticipantes";
     }
 }
