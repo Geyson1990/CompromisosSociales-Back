@@ -4241,22 +4241,45 @@ CREATE PROCEDURE [dbo].[record_code]
 AS
 BEGIN
 
-	UPDATE [R]
-	SET [R].[Code] = (
-	SELECT 
-		CONCAT('A',
-		CASE WHEN [A].[Code] < 10 THEN '00'
-			 WHEN [A].[Code] >= 10 AND [A].[Code] < 100 THEN '0'
-			 ELSE '' END,
-		[A].[Code])
-	FROM (SELECT  
-			 ISNULL(MAX(CONVERT(INT, REPLACE([Code], 'A', ''))), 0) + 1 AS [Code] 
-		  FROM [AppRecords]
-		  WHERE [SocialConflictId] = @SocialConflictId AND
-				[IsDeleted] = 0) 
-	AS A) 
-	FROM [AppRecords] [R]
-	WHERE [Id] = @RecordId
+	DECLARE @CodeRecord VARCHAR(50);
+	DECLARE @CodeConflictSocial VARCHAR(50);
+	DECLARE @AutoIncrementCode VARCHAR(50);
+
+		SELECT
+				 @CodeRecord = A.Code,
+				 @CodeConflictSocial = ISNULL(B.Code,'')
+		FROM [AppRecords] A WITH(NOLOCK)
+		INNER JOIN [AppSocialConflicts] B WITH(NOLOCK) ON A.SocialConflictId = B.Id
+		WHERE A.[SocialConflictId] = @SocialConflictId 
+		AND	A.[IsDeleted] = 0 
+		AND A.[Id] = @RecordId
+		AND b.[IsDeleted] = 0;
+
+		SET @CodeRecord = 
+					(SELECT 
+						CASE 
+							WHEN CHARINDEX('-', @CodeRecord) > 0 THEN 
+								RIGHT(@CodeRecord, CHARINDEX(' - ', REVERSE(@CodeRecord)) - 1)
+							ELSE 
+								@CodeRecord
+						END AS Resultado);
+
+		SET @AutoIncrementCode = (
+				SELECT ISNULL(MAX(CONVERT(INT, REPLACE(@CodeRecord, 'A', ''))), 0) + 1 AS [Code] );
+
+		UPDATE AppRecords
+		SET Code = (
+			SELECT 
+			CONCAT(@CodeConflictSocial,
+			' - ',
+			'A',
+			CASE WHEN @AutoIncrementCode < 10 THEN '00'
+				 WHEN @AutoIncrementCode >= 10 AND @AutoIncrementCode < 100 THEN '0'
+				 ELSE '' END,
+			@AutoIncrementCode			
+			))
+		WHERE [Id] = @RecordId
+		AND [SocialConflictId] = @SocialConflictId;
 END");
 
             _context.Database.ExecuteSqlRaw(@"
@@ -4271,22 +4294,44 @@ CREATE PROCEDURE [dbo].[compromise_code]
 AS
 BEGIN
 
-	UPDATE [C]
-	SET [C].[Code] = (
-	SELECT 
-		CONCAT('C',
-		CASE WHEN [A].[Code] < 10 THEN '00'
-			 WHEN [A].[Code] >= 10 AND [A].[Code] < 100 THEN '0'
-			 ELSE '' END,
-		[A].[Code])
-	FROM (SELECT  
-			 ISNULL(MAX(CONVERT(INT, REPLACE([Code], 'C', ''))), 0) + 1 AS [Code] 
-		  FROM [AppCompromises]
-		  WHERE [RecordId] = [C].[RecordId] AND
-				[IsDeleted] = 0) 
-	AS A) 
-	FROM [AppCompromises] [C]
-	WHERE [C].[Id] = @CompromiseId
+	DECLARE @CodeCompromise VARCHAR(20);
+	DECLARE @CodeConflictSocial VARCHAR(20);
+	DECLARE @AutoIncrementCode VARCHAR(20);
+
+		SELECT 
+			@CodeCompromise = A.Code,
+			@CodeConflictSocial = ISNULL(C.Code,'')
+		FROM AppCompromises A WITH(NOLOCK)
+		INNER JOIN AppRecords B WITH(NOLOCK) ON A.RecordId = B.Id AND B.IsDeleted = 0
+		INNER JOIN AppSocialConflicts C WITH(NOLOCK) ON B.SocialConflictId = C.Id AND C.IsDeleted = 0
+		WHERE A.Id = @CompromiseId;
+
+		SET @CodeCompromise = 
+					(SELECT 
+						CASE 
+							WHEN CHARINDEX('-', @CodeCompromise) > 0 THEN 
+								RIGHT(@CodeCompromise, CHARINDEX(' - ', REVERSE(@CodeCompromise)) - 1)
+							ELSE 
+								@CodeCompromise
+						END AS Resultado);
+
+		SET @AutoIncrementCode = (
+				SELECT ISNULL(MAX(CONVERT(INT, REPLACE(@CodeCompromise, 'C', ''))), 0) + 1 AS [Code] );
+
+	BEGIN
+	UPDATE AppCompromises
+	SET Code = (
+		SELECT 
+			CONCAT(@CodeConflictSocial,
+					' - ',
+					'C',
+				CASE WHEN @AutoIncrementCode < 10 THEN '00'
+				WHEN @AutoIncrementCode >= 10 AND @AutoIncrementCode < 100 THEN '0'
+				ELSE '' END,
+			@AutoIncrementCode			
+			))
+		WHERE Id = @CompromiseId;
+	END
 END");
 
         }

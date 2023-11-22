@@ -40,6 +40,11 @@ namespace Contable.Manager.Base
         {
             await _procedureRepository.CallCreateRecordCodeProcess(socialConflictId, recordId);
         }
+
+        public async Task CallUpdateRecordCodeProcess(int socialConflictId, long recordId)
+        {
+            await _procedureRepository.CallUpdateRecordCodeProcess(socialConflictId, recordId);
+        }
         public async Task CallCreateCompromiseCodeProcess(long compromiseId)
         {
             await _procedureRepository.CallCreateCompromiseCodeProcess(compromiseId);

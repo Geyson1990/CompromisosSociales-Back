@@ -301,6 +301,7 @@ namespace Contable.Application
                             .Where(p => p.Id == socialConflictId)
                             .FirstAsync();
 
+            input.Code = input.Id > 0 ? input.SocialConflict.Code + " - " + input.Code : string.Empty;
             foreach (var resource in resources ?? new List<RecordResourceDto>())
             {
                 if (resource.Remove && await _recordResourceRepository.CountAsync(p => p.Id == resource.Id && p.Record.Id == input.Id) > 0)
