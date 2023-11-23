@@ -4265,7 +4265,7 @@ BEGIN
 						END AS Resultado);
 
 		SET @AutoIncrementCode = (
-				SELECT ISNULL(MAX(CONVERT(INT, REPLACE(@CodeRecord, 'A', ''))), 0) + 1 AS [Code] );
+				SELECT ISNULL(MAX(CONVERT(INT, REPLACE(@CodeRecord, 'A', ''))), 0) + 1);
 
 		UPDATE AppRecords
 		SET Code = (
@@ -4316,7 +4316,7 @@ BEGIN
 						END AS Resultado);
 
 		SET @AutoIncrementCode = (
-				SELECT ISNULL(MAX(CONVERT(INT, REPLACE(@CodeCompromise, 'C', ''))), 0) + 1 AS [Code] );
+				SELECT ISNULL(MAX(CONVERT(INT, REPLACE(@CodeCompromise, 'C', ''))), 0) + 1);
 
 	BEGIN
 	UPDATE AppCompromises

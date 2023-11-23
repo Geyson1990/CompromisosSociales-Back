@@ -51,6 +51,7 @@ namespace Contable.Application
         private readonly IRepository<CompromiseState> _compromiseStateRepository;
         private readonly IRepository<CompromiseSubState> _compromiseSubStateRepository;
         private readonly IRepository<User, long> _userRepository;
+        private readonly IRepository<SocialConflict> _socialConflictRepository;
 
         public CompromiseAppService(
             IRepository<Compromise, long> compromiseRepository,
@@ -76,7 +77,8 @@ namespace Contable.Application
             IRepository<CompromiseResponsible> compromiseResponsibleRepository,
             IRepository<CompromiseState> compromiseStateRepository,
             IRepository<CompromiseSubState> compromiseSubStateRepository,
-            IRepository<User, long> userRepository)
+            IRepository<User, long> userRepository,
+            IRepository<SocialConflict> socialConflictRepository)
         {
             _compromiseRepository = compromiseRepository;
             _recordRepository = recordRepository;
@@ -103,6 +105,7 @@ namespace Contable.Application
             _compromiseStateRepository = compromiseStateRepository;
             _compromiseSubStateRepository = compromiseSubStateRepository;
             _userRepository = userRepository;
+            _socialConflictRepository = socialConflictRepository;
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_Compromise_Create)]
@@ -127,9 +130,24 @@ namespace Contable.Application
 
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            await FunctionManager.CallCreateCompromiseCodeProcess(compromiseId);
+            //await FunctionManager.CallCreateCompromiseCodeProcess(compromiseId);
 
             return new EntityDto<long>(compromiseId);
+        }
+
+        private string GenerateCode(string codeCompromise, string codeSocialConflict, bool isCreate)
+        {
+            
+            string[] codes = codeCompromise.Split('-');
+            // Obtener la última parte
+            string lastCode = codes[^1].Trim();
+            // Extraer el número del código actual
+            // Ignorar el primer carácter "C"
+            string numberString = lastCode.Substring(1); 
+            int counter = int.Parse(numberString);
+            // Incrementar el número
+            if (isCreate) counter++;
+            return codeSocialConflict+" - C" + counter.ToString("000");
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_Compromise_Delete)]
@@ -480,9 +498,43 @@ namespace Contable.Application
                 throw new UserFriendlyException(DefaultTitleMessage, "No se puede establecer el compromiso como No Priorizado si tiene tareas asociadas.");
 
             var dbRecord = await _recordRepository.GetAsync(record.Id);
-
+            
             compromise.Record = dbRecord;
             compromise.RecordId = dbRecord.Id;
+
+            #region Generate Code
+            string returnCode;
+            var objSocialConflict = await _socialConflictRepository.GetAsync(dbRecord.SocialConflictId);
+
+            if (string.IsNullOrEmpty(compromise.Code))
+            {
+                returnCode = GenerateCode("C001", objSocialConflict.Code, false);
+                var compromisesList = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(returnCode));
+                if (compromisesList.Any())
+                    returnCode = GenerateCode(compromisesList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
+            }
+            else
+            {
+                var compromisesList = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + compromise.Code) && x.Id != compromise.Id);
+                if (compromisesList.Any())
+                {
+                    int i = 0;
+                    do
+                    {                        
+                        returnCode = GenerateCode(compromisesList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
+                        var verificar = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + compromise.Code) && x.Id != compromise.Id);
+                        if (verificar.Any()) { i = 0; compromise.Code = GenerateCode(returnCode, objSocialConflict.Code, true); }
+                        else { returnCode = compromise.Code; i = 1; } 
+
+                    } while (i == 0);
+                }
+                else 
+                {
+                    returnCode = GenerateCode(compromise.Code, objSocialConflict.Code, false);
+                }                
+            }
+            compromise.Code = returnCode;
+            #endregion
 
             if (state.Id > 0) compromise.Status = await _parameterRepository.GetAsync(state.Id);
             if (responsibleActor.Id > 0)

@@ -26,5 +26,8 @@ namespace Contable.Application
         public List<RecordResource> Resources { get; set; }
 
         public List<Compromise> Compromises { get; set; }
+
+        [Column(TypeName = RecordConsts.IntType)]
+        public int SocialConflictId { get; set; }
     }
 }

@@ -16,5 +16,6 @@ namespace Contable.Application
 
         public const string DatetimeType = "DATETIME";
         public const string FilterType = "TEXT";
+        public const string IntType = "INT";
     }
 }
