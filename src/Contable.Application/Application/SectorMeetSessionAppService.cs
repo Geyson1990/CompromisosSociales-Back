@@ -1,4 +1,4 @@
-﻿using Abp.Application.Services.Dto;
+using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
@@ -556,6 +556,19 @@ namespace Contable.Application
                 input.Person = null;
                 input.PersonId = null;
             }
+
+            if (input.IsDescriptionSocialConflict)
+            {
+                if (input.Person == null && input.SectorMeet.SocialConflictId == null)
+                    throw new UserFriendlyException("Aviso", "Para asignar un resumen a la situación actual, la reunión debe estar asociada a un Caso de Conflictividad Social y tener asignado a un responsable.");
+
+                if (input.SectorMeet.SocialConflictId == null)
+                    throw new UserFriendlyException("Aviso", "Para asignar un resumen a la situación actual, la reunión debe estar asociada a un Caso de Conflictividad Social.");
+
+                if(input.Person == null)
+                    throw new UserFriendlyException("Aviso", "Para asignar un resumen a la situación actual, la reunión debe tener asignado a un responsable.");
+            }
+            
 
             if (input.Type == SectorMeetSessionType.PRESENTIAL)
             {
