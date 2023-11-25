@@ -121,6 +121,23 @@ namespace Contable.Application
             ));
         }
 
+        private string GenerateCode(string codeCompromise, string codeSocialConflict, bool isCreate)
+        {
+
+            string[] codes = codeCompromise.Split('-');
+            // Obtener la última parte
+            string lastCode = codes[^1].Trim();
+            // Extraer el número del código actual
+            // Ignorar el primer carácter "C"
+            string numberString = lastCode.Substring(1);
+
+            int counter = int.Parse(numberString);
+
+            if (isCreate) counter++;
+
+            return codeSocialConflict + " - A" + counter.ToString("000");
+        }
+
         [AbpAuthorize(AppPermissions.Pages_Application_Record_Delete)]
         public async Task Delete(EntityDto<long> input)
         {
@@ -301,7 +318,41 @@ namespace Contable.Application
                             .Where(p => p.Id == socialConflictId)
                             .FirstAsync();
 
-            input.Code = input.Id > 0 ? input.SocialConflict.Code + " - " + input.Code : string.Empty;
+            //input.Code = input.Id > 0 ? input.SocialConflict.Code + " - " + input.Code : string.Empty;
+            #region Generate Code
+            string returnCode;
+            var objSocialConflict = await _socialConflictRepository.GetAsync(socialConflictId);
+
+            if (string.IsNullOrEmpty(input.Code))
+            {
+                returnCode = GenerateCode("A001", objSocialConflict.Code, false);
+                var recordList = await _recordRepository.GetAllListAsync(x => x.Code.Contains(returnCode));
+                if (recordList.Any())
+                    returnCode = GenerateCode(recordList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
+            }
+            else
+            {
+                var recordList = await _recordRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + input.Code) && x.Id != input.Id);
+                if (recordList.Any())
+                {
+                    int i = 0;
+                    do
+                    {
+                        returnCode = GenerateCode(recordList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
+                        var verificar = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + input.Code) && x.Id != input.Id);
+                        if (verificar.Any()) { i = 0; input.Code = GenerateCode(returnCode, objSocialConflict.Code, true); }
+                        else { returnCode = input.Code; i = 1; }
+
+                    } while (i == 0);
+                }
+                else
+                {
+                    returnCode = GenerateCode(input.Code, objSocialConflict.Code, false);
+                }
+            }
+            input.Code = returnCode;
+            #endregion
+
             foreach (var resource in resources ?? new List<RecordResourceDto>())
             {
                 if (resource.Remove && await _recordResourceRepository.CountAsync(p => p.Id == resource.Id && p.Record.Id == input.Id) > 0)
@@ -341,13 +392,19 @@ namespace Contable.Application
             var nameFolder = Guid.NewGuid();
 
             var records = _recordRepository
-                   .GetAll()
-                   //.Include(p => p.SocialConflict)
-                   .Include(p => p.Resources)
-                   .ThenInclude(p => p.RecordResourceType)
-                   //.Where(p => p.Id == input.Id)
-                   .ToList();
-        
+                .GetAll()
+                .Include(p => p.Resources)
+                    .ThenInclude(p => p.RecordResourceType)
+                .Include(p => p.SocialConflict)
+                    .ThenInclude(p => p.Locations)
+                        .ThenInclude(p => p.TerritorialUnit)
+                .Where(p => !p.SocialConflict.IsDeleted)
+                .WhereIf(input.Code.IsValid(), p => p.Code.Contains(input.Code))
+                .WhereIf(input.SocialConflictCode.IsValid(), p => p.SocialConflict.Code.Contains(input.SocialConflictCode))
+                .WhereIf(input.TerritorialUnitId.HasValue && input.TerritorialUnitId.Value > 0, p => p.SocialConflict.Locations.Any(p => p.TerritorialUnit.Id == input.TerritorialUnitId))
+                .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.RecordTime >= input.StartTime.Value && p.RecordTime <= input.EndTime.Value)
+                .LikeAllBidirectional(input.Filter.SplitByLike(), nameof(SocialConflict.Filter));
+
 
             //Create the zip file
             var zipFileDto = new FileDto($"{nameFolder.ToString()}.zip", MimeTypeNames.ApplicationZip);

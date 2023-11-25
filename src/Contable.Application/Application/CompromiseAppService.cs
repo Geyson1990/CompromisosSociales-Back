@@ -144,9 +144,11 @@ namespace Contable.Application
             // Extraer el número del código actual
             // Ignorar el primer carácter "C"
             string numberString = lastCode.Substring(1); 
+
             int counter = int.Parse(numberString);
-            // Incrementar el número
+
             if (isCreate) counter++;
+
             return codeSocialConflict+" - C" + counter.ToString("000");
         }
 

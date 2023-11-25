@@ -94,6 +94,8 @@ namespace Contable.Application.Exporting
                    "Estado actual",
                    "Temática mujer",
                    "Etiqueta",
+                   "Fecha cierre",
+                   "Fecha límite",
                    "Fecha de registro",
                    "Registrado por",
                    "Última actualización",
@@ -163,12 +165,12 @@ namespace Contable.Application.Exporting
                     if (sheet.GetRow(i + initRow) != null)
                     {
                         SetCellDataFormat(sheet.GetRow(i + initRow).Cells[3], compromiseListDtos[i].Record.RecordTime, "dd/mm/yyyy");
-                        SetCellDataFormat(sheet.GetRow(i + initRow).Cells[48], compromiseListDtos[i].CreationTime, "dd/mm/yyyy");
-                        SetCellDataFormat(sheet.GetRow(i + initRow).Cells[50], compromiseListDtos[i].LastModificationTime, "dd/mm/yyyy");
+                        SetCellDataFormat(sheet.GetRow(i + initRow).Cells[49], compromiseListDtos[i].CreationTime, "dd/mm/yyyy");
+                        SetCellDataFormat(sheet.GetRow(i + initRow).Cells[51], compromiseListDtos[i].LastModificationTime, "dd/mm/yyyy");
                     }
                 }
 
-                for (var i = 0; i < 51; i++)
+                for (var i = 0; i < 52; i++)
                     sheet.SetColumnWidth(i, 5000);
             });
         }
@@ -203,6 +205,8 @@ namespace Contable.Application.Exporting
                    "Abierto/Cerrado",
                    "Estado actual",
                    "Temática mujer",
+                   "Fecha de cierre",
+                   "Fecha límite",
                    "Timeline"
                 );
 
