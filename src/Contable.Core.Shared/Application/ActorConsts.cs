@@ -57,6 +57,7 @@ namespace Contable.Application
         public const string PoliticalAssociationType = "VARCHAR(255)";
 
         public const string EnabledType = "BIT";
+        public const string StatusIdType = "INT";
 
     }
 }
