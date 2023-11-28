@@ -22,6 +22,7 @@ namespace Contable.Application.Actors.Dto
         public bool IsPoliticalAssociation { get; set; }
         public string PoliticalAssociation { get; set; }
         public bool Enabled { get; set; }
+        public int StatusId { get; set; }
         public ActorTypeDto ActorType { get; set; }    
         public ActorMovementDto ActorMovement { get; set; }
         public ActorUserDto CreatorUser { get; set; }
