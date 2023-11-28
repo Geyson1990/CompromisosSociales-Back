@@ -46,6 +46,9 @@ namespace Contable.Application
         [Column(TypeName = ActorConsts.EnabledType)]
         public bool Enabled { get; set; }
 
+         [Column(TypeName = ActorConsts.StatusIdType)]
+         public int StatusId { get; set; }
+
         [Column(TypeName = ActorConsts.ActorTypeIdType)]
         [ForeignKey("ActorType")]
         public int ActorTypeId { get; set; }
