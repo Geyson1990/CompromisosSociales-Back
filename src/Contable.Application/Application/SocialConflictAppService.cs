@@ -1631,7 +1631,7 @@ namespace Contable.Application
                                 Position = actor.ActorType.ShowDetail ? actor.Position : null,
                                 Interest = actor.ActorType.ShowDetail ? actor.Interest : null,
                                 ActorTypeId = actor.ActorType.Id,
-                                ActorMovementId = actor.ActorMovement == null ? (int?)null : actor.ActorMovement.Id,
+                                ActorMovementId = actor.ActorMovement.Id < 0 ? (int?)null : actor.ActorMovement.Id,
                                 ActorId = actor.ActorId,
                                 Site = ActorSite.SocialConflict
                             });
