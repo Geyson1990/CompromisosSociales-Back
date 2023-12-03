@@ -30,7 +30,7 @@ namespace Contable.DataExporting.Excel.NPOI
             var file = new FileDto(fileName, MimeTypeNames.ApplicationVndOpenxmlformatsOfficedocumentSpreadsheetmlSheet);
             var workbook = new XSSFWorkbook();
 
-            if(_formater == null)
+            if (_formater == null)
                 _formater = workbook.CreateDataFormat();
 
             creator(workbook);
@@ -50,8 +50,8 @@ namespace Contable.DataExporting.Excel.NPOI
             font.FontHeightInPoints = 13;
             cellStyle.SetFont(font);
             cellStyle.Alignment = align;
-            if(color != -1) font.Color = color; 
-            cell.CellStyle = cellStyle;            
+            if (color != -1) font.Color = color;
+            cell.CellStyle = cellStyle;
         }
 
         protected void AddHeader(ISheet sheet, int row, params string[] headerTexts)
@@ -136,7 +136,7 @@ namespace Contable.DataExporting.Excel.NPOI
 
                     if (cellValue != null)
                     {
-                        if(cellValue.Type == ExportCellType.Numeric)
+                        if (cellValue.Type == ExportCellType.Numeric)
                         {
                             var value = Regex.Replace((cellValue.Value ?? "0").Trim(), @"[^0-9.]", "");
 
@@ -144,7 +144,7 @@ namespace Contable.DataExporting.Excel.NPOI
                             {
                                 cell.SetCellType(CellType.Numeric);
 
-                                if(value.LastIndexOf('.') == -1)
+                                if (value.LastIndexOf('.') == -1)
                                 {
                                     cell.SetCellValue(Convert.ToInt64(value));
                                 }
@@ -163,7 +163,7 @@ namespace Contable.DataExporting.Excel.NPOI
                         }
                         if (cellValue.Type == ExportCellType.Decimal)
                         {
-                            if(!cellValue.HasEmpty && cellValue.Decimal == 0)
+                            if (!cellValue.HasEmpty && cellValue.Decimal == 0)
                             {
                                 cell.SetCellType(CellType.Blank);
                             }
@@ -178,7 +178,7 @@ namespace Contable.DataExporting.Excel.NPOI
                         }
                         if (cellValue.Type == ExportCellType.DateTime)
                         {
-                            if(cellValue.DateTime.HasValue)
+                            if (cellValue.DateTime.HasValue)
                             {
                                 var cellDateFormat = excelPackage.CreateDataFormat();
                                 var cellStyle = excelPackage.CreateCellStyle();
@@ -263,6 +263,29 @@ namespace Contable.DataExporting.Excel.NPOI
 
             if (dateTime.HasValue)
                 cell.SetCellValue(dateTime.Value);
+        }
+
+        protected byte[] CreateExcelPackageCustom(string fileName, Action<XSSFWorkbook> creator)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                var workbook = new XSSFWorkbook();
+
+                if (_formater == null)
+                    _formater = workbook.CreateDataFormat();
+
+                creator(workbook);
+
+                SaveWorkBook(workbook, memoryStream);
+
+                return memoryStream.ToArray();
+            }
+        }
+
+        private void SaveWorkBook(XSSFWorkbook workbook, Stream stream)
+        {
+            workbook.Write(stream);
+            stream.Position = 0;
         }
     }
 }

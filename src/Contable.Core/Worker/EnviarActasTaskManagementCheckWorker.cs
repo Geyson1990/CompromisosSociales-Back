@@ -88,16 +88,11 @@ namespace Contable.Worker
             return ejecutar;
         }
 
-        private async byte[] GenerarActa()
+        private async Task<byte[]> GenerarActa()
         {
-            var archivo = new List<ActaMatrizExportDto>();
-
             var data = await _procedureRepository.CallActasReport();
-
-            //archivo =  _actasExcelExporter.ExportMatrizToFile(data);
-
+            var archivo =  _actasExcelExporter.ExportMatrizToFile(data);
             return archivo;
-
         }
 
         public async Task Run()
@@ -108,13 +103,10 @@ namespace Contable.Worker
 
             if (ExecuteActaTask())
             {
-
                 try
                 {
                     var persons = _personRepository.GetAll().Include(p => p.Type).Where(p => p.AlertSend);
-
                     var personal = persons.Where(p => p.AlertSend).ToList();
-
                     if (!personal.Any()) throw new Exception("No hay registros del personal");
 
                     var toAddress = personal
@@ -122,10 +114,7 @@ namespace Contable.Worker
                         .Select(p => p.EmailAddress)
                         .Distinct();
 
-
-
                     var toEmailAddresses = toAddress.ToArray();
-
 
                     try
                     {
@@ -133,16 +122,14 @@ namespace Contable.Worker
                         {
                             var template = ContableConsts.SubjectAlertConflict;
 
-                            var attachments = new List<EmailAttachment>();
-
-
-
-
-                            attachments.Add(new EmailAttachment()
+                            var attachments = new List<EmailAttachment>
                             {
-                                Name = "Reporte_consolidado_Actas",
-                                Content = GenerarActa()
-                            });
+                                new EmailAttachment()
+                                {
+                                    Name = "Reporte_consolidado_Actas",
+                                    Content = await GenerarActa()
+                                }
+                            };
 
                             await _appEmailSender.SendEmail(
                                 to: toEmailAddresses,

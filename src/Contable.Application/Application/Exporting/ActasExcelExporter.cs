@@ -6,6 +6,7 @@ using Contable.DataExporting.Excel.NPOI;
 using Contable.Dto;
 using Contable.Storage;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.XWPF.UserModel;
@@ -29,9 +30,9 @@ namespace Contable.Application.Exporting
             sheet.AddMergedRegion(new NPOI.SS.Util.CellRangeAddress(0, 0, 0, 7));
         }
 
-        public FileDto ExportMatrizToFile(List<ActaMatrizExportDto> records)
+        public byte[] ExportMatrizToFile(List<ActaMatrizExportDto> records)
         {
-            return CreateExcelPackage("ACTAS_CONFLICTIVIDAD.xlsx", excelPackage =>
+            return CreateExcelPackageCustom("ACTAS_CONFLICTIVIDAD.xlsx", excelPackage =>
             {
                 var sheet = excelPackage.CreateSheet("ACTAS");
                 var initRow = 0;

@@ -7,7 +7,7 @@ namespace Contable.Application.Exporting
 {
     public interface IActasExcelExporter : IApplicationService
     {
-        FileDto ExportMatrizToFile(List<ActaMatrizExportDto> records);
+        byte[] ExportMatrizToFile(List<ActaMatrizExportDto> records);
        
     }
 }
