@@ -204,7 +204,9 @@ namespace Contable.Application
         [AbpAuthorize(AppPermissions.Pages_Application_Record)]
         public async Task<PagedResultDto<RecordGetAllDto>> GetAll(RecordGetAllInputDto input)
         {
-            var query = _recordRepository
+            try
+            {
+                var query = _recordRepository
                 .GetAll()
                 .Include(p => p.SocialConflict)
                     .ThenInclude(p => p.Locations)
@@ -213,30 +215,35 @@ namespace Contable.Application
                 .WhereIf(input.Code.IsValid(), p => p.Code.Contains(input.Code))
                 .WhereIf(input.SocialConflictCode.IsValid(), p => p.SocialConflict.Code.Contains(input.SocialConflictCode))
                 .WhereIf(input.TerritorialUnitId.HasValue && input.TerritorialUnitId.Value > 0, p => p.SocialConflict.Locations.Any(p => p.TerritorialUnit.Id == input.TerritorialUnitId))
-                .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.RecordTime >= input.StartTime.Value && p.RecordTime <= input.EndTime.Value)
+                .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.RecordTime.Value.Date >= input.StartTime.Value.Date && p.RecordTime.Value.Date <= input.EndTime.Value.Date)
                 .LikeAllBidirectional(input.Filter.SplitByLike(), nameof(SocialConflict.Filter));
 
-            var count = await query.CountAsync();
-            var output = await query.OrderBy(input.Sorting).PageBy(input).ToListAsync();
+                var count = await query.CountAsync();
+                var output = await query.OrderBy(input.Sorting).PageBy(input).ToListAsync();
 
-            var result = new List<RecordGetAllDto>();
+                var result = new List<RecordGetAllDto>();
 
-            foreach (var record in output)
+                foreach (var record in output)
+                {
+                    var recordItem = ObjectMapper.Map<RecordGetAllDto>(record);
+
+                    var userCreateExits = record.CreatorUserId.HasValue && await _userRepository.CountAsync(p => p.Id == record.CreatorUserId) > 0;
+                    var userEditExits = record.LastModifierUserId.HasValue && await _userRepository.CountAsync(p => p.Id == record.LastModifierUserId) > 0;
+
+                    recordItem.CreatorUser = userCreateExits ? ObjectMapper.Map<RecordUserDto>(await _userRepository.GetAsync(record.CreatorUserId.Value)) : new RecordUserDto() { Name = "N/A", Surname = "" };
+                    recordItem.EditUser = userEditExits ? ObjectMapper.Map<RecordUserDto>(await _userRepository.GetAsync(record.LastModifierUserId.Value)) : new RecordUserDto() { Name = "N/A", Surname = "" };
+
+                    recordItem.TerritorialUnits = record.SocialConflict.Locations.Select(p => p.TerritorialUnit.Name).Distinct().JoinAsString(",");
+
+                    result.Add(recordItem);
+                }
+
+                return new PagedResultDto<RecordGetAllDto>(count, result);
+            } 
+            catch(Exception ex)
             {
-                var recordItem = ObjectMapper.Map<RecordGetAllDto>(record);
-
-                var userCreateExits = record.CreatorUserId.HasValue && await _userRepository.CountAsync(p => p.Id == record.CreatorUserId) > 0;
-                var userEditExits = record.LastModifierUserId.HasValue && await _userRepository.CountAsync(p => p.Id == record.LastModifierUserId) > 0;
-
-                recordItem.CreatorUser = userCreateExits ? ObjectMapper.Map<RecordUserDto>(await _userRepository.GetAsync(record.CreatorUserId.Value)) : new RecordUserDto() { Name = "N/A", Surname = "" };
-                recordItem.EditUser = userEditExits ? ObjectMapper.Map<RecordUserDto>(await _userRepository.GetAsync(record.LastModifierUserId.Value)) : new RecordUserDto() { Name = "N/A", Surname = "" };
-
-                recordItem.TerritorialUnits = record.SocialConflict.Locations.Select(p => p.TerritorialUnit.Name).Distinct().JoinAsString(",");
-
-                result.Add(recordItem);
+                return null;
             }
-
-            return new PagedResultDto<RecordGetAllDto>(count, result);
         }
 
         [AbpAuthorize(AppPermissions.Pages_Application_Record)]
@@ -400,12 +407,12 @@ namespace Contable.Application
                 .WhereIf(input.Code.IsValid(), p => p.Code.Contains(input.Code))
                 .WhereIf(input.SocialConflictCode.IsValid(), p => p.SocialConflict.Code.Contains(input.SocialConflictCode))
                 .WhereIf(input.TerritorialUnitId.HasValue && input.TerritorialUnitId.Value > 0, p => p.SocialConflict.Locations.Any(p => p.TerritorialUnit.Id == input.TerritorialUnitId))
-                .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.RecordTime >= input.StartTime.Value && p.RecordTime <= input.EndTime.Value)
+                .WhereIf(input.FilterByDate && input.StartTime.HasValue && input.EndTime.HasValue, p => p.RecordTime.Value.Date >= input.StartTime.Value.Date && p.RecordTime.Value.Date <= input.EndTime.Value.Date)
                 .LikeAllBidirectional(input.Filter.SplitByLike(), nameof(SocialConflict.Filter));
 
 
             //Create the zip file
-            var zipFileDto = new FileDto($"{nameFolder.ToString()}.zip", MimeTypeNames.ApplicationZip);
+            var zipFileDto = new FileDto($"Actas_{DateTime.Now.ToString("ddMMyyyy_HHmmss")}.zip", MimeTypeNames.ApplicationZip);
 
             using (var outputZipFileStream = new MemoryStream())
             {
@@ -424,13 +431,13 @@ namespace Contable.Application
                                 var resourseRoute = Path.Combine(_actasRoute, ResourceConsts.Record, item.FileName); 
                                 try
                                 {
-                                    var entry = zipStream.CreateEntry(item.FileName);
+                                    string nuevoNombre = $"{item.Record.Code.Trim().TrimEnd().TrimStart()}_{item.Record.Title.Trim().TrimEnd().TrimStart()}.{item.Extension}";
+                                    var entry = zipStream.CreateEntry(nuevoNombre.Replace(" ",""));
                                     using (var entryStream = entry.Open())
                                     {
                                         using (var fs = new FileStream(resourseRoute, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 0x1000, FileOptions.SequentialScan))
                                         {
                                             fs.CopyTo(entryStream);
-                                            entryStream.Flush();
                                         }                                        
                                     }
 
