@@ -686,7 +686,7 @@ namespace Contable.EntityFrameworkCore.Repositories
                 {
                     TerritorialUnit = reader.GetString("TerritorialUnit"),
                     SocialConflictName = reader.GetString("SocialConflictName"),
-                    Actas = reader.GetString("Actas")
+                    Actas = reader.GetInt32("Actas")
                 });
             }
 

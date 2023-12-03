@@ -7,6 +7,6 @@ namespace Contable.Application.SocialConflicts.Dto
         public string Code { get; set; }
         public string TerritorialUnit { get; set; }
         public string SocialConflictName { get; set; }
-        public string Actas { get; set; }
+        public int Actas { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -90,9 +90,17 @@ namespace Contable.Worker
 
         private async Task<byte[]> GenerarActa()
         {
-            var data = await _procedureRepository.CallActasReport();
-            var archivo =  _actasExcelExporter.ExportMatrizToFile(data);
-            return archivo;
+            try
+            {
+                var data = await _procedureRepository.CallActasReport();
+                var archivo = _actasExcelExporter.ExportMatrizToFile(data);
+                return archivo;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            
         }
 
         public async Task Run()
@@ -105,7 +113,10 @@ namespace Contable.Worker
             {
                 try
                 {
-                    var persons = _personRepository.GetAll().Include(p => p.Type).Where(p => p.AlertSend);
+                    var persons = await _personRepository.GetAllListAsync();
+                    if (!persons.Any()) throw new Exception("No hay registros del personal");
+                    //var actasc = await GenerarActa();
+
                     var personal = persons.Where(p => p.AlertSend).ToList();
                     if (!personal.Any()) throw new Exception("No hay registros del personal");
 
@@ -115,8 +126,8 @@ namespace Contable.Worker
                         .Distinct();
 
                     var toEmailAddresses = toAddress.ToArray();
-
-                    try
+                    var actaGenerada = await GenerarActa();
+                    if (actaGenerada != null)
                     {
                         if (toAddress.Count() > 0)
                         {
@@ -127,7 +138,7 @@ namespace Contable.Worker
                                 new EmailAttachment()
                                 {
                                     Name = "Reporte_consolidado_Actas",
-                                    Content = await GenerarActa()
+                                    Content = actaGenerada
                                 }
                             };
 
@@ -139,12 +150,8 @@ namespace Contable.Worker
                                 attachments: attachments.ToArray());
 
                         }
+                    }
 
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
                 }
                 catch
                 {

@@ -274,18 +274,18 @@ namespace Contable.DataExporting.Excel.NPOI
                 if (_formater == null)
                     _formater = workbook.CreateDataFormat();
 
-                creator(workbook);
+                // Llama al método creator pasándole el workbook
+                creator?.Invoke(workbook);
 
-                SaveWorkBook(workbook, memoryStream);
+                // Asegúrate de que el cursor esté al principio del MemoryStream
+                memoryStream.Seek(0, SeekOrigin.Begin);
 
+                // Escribe el workbook en el MemoryStream
+                workbook.Write(memoryStream);
+
+                // Convierte el MemoryStream a un arreglo de bytes
                 return memoryStream.ToArray();
             }
-        }
-
-        private void SaveWorkBook(XSSFWorkbook workbook, Stream stream)
-        {
-            workbook.Write(stream);
-            stream.Position = 0;
         }
     }
 }
