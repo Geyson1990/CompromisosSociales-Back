@@ -318,40 +318,38 @@ namespace Contable.Application
                             .Where(p => p.Id == socialConflictId)
                             .FirstAsync();
 
-            //input.Code = input.Id > 0 ? input.SocialConflict.Code + " - " + input.Code : string.Empty;
-            #region Generate Code
-            string returnCode;
-            var objSocialConflict = await _socialConflictRepository.GetAsync(socialConflictId);
+            if (input.Id == 0)
+            {
+                #region Generate Code
+                var actas = await _recordRepository.GetAllListAsync();
+                var codigosActas = actas.Select(x => x.Code).ToList();
+                string[] partes = input.SocialConflict.Code.Split('-');
+                string CodigoConflictoSocial = partes.Length > 1 ? $"{partes[0]}-{partes[1]}" : input.SocialConflict.Code;
 
-            if (string.IsNullOrEmpty(input.Code))
-            {
-                returnCode = GenerateCode("A001", objSocialConflict.Code, false);
-                var recordList = await _recordRepository.GetAllListAsync(x => x.Code.Contains(returnCode));
-                if (recordList.Any())
-                    returnCode = GenerateCode(recordList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
-            }
-            else
-            {
-                var recordList = await _recordRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + input.Code) && x.Id != input.Id);
-                if (recordList.Any())
+                List<string> resultado = codigosActas
+                .Where(item => item.StartsWith(CodigoConflictoSocial))
+                .OrderByDescending(x => x).ToList();
+
+                string ultimoCorrelativo = resultado.FirstOrDefault(correlativo => correlativo.StartsWith(CodigoConflictoSocial + " - A"));
+
+                int numeroSiguiente = 1;
+                if (!string.IsNullOrEmpty(ultimoCorrelativo))
                 {
-                    int i = 0;
-                    do
+                    string[] partesUltimo = ultimoCorrelativo.Split('-');
+                    if (partesUltimo.Length == 3 && int.TryParse(partesUltimo[2].ToString().TrimStart().Substring(1), out int numero))
                     {
-                        returnCode = GenerateCode(recordList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
-                        var verificar = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + input.Code) && x.Id != input.Id);
-                        if (verificar.Any()) { i = 0; input.Code = GenerateCode(returnCode, objSocialConflict.Code, true); }
-                        else { returnCode = input.Code; i = 1; }
+                        numeroSiguiente = numero + 1;
+                    }
+                }
 
-                    } while (i == 0);
-                }
-                else
-                {
-                    returnCode = GenerateCode(input.Code, objSocialConflict.Code, false);
-                }
+                // Construir el siguiente correlativO
+                string siguienteCorrelativo = $"{input.SocialConflict.Code} - A{numeroSiguiente:D3}";
+                input.Code = siguienteCorrelativo;
+                #endregion
             }
-            input.Code = returnCode;
-            #endregion
+
+
+            
 
             foreach (var resource in resources ?? new List<RecordResourceDto>())
             {

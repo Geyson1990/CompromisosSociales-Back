@@ -21,6 +21,7 @@ using Contable.Application.External;
 using System;
 using Contable.Authorization.Users;
 using Microsoft.AspNetCore.Mvc;
+using NPOI.HPSF;
 
 namespace Contable.Application
 {
@@ -127,6 +128,8 @@ namespace Contable.Application
                 uploads: input.Uploads ?? new List<CompromiseUploadResourceDto>(),
                 timelines: input.Timelines ?? new List<CompromiseTimeLineDto>(),
                 responsibles: input.Responsibles ?? new List<CompromiseResponsibleDto>()));
+
+            //var ds = _comprom
 
             await CurrentUnitOfWork.SaveChangesAsync();
 
@@ -504,39 +507,46 @@ namespace Contable.Application
             compromise.Record = dbRecord;
             compromise.RecordId = dbRecord.Id;
 
-            #region Generate Code
-            string returnCode;
-            var objSocialConflict = await _socialConflictRepository.GetAsync(dbRecord.SocialConflictId);
+            if(compromise.Id == 0)
+            {
+                #region Generate Code
+                var objSocialConflict = await _socialConflictRepository.GetAsync(dbRecord.SocialConflictId);
 
-            if (string.IsNullOrEmpty(compromise.Code))
-            {
-                returnCode = GenerateCode("C001", objSocialConflict.Code, false);
-                var compromisesList = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(returnCode));
-                if (compromisesList.Any())
-                    returnCode = GenerateCode(compromisesList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
-            }
-            else
-            {
-                var compromisesList = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + compromise.Code) && x.Id != compromise.Id);
-                if (compromisesList.Any())
+                //objSocialConflict.Code
+
+                var compromisos = await _compromiseRepository.GetAllListAsync();
+                var codigosCompromisos = compromisos.Select(x => x.Code).ToList();
+
+
+                string[] partes = objSocialConflict.Code.Split('-');
+                //var parte = objSocialConflict.
+                string CodigoConflictoSocial = partes.Length > 1 ? $"{partes[0]}-{partes[1]}" : objSocialConflict.Code;
+                //Falta
+                List<string> resultado = codigosCompromisos
+                .Where(item => item.StartsWith(CodigoConflictoSocial))
+                .OrderByDescending(x => x)
+                .ToList();
+
+                string ultimoCorrelativo = resultado.FirstOrDefault(correlativo => correlativo.StartsWith(CodigoConflictoSocial + " - C"));
+
+                int numeroSiguiente = 1;
+                if (!string.IsNullOrEmpty(ultimoCorrelativo))
                 {
-                    int i = 0;
-                    do
-                    {                        
-                        returnCode = GenerateCode(compromisesList.OrderByDescending(x => x.Code).FirstOrDefault().Code, objSocialConflict.Code, true);
-                        var verificar = await _compromiseRepository.GetAllListAsync(x => x.Code.Contains(objSocialConflict.Code + " - " + compromise.Code) && x.Id != compromise.Id);
-                        if (verificar.Any()) { i = 0; compromise.Code = GenerateCode(returnCode, objSocialConflict.Code, true); }
-                        else { returnCode = compromise.Code; i = 1; } 
-
-                    } while (i == 0);
+                    string[] partesUltimo = ultimoCorrelativo.Split('-');
+                    if (partesUltimo.Length == 3 && int.TryParse(partesUltimo[2].ToString().TrimStart().Substring(1), out int numero))
+                    {
+                        numeroSiguiente = numero + 1;
+                    }
                 }
-                else 
-                {
-                    returnCode = GenerateCode(compromise.Code, objSocialConflict.Code, false);
-                }                
+
+                // Construir el siguiente correlativo y agregarlo a la lista
+                string siguienteCorrelativo = $"{objSocialConflict.Code} - C{numeroSiguiente:D3}";
+                compromise.Code = siguienteCorrelativo;
+
+
+                #endregion
             }
-            compromise.Code = returnCode;
-            #endregion
+
 
             if (state.Id > 0) compromise.Status = await _parameterRepository.GetAsync(state.Id);
             if (responsibleActor.Id > 0)
