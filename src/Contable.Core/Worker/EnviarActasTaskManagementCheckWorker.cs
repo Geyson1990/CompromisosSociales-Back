@@ -13,7 +13,9 @@ using Abp.Threading.Timers;
 using Abp.Timing;
 using Abp.UI;
 using Contable.Application;
+using Contable.Application.Exporting;
 using Contable.Application.Reports.Dto;
+using Contable.Application.SocialConflicts.Dto;
 using Contable.Application.Utilities.Dto;
 using Contable.Authorization.Users;
 using Contable.Configuration;
@@ -37,6 +39,7 @@ namespace Contable.Worker
 
         private readonly IReportManagerBase _reportManagerBase;
         private readonly IRepository<Person> _personRepository;
+        private readonly IActasExcelExporter _actasExcelExporter;
 
         public EnviarActasTaskManagementCheckWorker(
             AbpTimer timer,
@@ -45,6 +48,7 @@ namespace Contable.Worker
             IProcedureRepository procedureRepository,
             IReportManagerBase reportManagerBase,
             IAppEmailSender appEmailSender,
+            IActasExcelExporter actasExcelExporter,
             IRepository<Person> personRepository) : base(timer)
         {
             _taskManagementRepository = taskManagementRepository;
@@ -60,6 +64,7 @@ namespace Contable.Worker
 
             _reportManagerBase = reportManagerBase;
             _personRepository = personRepository;
+            _actasExcelExporter = actasExcelExporter;
         }
 
         protected override void DoWork()
@@ -83,6 +88,18 @@ namespace Contable.Worker
             return ejecutar;
         }
 
+        private async byte[] GenerarActa()
+        {
+            var archivo = new List<ActaMatrizExportDto>();
+
+            var data = await _procedureRepository.CallActasReport();
+
+            //archivo =  _actasExcelExporter.ExportMatrizToFile(data);
+
+            return archivo;
+
+        }
+
         public async Task Run()
         {
             var utcNow = DateTime.Now;
@@ -93,72 +110,59 @@ namespace Contable.Worker
             {
 
                 try
+                {
+                    var persons = _personRepository.GetAll().Include(p => p.Type).Where(p => p.AlertSend);
+
+                    var personal = persons.Where(p => p.AlertSend).ToList();
+
+                    if (!personal.Any()) throw new Exception("No hay registros del personal");
+
+                    var toAddress = personal
+                        .Where(p => _emailValidator.IsValid(p.EmailAddress))
+                        .Select(p => p.EmailAddress)
+                        .Distinct();
+
+
+
+                    var toEmailAddresses = toAddress.ToArray();
+
+
+                    try
                     {
-                        var persons = _personRepository.GetAll().Include(p=>p.Type).Where(p=>p.AlertSend);
-
-                        var personal = persons.Where(p => p.AlertSend).ToList();
-
-                        if (!personal.Any()) throw new Exception("No hay registros del personal");
-
-                        var toAddress = personal
-                            .Where(p => _emailValidator.IsValid(p.EmailAddress))
-                            .Select(p => p.EmailAddress)
-                            .Distinct();
-
-
-
-                        var toEmailAddresses = toAddress.ToArray();
-
-
-                        try
+                        if (toAddress.Count() > 0)
                         {
-                                if (toAddress.Count() > 0)
-                                {
-                                    var template = ContableConsts.SubjectAlertConflict;
+                            var template = ContableConsts.SubjectAlertConflict;
 
-                                    var attachments = new List<EmailAttachment>();
+                            var attachments = new List<EmailAttachment>();
 
-                                    var request = await _reportManagerBase.Create(new JasperReportRequest()
-                                    {
-                                        Name = ReportNames.ReporteActasAlert,
-                                        Type = _reportManagerBase.GetType(ReportType.PDF),
-                                        Parameters = new List<JasperReportParameter>()
-                                        {
-                                            new JasperReportParameter()
-                                            {
 
-                                            }
-                                        }
-                                    });
 
-                                    if (request.Success == false)
-                                        throw new UserFriendlyException(request.Exception.Error.Title, request.Exception.Error.Message);
 
-                                    attachments.Add(new EmailAttachment()
-                                    {
-                                        Name = _reportManagerBase.CreateActasReportName(ReportType.PDF),
-                                        Content = request.Report
-                                    });
+                            attachments.Add(new EmailAttachment()
+                            {
+                                Name = "Reporte_consolidado_Actas",
+                                Content = GenerarActa()
+                            });
 
-                                    await _appEmailSender.SendEmail(
-                                        to: toEmailAddresses,
-                                        cc: toEmailAddresses,
-                                        subject: "Reporte de Actas",
-                                        body: template,
-                                        attachments: attachments.ToArray());
-
-                                }
+                            await _appEmailSender.SendEmail(
+                                to: toEmailAddresses,
+                                cc: toEmailAddresses,
+                                subject: "Reporte de Actas",
+                                body: template,
+                                attachments: attachments.ToArray());
 
                         }
-                        catch (Exception ex)
-                        {
-                            throw;
-                        }
+
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         throw;
                     }
+                }
+                catch
+                {
+                    throw;
+                }
             }
         }
     }

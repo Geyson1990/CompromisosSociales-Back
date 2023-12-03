@@ -59,6 +59,6 @@ namespace Contable.Application.SocialConflicts.Dto
         public string CreatorUser { get; set; }
         public DateTime CreationTime { get; set; }
         public string LastModificationUser { get; set; }
-        public DateTime? LastModificationTime { get; set;}
+        public DateTime? LastModificationTime { get; set; }
     }
 }

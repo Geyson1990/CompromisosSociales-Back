@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using Contable.Application;
+using Contable.Application.SocialConflicts.Dto;
 using Contable.Application.SocialConflictTaskManagements.Dto;
 using Contable.Application.Utilities.Dto;
 using System;
@@ -61,5 +62,6 @@ namespace Contable.Repositories
         Task<int> CallGenerateMeetProcess(int sectorMeetId);
         Task<List<UtilityPersonForRecordListDto>> CallSocialConflictTaskManagementForRecordsGetAllPersons(long socialConflictTaskManagementId);
         Task<int> CallGenerateSendAlert(int idPerson);
+        Task<List<ActaMatrizExportDto>> CallActasReport();
     }
 }

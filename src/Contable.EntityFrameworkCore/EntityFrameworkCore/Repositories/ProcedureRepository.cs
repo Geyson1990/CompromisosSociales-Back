@@ -3,6 +3,7 @@ using Abp.Data;
 using Abp.Domain.Entities;
 using Abp.EntityFrameworkCore;
 using Contable.Application;
+using Contable.Application.SocialConflicts.Dto;
 using Contable.Application.SocialConflictTaskManagements.Dto;
 using Contable.Application.Utilities.Dto;
 using Contable.Authorization.Users;
@@ -663,6 +664,33 @@ namespace Contable.EntityFrameworkCore.Repositories
             using var command = CreateCommand("send_alert", CommandType.StoredProcedure, parameters);
 
             return await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task<List<ActaMatrizExportDto>> CallActasReport()
+        {
+
+            SqlParameter[] parameters =
+            {
+            };
+
+            await EnsureConnectionOpenAsync();
+
+            using var command = CreateCommand("SP_Informe_Casos_Conflictos_Sociales", CommandType.StoredProcedure, parameters);
+            using var reader = await command.ExecuteReaderAsync();
+
+            var result = new List<ActaMatrizExportDto>();
+
+            while (reader.Read())
+            {
+                result.Add(new ActaMatrizExportDto()
+                {
+                    TerritorialUnit = reader.GetString("TerritorialUnit"),
+                    SocialConflictName = reader.GetString("SocialConflictName"),
+                    Actas = reader.GetString("Actas")
+                });
+            }
+
+            return result;
         }
     }
 }
